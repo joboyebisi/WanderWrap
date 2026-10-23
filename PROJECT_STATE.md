@@ -2,9 +2,11 @@
 
 Last updated: 2026-10-23
 
+Production follow-up: Vercel deployed `c1e70de`, and `https://www.wanderwrap.co.uk/route` returned `200` with the new no-account experience. The first production interaction exposed a safe-origin mismatch because Vercel was configured with the apex URL while the canonical site uses `www`. A follow-up fix now accepts only the matching HTTPS apex/`www` pair; `npm run check` passed 94/94 and `npm run test:e2e` passed 3/3 after that change. The fix is awaiting its Vercel deployment and full live-flow verification.
+
 Latest verification: `npm run check` passed on 2026-10-23 after the public `/route` and Amazon Creators client update — Alexa MCP App build, Next.js production build, AWS handler syntax and 94/94 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The public no-account browser journey was exercised manually through permission, confirmation-only candidates, explainable recommendations and the Amazon search handoff; the landing-page entry point was also verified. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; `/route` does not depend on that blocked account flow. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
 
-Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the previous remote checkpoint was `55f124d` on `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the current deployed checkpoint is `c1e70de` on `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
@@ -75,7 +77,7 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 
 ## Next actions, in order
 
-1. Commit and push the verified public `/route` and Amazon Creators client to `main`; confirm Vercel deploys it and `https://www.wanderwrap.co.uk/route` returns `200`.
+1. Deploy the apex/`www` demo-origin compatibility fix, then exercise the live `/route` sequence through consent, confirmation, recommendations and Amazon handoff.
 2. Record the 2:35-2:50 English demo from `docs/DEMO_SCRIPT.md`, upload it publicly to YouTube or Vimeo, and add the URL to `devpost-submission.md` and Devpost.
 3. Confirm the submitter country plus the age, eligible-jurisdiction and non-employee declarations; then perform the explicit final Devpost submit before 19:00 UTC.
 4. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, redeploy, and run `npm run test:web:live -- https://www.wanderwrap.co.uk`. Until it passes, demo the tested local simulator rather than instructing judges to create an account.

@@ -92,6 +92,19 @@ function sameOrigin(request: NextRequest) {
   const origin = request.headers.get('origin');
   if (!origin) return false;
   const configured = process.env.NEXT_PUBLIC_WANDERWRAP_URL;
-  if (configured && origin === new URL(configured).origin) return true;
+  if (configured) {
+    try {
+      const actual = new URL(origin);
+      const expected = new URL(configured);
+      const canonicalHost = (hostname: string) => hostname.toLowerCase().replace(/^www\./, '');
+      if (
+        actual.protocol === expected.protocol
+        && actual.port === expected.port
+        && canonicalHost(actual.hostname) === canonicalHost(expected.hostname)
+      ) return true;
+    } catch {
+      return false;
+    }
+  }
   return process.env.NODE_ENV !== 'production' && origin === request.nextUrl.origin;
 }
