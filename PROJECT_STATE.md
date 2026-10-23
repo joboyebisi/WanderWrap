@@ -2,11 +2,11 @@
 
 Last updated: 2026-10-23
 
-Production follow-up: Vercel deployed `5df7bbb`; `https://www.wanderwrap.co.uk/gift-finder` is the canonical public experience, and `/route` permanently redirects to it. The new URL, page title, navigation label and clue-analysis interaction were verified in production without the former origin error. The full no-account journey had already passed through permission, four confirmation-only signals, four explainable gifts, the selected ceramic cup and a safe Amazon.co.uk search handoff. The final screen explicitly stated that Creators API was not configured and nothing was ordered.
+Production follow-up: Vercel currently serves `5df7bbb`; `https://www.wanderwrap.co.uk/gift-finder` is the canonical public experience, and `/route` permanently redirects to it. The richer seven-stage Gift Confidence Journey is implemented at application checkpoint `fe49d86` and awaits the next Vercel production deployment. Locally it has been exercised from moment definition through selected evidence, confirmation, Gift Brief, four distinct directions, complete gift plan and the safe Amazon.co.uk handoff. The final screen explicitly states when Creators API is not configured and that nothing was ordered.
 
-Latest verification: `npm run check` passed on 2026-10-23 after the public gift finder and Amazon Creators client update — Alexa MCP App build, Next.js production build, AWS handler syntax and 94/94 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The public no-account browser journey was exercised manually through permission, confirmation-only candidates, explainable recommendations and the Amazon search handoff; the landing-page entry point was also verified. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; `/gift-finder` does not depend on that blocked account flow. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
+Latest verification: `npm run check` passed on 2026-10-23 after the richer Gift Confidence Journey and recorder were added — Alexa MCP App build, Next.js production build, AWS handler syntax and 94/94 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The seven-stage no-account browser journey was exercised manually, and `npm run demo:record` produced a visually inspected 1920×1080, 36.68-second silent walkthrough at the ignored local path `artifacts/wanderwrap-gift-confidence-demo.webm`. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; `/gift-finder` does not depend on that blocked account flow. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
 
-Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the current deployed application checkpoint is `5df7bbb` on `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the richer application checkpoint is `fe49d86` on `main`, while the currently deployed Vercel checkpoint is `5df7bbb`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
@@ -28,7 +28,8 @@ The primary hackathon story is: ask for a gift, receive evidence-backed recommen
 - Next.js App Router workspace in `apps/web` and a constrained backend-for-frontend proxy.
 - Next.js PKCE login/callback/session routes, HttpOnly token storage, refresh/revocation handling, same-origin mutation checks, and an interactive person → confirmed clue → recommendation → saved-for-approval workspace.
 - Public responsive landing page, honest `/connections` readiness hub, explicit verified-email `/api/auth/signup` flow, and authenticated `/simulator` that calls the protected MCP endpoint while visibly tracing initialize, tool discovery, recommendation and routing.
-- Public no-account `/gift-finder` experience with a landing-page “Gift Finder” entry point, delightful responsive UI, consent-first clue analysis, visible specialist states, explainable cards and an Amazon handoff. `/route` remains a permanent compatibility redirect.
+- Public no-account `/gift-finder` experience with a seven-stage moment → evidence → confirm → Gift Brief → directions → plan → Amazon journey, delightful responsive UI, adaptive questions, visible agent artifacts and explicit trade-offs. `/route` remains a permanent compatibility redirect.
+- Repeatable Playwright/Edge `npm run demo:record` capture, producing an ignored local 1080p WebM walkthrough; `docs/DEMO_SCRIPT.md` contains the separate human narration.
 - Amazon Creators API OAuth client-credentials exchange, one-hour token cache, marketplace-aware SearchItems call, allow-listed product/image URLs, normalized live offers and safe search-link fallback. Exact product links activate only when approved Creators credentials and a marketplace Partner Tag are present.
 - Cognito/DynamoDB/Lambda/HTTP API CloudFormation deployment and a frozen AWS development preview.
 - Isolated `wanderwrap-development` AWS stack with Cognito managed login, OAuth code flow + PKCE, resource scopes, JWT signature/client/scope/audience validation, restrictive origins, retained encrypted DynamoDB data, log retention, and duration/error alarms.
@@ -49,6 +50,8 @@ npm install
 npm run check
 npm run test:e2e
 npm run demo
+npm run web:dev
+npm run demo:record
 ```
 
 Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` starts an ephemeral authenticated server and proves health, static simulator delivery, OAuth protected-resource discovery, bearer-token enforcement, MCP initialization/tool discovery, recommendation, fulfilment routing, and write approval rejection.
@@ -77,11 +80,12 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 
 ## Next actions, in order
 
-1. Record the 2:35-2:50 English demo from `docs/DEMO_SCRIPT.md`, upload it publicly to YouTube or Vimeo, and add the URL to `devpost-submission.md` and Devpost.
-2. Confirm the submitter country plus the age, eligible-jurisdiction and non-employee declarations; then perform the explicit final Devpost submit before 19:00 UTC.
-3. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, redeploy, and run `npm run test:web:live -- https://www.wanderwrap.co.uk`. Until it passes, use the verified public `/gift-finder` demo rather than instructing judges to create an account.
-4. After submission, continue the official Alexa+ path: obtain selected-partner tooling access, add the exact redirect URIs, deploy the development add-on and capture Web Simulator evidence.
-5. Apply for/finalize Amazon Associates and create the Creators API application; integrate its credentials and PayPal sandbox credentials only through encrypted secret stores, then capture provider/webhook evidence before changing any capability to live.
+1. Deploy application checkpoint `fe49d86` through Vercel, verify the seven-stage production `/gift-finder` journey, and keep the public demo independent of the blocked signup flow.
+2. Add the narration from `docs/DEMO_SCRIPT.md` to the generated walkthrough (or record the same sequence with live narration), upload it publicly to YouTube or Vimeo, and add the URL to `devpost-submission.md` and Devpost.
+3. Confirm the submitter country plus the age, eligible-jurisdiction and non-employee declarations; then perform the explicit final Devpost submit before 19:00 UTC.
+4. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, redeploy, and run `npm run test:web:live -- https://www.wanderwrap.co.uk`. Until it passes, use the verified public `/gift-finder` demo rather than instructing judges to create an account.
+5. After submission, continue the official Alexa+ path: obtain selected-partner tooling access, add the exact redirect URIs, deploy the development add-on and capture Web Simulator evidence.
+6. Apply for/finalize Amazon Associates and create the Creators API application; integrate its credentials and PayPal sandbox credentials only through encrypted secret stores, then capture provider/webhook evidence before changing any capability to live.
 
 The web launch and non-administrator customer test sequence is in `docs/WEB_LAUNCH_RUNBOOK.md`.
 
