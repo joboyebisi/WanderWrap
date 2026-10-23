@@ -9,3 +9,4 @@ alexa/dist/
 coverage/
 .aws-sam/
 *.log
+artifacts/

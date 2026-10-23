@@ -14,6 +14,13 @@ const PARTNER_TAGS: Record<string, string | undefined> = {
   US: process.env.AMAZON_PARTNER_TAG_US,
   CA: process.env.AMAZON_PARTNER_TAG_CA
 };
+const DIRECTION_DETAILS: Record<string, { direction: string; giftType: string; confidence: number; feasibility: string; risk: string; tradeoff: string }> = {
+  ceramic: { direction: 'SHARED CREATIVE RITUAL', giftType: 'EXPERIENCE + KEEPSAKE', confidence: 94, feasibility: 'Memorable and useful after the experience', risk: 'Check that making time feels restorative, not like another task', tradeoff: 'Medium effort · high emotional fit' },
+  tea: { direction: 'SAFE DELIGHT', giftType: 'PHYSICAL RITUAL', confidence: 91, feasibility: 'Easy to enjoy immediately and repeatedly', risk: 'Confirm tea preference and cupboard space before checkout', tradeoff: 'Low effort · dependable usefulness' },
+  tasting: { direction: 'SHARED MEMORY', giftType: 'EXPERIENCE', confidence: 87, feasibility: 'Creates connection without adding clutter', risk: 'Dates, dietary needs and travel effort still need checking', tradeoff: 'More coordination · stronger shared memory' },
+  journal: { direction: 'LASTING RITUAL', giftType: 'PHYSICAL GIFT', confidence: 83, feasibility: 'Portable, versatile and simple to keep', risk: 'Less distinctive if they already use a favourite notebook', tradeoff: 'Very practical · gentler surprise' },
+  speaker: { direction: 'DELIGHTFUL WILDCARD', giftType: 'TECH GIFT', confidence: 76, feasibility: 'Useful across home and small adventures', risk: 'Check compatibility and whether they already own one', tradeoff: 'Higher novelty · higher duplicate risk' }
+};
 
 export async function POST(request: NextRequest) {
   if (!sameOrigin(request)) return Response.json({ error: 'Origin not allowed' }, { status: 403 });
@@ -53,8 +60,19 @@ function recommend(input: Record<string, unknown>) {
   const interests = Array.isArray(input.interests) ? input.interests.map(String).map(value => value.trim().toLowerCase()).filter(Boolean).slice(0, 8) : [];
   if (!interests.length) throw new Error('Confirm at least one clue before asking for ideas.');
   const budget = Math.min(5_000, Math.max(5, Number(input.budget) || 60));
-  const recommendations = rankGifts({ budget, signals: interests.map((value, index) => ({ id: `confirmed-${index + 1}`, value, source: 'recipient_confirmed', confirmed: true, rankEligible: true })) });
-  return { recommendations, disclosure: 'Ideas use deterministic demo catalogue data and only the interests you confirmed.' };
+  const brief = input.brief && typeof input.brief === 'object' ? input.brief as Record<string, unknown> : {};
+  const desiredValue = String(brief.recipientValue || 'A calming ritual');
+  const meaning = String(brief.meaning || 'I notice you').slice(0, 80);
+  const priority: Record<string, string[]> = {
+    'A calming ritual': ['tea', 'ceramic', 'journal', 'tasting'],
+    'A shared experience': ['tasting', 'ceramic', 'tea', 'journal'],
+    'Something useful': ['journal', 'tea', 'ceramic', 'tasting']
+  };
+  const order = priority[desiredValue] || priority['A calming ritual'];
+  const recommendations = rankGifts({ budget, signals: interests.map((value, index) => ({ id: `confirmed-${index + 1}`, value, source: 'recipient_confirmed', confirmed: true, rankEligible: true })) })
+    .map((gift: Record<string, unknown>) => ({ ...gift, ...DIRECTION_DETAILS[String(gift.id)], why: `${gift.story} It supports “${meaning}” using only confirmed interests.` }))
+    .sort((left: Record<string, unknown>, right: Record<string, unknown>) => order.indexOf(String(left.id)) - order.indexOf(String(right.id)));
+  return { recommendations, disclosure: 'Directions use deterministic demo catalogue data, confirmed interests and the visible Gift Brief.' };
 }
 
 async function handoff(input: Record<string, unknown>) {

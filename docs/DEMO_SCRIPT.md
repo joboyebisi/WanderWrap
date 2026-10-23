@@ -1,101 +1,98 @@
 # WanderWrap demo script
 
-Target length: 2:35–2:50. Record in English at 1080p. Use the local browser simulator unless official Alexa+ onboarding has been completed. Hide notifications and never show credentials, tokens, or private partner data.
+Target length: 2:45–3:00. Record in English at 1080p. Use `https://www.wanderwrap.co.uk/gift-finder` after the production smoke test passes. Use only the fictional partner story; never show credentials, tokens or real partner data.
 
 ## Before recording
 
-- Prefer `https://www.wanderwrap.co.uk/gift-finder` after its production smoke test passes. For local recording, run `npm run web:dev` and open `http://127.0.0.1:3000/gift-finder`.
-- Keep the default Echo Show 8 surface selected and click **Load example clues** only after recording begins.
-- Use only the fictional example excerpts. Do not paste real partner posts into the recording.
-- Keep the **Fixtures disclosed** badge, Amazon fixture status, and approval language visible.
+- Hide notifications and close unrelated tabs.
+- Open the Gift Finder at stage one with the page title and seven-step journey visible.
 - Keep a terminal ready with the final `npm run check` and `npm run test:e2e` summaries.
+- Do not open the external Amazon link during the recording.
+- If official Alexa+ onboarding is incomplete, say “Alexa+ journey preview,” not “live Alexa add-on.”
 
-## 0:00–0:22 — The real moment
+## 0:00–0:20 — The real problem
 
-**On screen:** WanderWrap landing-page hero, then the interactive simulator hero.
+**On screen:** WanderWrap landing page, then click **Gift Finder**.
 
-**Say:**
+> WanderWrap began when I wanted to surprise my partner with something they would genuinely enjoy. Asking directly would spoil the surprise, but searching Amazon from a single keyword felt impersonal. WanderWrap does the thoughtful work before shopping begins.
 
-> WanderWrap started when I wanted to surprise my partner with a gift they would genuinely enjoy. Asking directly would spoil the surprise, but guessing felt impersonal. The clues were already in things they had chosen to share. WanderWrap turns only selected, permitted clues into gift ideas—and keeps me in control before anything leaves the app.
+## 0:20–0:42 — Define the moment
 
-## 0:22–0:58 — Selected clues, not surveillance
+**On screen:** Show **The Moment**. Keep Partner, Just because, “I notice you,” £60 and This week selected. Click **Build the moment**.
 
-**On screen:** Click **Load example clues**, briefly show the three fictional excerpts, tick the permission box, then click **Find safe clues**.
+> First, WanderWrap asks what the gift should communicate—not what product I want to buy. Relationship, occasion, emotional intent, budget and timing become a visible decision brief.
 
-**Say:**
+## 0:42–1:05 — Selected evidence, not surveillance
 
-> I can paste a few relevant excerpts I am allowed to use. WanderWrap does not connect to my partner’s account, scrape a feed, or retain this raw text. The privacy and preference agents process it transiently, reject sensitive material, and return possible interests—not facts.
+**On screen:** Show the four evidence-source chips. Click **Fill with a fictional example**, tick the permission box and click **Find thoughtful signals**.
 
-**Show:** the visible agent rail moving from waiting to complete.
+> I can use a remembered comment, a known hobby, a requested item or a few selected public excerpts. WanderWrap does not scrape a feed or retain this raw wording. The Privacy Guard and Clue Finder return possible interests, never hidden facts.
 
-## 0:58–1:22 — Human confirmation is the boundary
+## 1:05–1:27 — Confirm and resolve uncertainty
 
-**On screen:** Show the candidate interests and click **Confirm & coordinate**.
+**On screen:** Show the four proposed interests. Keep **A calming ritual** and **Thoughtful surprise**, then click **Create the Gift Brief**.
 
-**Say:**
+> Every proposed interest is confirmation-only. Two focused questions then resolve what keywords cannot: what the recipient would value and how adventurous the choice should be.
 
-> These candidates cannot affect ranking until I confirm that they match what I personally know. That small step preserves the surprise without turning a social post into a hidden personality profile.
+## 1:27–1:52 — The intelligence moment
 
-## 1:22–1:52 — Agents coordinate an explainable shortlist
+**On screen:** Pause on the complete **Gift Brief**, confidence panel, low-clutter choice and “anything to avoid” field. Click **Explore gift directions**.
 
-**On screen:** Show the four cards and their reasons. Select **Make-your-own ceramic cup**.
+> Before recommending anything, the agents publish a shared Gift Brief: the moment, confirmed interests, recipient value, practical constraints, exclusions and uncertainty. Every specialist is bounded to this evidence.
 
-**Say:**
+## 1:52–2:20 — Meaningful directions, not a product grid
 
-> The recommendation agent now works only from confirmed interests. The catalogue and fulfilment agents have narrower jobs, and the approval guard controls every external action. Each suggestion explains why it fits. This is real MCP tool coordination; the catalogue facts are deliberately labelled as fixtures in this demo.
+**On screen:** Slowly reveal the four directions and their fit, recipient lens, watch-out and trade-off. Choose **Make-your-own ceramic cup**.
 
-## 1:52–2:18 — A strong Amazon handoff
+> WanderWrap deliberately compares different directions: a safe delight, a creative ritual, a lasting ritual and a shared memory. Each one explains why it fits, what effort it creates and how it might fail. That keeps the explanation honest instead of persuasive.
 
-**On screen:** Let the Amazon handoff panel appear. Do not click the external Amazon link while recording.
+## 2:20–2:40 — A complete gift plan
 
-**Say:**
+**On screen:** Show Recipient Lens, Delivery Check, Gift Note and Approval. Click **Prepare Amazon matches**.
 
-> WanderWrap has finished the thoughtful part and selected the recipient’s UK marketplace route. Nothing has been purchased. Amazon still owns live price, availability, delivery address, and checkout. The customer must explicitly choose Continue to Amazon.
+> The selected direction becomes a complete gift plan with a recipient check, delivery requirement, editable message and explicit approval boundary. Only now does the Amazon Scout begin its work.
 
-## 2:18–2:38 — Technical proof
+## 2:40–2:55 — Safe Amazon handoff
 
-**On screen:** Expand **Technical evidence**, then show the passing terminal summaries.
+**On screen:** Show the final handoff and “Nothing has been ordered.”
 
-**Say:**
+> Amazon confirms the actual product, live price, availability, delivery and checkout. Nothing is silently purchased. WanderWrap remembers the person, builds confidence and hands off only when I am ready.
 
-> Underneath is a Streamable HTTP MCP server using protocol 2025-11-25. The visible specialists are driven by actual clue-analysis, recommendation, and routing tool calls. AWS provides Cognito, Lambda, API Gateway, DynamoDB, and CloudWatch, with deterministic safe fallbacks and automated approval tests.
+## 2:55–3:00 — Close
 
-## 2:38–2:50 — Close
+**On screen:** Agent Studio with completed specialists or the final handoff.
 
-**On screen:** Return to the final handoff or hero.
-
-**Say:**
-
-> WanderWrap preserves the surprise without making privacy the price of convenience. Remember the person. Find the gift.
+> WanderWrap: remember the person, then find the gift.
 
 ## Recording shot list
 
-1. Hero and story — 12 seconds.
-2. Fictional selected excerpts and consent — 28 seconds.
-3. Confirmation-only candidates — 24 seconds.
-4. Agent rail and explainable shortlist — 30 seconds.
-5. Amazon review handoff — 26 seconds.
-6. MCP trace and passing tests — 20 seconds.
-7. Closing frame — 10 seconds.
+1. Landing page and Gift Finder entry — 12 seconds.
+2. Moment and emotional intent — 22 seconds.
+3. Fictional evidence and consent — 23 seconds.
+4. Confirmation and adaptive questions — 22 seconds.
+5. Gift Brief and agent evidence — 25 seconds.
+6. Four contrasting directions — 28 seconds.
+7. Complete gift plan — 20 seconds.
+8. Amazon handoff and closing frame — 18 seconds.
 
 ## Optional judge Q&A
 
 **Did it place an Amazon order?**
 
-No. It recommends and prepares a marketplace handoff. Amazon or Alexa+ owns eligible checkout and final confirmation.
+No. It prepares a marketplace handoff. Amazon or Alexa+ owns eligible checkout and final confirmation.
 
-**Does it read Facebook, X, or private messages?**
+**Does it read Facebook, X or private messages?**
 
-No. This demo accepts only excerpts the giver deliberately selects and confirms they are allowed to use. Direct social connectors are not live.
+No. This demo accepts only evidence the giver deliberately selects and confirms they are allowed to use. Direct social connectors are not live.
 
 **Are multiple agents actually involved?**
 
-The demo’s visible states are driven by separate MCP clue-analysis, recommendation, and routing calls. The production-shaped core also has bounded specialist orchestration, least-privilege tool access, signed approvals, and audit events.
+The visible specialists correspond to bounded analysis, policy, recommendation and routing responsibilities. The production-shaped core enforces least-privilege tool access, signed approvals, idempotency and audit events.
 
 **Is Amazon catalogue data live?**
 
-Not yet. The handoff route and guide data are clearly labelled fixtures until Amazon Creators API credentials and live-response evidence pass the integration checklist.
+The Creators API client is implemented and contract-tested, but the public demo uses an explicitly labelled Amazon search fallback until approved credentials and live-response evidence pass the integration checklist.
 
 **Do you need an Echo?**
 
-No for the hackathon browser-simulation path. Official Alexa+ Web Simulator evidence remains dependent on selected-partner tooling access.
+No for the browser preview. Official Alexa+ Web Simulator and device evidence still depend on selected-partner tooling access.

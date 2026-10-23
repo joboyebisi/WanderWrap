@@ -45,11 +45,13 @@
 | Surface | Role | Current state |
 |---|---|---|
 | Alexa+ MCP add-on | Voice-led discovery, recommendation and fulfilment routing | Server and package implemented; Amazon onboarding and Web Simulator evidence pending |
-| Next.js web | Landing page, public `/gift-finder` gifting journey, customer account, connections, gift workspace and authenticated demo | Ready for Vercel deployment |
+| Next.js web | Landing page, public seven-stage `/gift-finder` journey, customer account, connections, gift workspace and authenticated demo | Live on Vercel; richer journey pending the next production deployment |
 | AWS core | OAuth, MCP, APIs, DynamoDB, Bedrock boundary and alarms | Development stack deployed in `eu-west-2` |
 | Telegram / Messenger / mobile | Future channel adapters over the same journey | Architecture only; not presented as live |
 
 ## The demo journey
+
+The public Gift Finder moves from the emotional moment to deliberately selected evidence, user-confirmed signals, a shared Gift Brief, four genuinely different directions, a complete gift plan and finally an explicit Amazon handoff. The Alexa+ add-on uses the same consent and approval boundaries through MCP.
 
 ```mermaid
 flowchart LR
@@ -97,6 +99,8 @@ npm install
 npm run check
 npm run test:e2e
 npm run demo
+# With the Next.js app running on port 3000:
+npm run demo:record
 ```
 
 Then open `http://127.0.0.1:4202/alexa-simulator.html`.
@@ -136,8 +140,9 @@ See the [web launch runbook](docs/WEB_LAUNCH_RUNBOOK.md) for the exact Vercel va
 
 ## Verified today
 
-- `npm run check`: Alexa MCP App build, Next.js production build, AWS handler syntax and 92 automated contracts.
+- `npm run check`: Alexa MCP App build, Next.js production build, AWS handler syntax and 94 automated contracts.
 - `npm run test:e2e`: health, simulator delivery, OAuth discovery, bearer/origin enforcement, MCP initialization, tool discovery, recommendation, routing and approval rejection.
+- `npm run demo:record`: repeatable 1080p silent Gift Finder walkthrough saved under ignored `artifacts/`; pair it with `docs/DEMO_SCRIPT.md` for narration.
 - AWS: development health endpoint returns `200`; error and duration alarms are `OK`.
 
 These checks prove application behaviour. They do not claim that Alexa+ onboarding, Amazon catalogue availability, PayPal payment or Xoom transfer is live.
