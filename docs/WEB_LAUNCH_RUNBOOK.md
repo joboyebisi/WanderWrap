@@ -4,7 +4,7 @@ The public web app belongs at `https://wanderwrap.co.uk` (and optionally `https:
 
 ## 1. Import the GitHub repository into Vercel
 
-1. Open [Vercel — New Project](https://vercel.com/new) and import `joboyebisi/TenderTeddy`. The verified app is currently on `wanderwrap-web-launch`; select that as the Production Branch until the repository owner reconciles the unrelated force-update on `main`.
+1. Open [Vercel — New Project](https://vercel.com/new) and import `joboyebisi/WanderWrap` from its `main` branch.
 2. Set **Root Directory** to `apps/web`. Keep **Include source files outside the Root Directory** enabled so Vercel can use the repository lockfile/workspace.
 3. Choose the **Next.js** framework preset. The build command is `npm run build`; no output-directory override is needed.
 4. Add these Production environment variables:
@@ -51,7 +51,7 @@ This proves the normal non-administrator customer flow. It does not prove Amazon
 
 `infrastructure/deployment-iam.yaml` bootstraps two roles:
 
-- `WanderWrapGitHubDeploymentRole`, trusted only by `joboyebisi/TenderTeddy` on `main` through GitHub OIDC;
+- `WanderWrapGitHubDeploymentRole`, trusted only by `joboyebisi/WanderWrap` on `main` through GitHub OIDC;
 - `WanderWrapCloudFormationExecutionRole`, passed only to CloudFormation for the app stack.
 
 Deploy this IAM stack once with an administrator. Routine GitHub deployments then use short-lived OIDC credentials, not an IAM user's access keys. Human AWS work should use IAM Identity Center/SSO; never use the account root for routine deployment.

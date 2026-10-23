@@ -7,7 +7,7 @@ Parameters:
     Default: joboyebisi
   GitHubRepository:
     Type: String
-    Default: TenderTeddy
+    Default: WanderWrap
   ArtifactBucketName:
     Type: String
     Default: wanderwrap-artifacts-695912022574-eu-west-2
