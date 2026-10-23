@@ -4,7 +4,7 @@ Target length: 2:35–2:50. Record in English at 1080p. Use the local browser si
 
 ## Before recording
 
-- Start the app with `npm run demo`, then open `http://127.0.0.1:4202/alexa-simulator.html`.
+- Prefer `https://www.wanderwrap.co.uk/route` after its production smoke test passes. For local recording, run `npm run web:dev` and open `http://127.0.0.1:3000/route`.
 - Keep the default Echo Show 8 surface selected and click **Load example clues** only after recording begins.
 - Use only the fictional example excerpts. Do not paste real partner posts into the recording.
 - Keep the **Fixtures disclosed** badge, Amazon fixture status, and approval language visible.

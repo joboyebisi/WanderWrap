@@ -15,7 +15,7 @@ async function request(path, options = {}) {
   return response;
 }
 
-for (const path of ['/', '/connections', '/simulator']) {
+for (const path of ['/', '/connections', '/route', '/simulator']) {
   const response = await request(path);
   assert.equal(response.status, 200, `${path} must return 200`);
   assert.match(response.headers.get('server') || '', /vercel/i, `${path} must be served by Vercel`);
@@ -24,6 +24,11 @@ for (const path of ['/', '/connections', '/simulator']) {
 
 const home = await fetch(base);
 assert.match(await home.text(), /Remember the person\. Find the gift\./, 'Landing page content is missing');
+
+const publicRoute = await fetch(new URL('/route', base));
+const publicRouteHtml = await publicRoute.text();
+assert.match(publicRouteHtml, /One lovely clue/, 'Public gifting journey is missing');
+assert.match(publicRouteHtml, /No feed access\. No silent purchase\./, 'Public demo safety disclosure is missing');
 
 const health = await request('/api/health');
 assert.equal(health.status, 200, 'Web health must return 200');

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { routeGift } from '../src/fulfillment-router.mjs';
-import { buildAmazonSearch, amazonRetailHandoff } from '../src/amazon.mjs';
+import { buildAmazonSearch, amazonRetailHandoff, creatorsTokenEndpoint, searchAmazonCreators } from '../src/amazon.mjs';
 import { handleMcpRequest, PROTOCOL_VERSION } from '../src/mcp-server.mjs';
 
 test('Amazon is preferred for a fulfilable physical gift', () => {
@@ -28,6 +28,28 @@ test('Amazon request is marketplace aware and final checkout remains external', 
   const request = buildAmazonSearch({ keywords: 'ceramic tea set', destinationCountry: 'GB', partnerTag: 'wanderwrap-21' });
   assert.equal(request.headers['x-marketplace'], 'www.amazon.co.uk');
   assert.throws(() => amazonRetailHandoff({ available: false, detailPageUrl: 'x' }));
+});
+
+test('Creators API exchanges credentials and returns provider-authored product links', async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, options });
+    if (String(url).includes('/auth/o2/token')) return new Response(JSON.stringify({ access_token: 'test-token', expires_in: 3600 }), { status: 200 });
+    return new Response(JSON.stringify({ searchResult: { searchURL: 'https://www.amazon.co.uk/s?k=ceramics&tag=wanderwrap-21', items: [{
+      asin: 'B012345678', detailPageURL: 'https://www.amazon.co.uk/dp/B012345678?tag=wanderwrap-21',
+      itemInfo: { title: { displayValue: 'Pottery starter kit' } },
+      images: { primary: { medium: { url: 'https://m.media-amazon.com/images/I/example.jpg' } } },
+      offersV2: { listings: [{ availability: { type: 'IN_STOCK' }, price: { money: { amount: 34.99, currency: 'GBP', displayAmount: '£34.99' } } }] }
+    }] } }), { status: 200 });
+  };
+  const result = await searchAmazonCreators({ keywords: 'ceramics', destinationCountry: 'GB', partnerTag: 'wanderwrap-21', credentialId: 'test-id', credentialSecret: 'test-secret', credentialVersion: '3.2', fetchImpl });
+  assert.equal(creatorsTokenEndpoint('3.2'), 'https://api.amazon.co.uk/auth/o2/token');
+  assert.equal(calls.length, 2);
+  assert.equal(JSON.parse(calls[0].options.body).scope, 'creatorsapi::default');
+  assert.equal(calls[1].options.headers.authorization, 'Bearer test-token');
+  assert.equal(result.offers[0].detailPageUrl, 'https://www.amazon.co.uk/dp/B012345678?tag=wanderwrap-21');
+  assert.equal(result.offers[0].price.displayAmount, '£34.99');
+  assert.equal(result.offers[0].deliveryVerified, false);
 });
 
 test('MCP exposes 2025-11-25 tools and gates side effects', async () => {

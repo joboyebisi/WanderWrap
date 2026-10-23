@@ -18,7 +18,18 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
 | `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
 
-These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords, PayPal secrets or provider secrets to the Vercel project.
+These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords or PayPal secrets to the Vercel project.
+
+The public `/route` journey works without additional credentials and finishes with a normal Amazon marketplace search. To upgrade that handoff to provider-authored product links, images, offer availability and price fields, add these as encrypted **Production** variables (never `NEXT_PUBLIC_*`):
+
+| Name | Source |
+|---|---|
+| `AMAZON_CREATORS_CREDENTIAL_ID` | Creators API application credential |
+| `AMAZON_CREATORS_CREDENTIAL_SECRET` | Creators API application secret |
+| `AMAZON_CREATORS_CREDENTIAL_VERSION` | Credential version, for example `3.2` for the UK/EU token endpoint |
+| `AMAZON_PARTNER_TAG_GB` | Approved UK Associates Store ID / tracking ID |
+
+The Vercel server route exchanges these for a short-lived OAuth token; credentials and tokens are never returned to the browser. AWS Secrets Manager remains the preferred home when the catalogue call moves fully into the AWS core. Do not configure these values until Associates/Creators API access is approved.
 
 After adding or changing an environment variable, redeploy Production. Cache-bypassed public testing on 2026-10-23 still found `WANDERWRAP_OAUTH_BASE_URL` unavailable to the deployed function after the variables were reported as added and redeployed. If signup returns `503`, verify the exact key spelling, **Production** scope, correct WanderWrap Vercel project, and that the tested production deployment was created after the variable was saved.
 
@@ -42,14 +53,17 @@ This changes the Cognito callback/logout URLs and API CORS allow-list together. 
 
 ## 4. Prove the customer journey
 
-1. Visit `/api/auth/signup` and create a new test customer using an email you control.
-2. Enter the Cognito email verification code, then sign in.
-3. Confirm the callback returns to `/dashboard` and `/api/auth/session` reports an authenticated user.
-4. Add a person, add one confirmed preference, request recommendations and save one for approval.
-5. Open `/simulator`; run initialize → tools/list → recommend_gifts → route_gift and check the visible trace.
-6. Sign out and confirm the protected dashboard and simulator require authentication again.
+1. Visit `/route` while signed out and run the fictional-example flow: permission → clue confirmation → shortlist → Amazon handoff.
+2. Confirm the final card says `Amazon search handoff` when Creators API is not configured, or shows `LIVE AMAZON RESULT` cards when it is configured.
+3. Confirm no purchase occurs and the external Amazon link opens only after the customer clicks it.
+4. Visit `/api/auth/signup` and create a new test customer using an email you control.
+5. Enter the Cognito email verification code, then sign in.
+6. Confirm the callback returns to `/dashboard` and `/api/auth/session` reports an authenticated user.
+7. Add a person, add one confirmed preference, request recommendations and save one for approval.
+8. Open `/simulator`; run initialize → tools/list → recommend_gifts → route_gift and check the visible trace.
+9. Sign out and confirm the protected dashboard and simulator require authentication again while `/route` remains publicly usable.
 
-This proves the normal non-administrator customer flow. It does not prove Amazon Alexa+ onboarding, live catalogue inventory, delivery, payment or purchase.
+This proves the public preview and normal non-administrator customer flow. The Creators API badge proves catalogue response provenance only; it does not prove delivery to the eventual address, payment, purchase, or official Alexa+ onboarding.
 
 Before the manual journey, run `npm run test:web:live -- https://www.wanderwrap.co.uk`. It verifies Vercel delivery, security headers, web health, signed-out behavior and the Cognito PKCE redirect without creating an account.
 

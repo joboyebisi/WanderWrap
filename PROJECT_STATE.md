@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-23
 
-Latest verification: `npm run check` passed on 2026-10-23 after the interactive clue-to-handoff demo update — Alexa MCP App build, Next.js production build, AWS handler syntax and 93/93 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The complete browser journey was also exercised manually: fixture excerpts, permission, confirmation-only candidates, explainable recommendations, MCP routing, and the Amazon review handoff. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; the submission assets do not claim production account creation is ready. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
+Latest verification: `npm run check` passed on 2026-10-23 after the public `/route` and Amazon Creators client update — Alexa MCP App build, Next.js production build, AWS handler syntax and 94/94 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The public no-account browser journey was exercised manually through permission, confirmation-only candidates, explainable recommendations and the Amazon search handoff; the landing-page entry point was also verified. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; `/route` does not depend on that blocked account flow. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
 
-Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the previous remote checkpoint was `7820588` on `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; the previous remote checkpoint was `55f124d` on `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
@@ -26,6 +26,8 @@ The primary hackathon story is: ask for a gift, receive evidence-backed recommen
 - Next.js App Router workspace in `apps/web` and a constrained backend-for-frontend proxy.
 - Next.js PKCE login/callback/session routes, HttpOnly token storage, refresh/revocation handling, same-origin mutation checks, and an interactive person → confirmed clue → recommendation → saved-for-approval workspace.
 - Public responsive landing page, honest `/connections` readiness hub, explicit verified-email `/api/auth/signup` flow, and authenticated `/simulator` that calls the protected MCP endpoint while visibly tracing initialize, tool discovery, recommendation and routing.
+- Public no-account `/route` experience with a landing-page “Try it now” entry point, delightful responsive UI, consent-first clue analysis, visible specialist states, explainable cards and an Amazon handoff.
+- Amazon Creators API OAuth client-credentials exchange, one-hour token cache, marketplace-aware SearchItems call, allow-listed product/image URLs, normalized live offers and safe search-link fallback. Exact product links activate only when approved Creators credentials and a marketplace Partner Tag are present.
 - Cognito/DynamoDB/Lambda/HTTP API CloudFormation deployment and a frozen AWS development preview.
 - Isolated `wanderwrap-development` AWS stack with Cognito managed login, OAuth code flow + PKCE, resource scopes, JWT signature/client/scope/audience validation, restrictive origins, retained encrypted DynamoDB data, log retention, and duration/error alarms.
 - PayPal sandbox client boundary for OAuth, idempotent create/capture, and provider-verified webhooks; it remains disabled until sandbox credentials and trusted supplier pricing are configured.
@@ -55,7 +57,7 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 |---|---|
 | Recommendation and routing policy | Real local application code with deterministic fixtures |
 | Alexa+ conversation | Local simulated experience plus a live development MCP endpoint; remote add-on onboarding, Alexa client redirect URI, linked-user test and Web Simulator evidence pending |
-| Amazon catalogue | Request/handoff adapter; live Creators API response pending credentials and conformance work |
+| Amazon catalogue | Credentialed Creators API client and normalized handoff implemented and contract-tested; production response evidence pending credentials. Without them, `/route` clearly falls back to an Amazon marketplace search link. |
 | PayPal | Server-priced proposal plus tested sandbox HTTP client boundary; credentialed create/approve/capture/webhook loop pending |
 | Xoom | Customer handoff only; no public transfer API claim |
 | Bedrock | Adapter exists; production uses an IAM role; live model call depends on AWS model access/configuration |
@@ -67,13 +69,13 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 2. Both domains reach Vercel and the apex redirects permanently to `www`; no DNS blocker remains.
 3. The deployed Vercel function still cannot read `WANDERWRAP_OAUTH_BASE_URL`, despite the variables being reported as configured and redeployed, so signup/login currently return `503`. Confirm the exact key, Production environment scope, correct WanderWrap project, and that the production deployment was created after the variable was saved.
 4. Amazon Developer registration/identity verification is complete, but Alexa+ selected-partner enablement is not yet proven. A direct public-npm install of `@alexa-ai/cli` returned `404`; Amazon's current setup requires the AWS account to be associated through an Alexa+ Solutions Architect, an `alexa-ai` role-assumption profile, and authentication to Amazon's private CodeArtifact registry before installation. The exact Alexa redirect URI, development add-on deployment, and Web Simulator evidence remain incomplete.
-5. A normal Amazon Developer Console account is enough to manage developer registration, but not to make the demo catalogue live. Amazon Creators requires an Amazon Associates account with final acceptance, a Creators API application, credential ID/secret/version, and a UK Partner Tag. Login with Amazon is optional because Cognito already supplies the OAuth account boundary. No Amazon Creators or PayPal sandbox secrets have been supplied through a secure secret store.
+5. A normal Amazon Developer Console account is enough to manage developer registration, but not to make exact product links live. Amazon Creators requires an Amazon Associates account with final acceptance/eligibility, a Creators API application, credential ID/secret/version, and a UK Partner Tag. Login with Amazon is optional because Cognito already supplies the customer OAuth boundary. The integration code is ready, but no Amazon Creators or PayPal sandbox secrets have been supplied through a secure secret store.
 6. The provider webhook/reconciliation loop and fulfilment/thank-you UI are not yet complete.
 7. The Devpost deadline is 23 October 2026 at 19:00 UTC. Project `1502859` / `wanderwrap` is populated but remains a pre-draft; a public YouTube/Vimeo video, submitter declarations and explicit final-submit confirmation are still required.
 
 ## Next actions, in order
 
-1. Commit and push the verified interactive demo and recording assets to public `main`.
+1. Commit and push the verified public `/route` and Amazon Creators client to `main`; confirm Vercel deploys it and `https://www.wanderwrap.co.uk/route` returns `200`.
 2. Record the 2:35-2:50 English demo from `docs/DEMO_SCRIPT.md`, upload it publicly to YouTube or Vimeo, and add the URL to `devpost-submission.md` and Devpost.
 3. Confirm the submitter country plus the age, eligible-jurisdiction and non-employee declarations; then perform the explicit final Devpost submit before 19:00 UTC.
 4. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, redeploy, and run `npm run test:web:live -- https://www.wanderwrap.co.uk`. Until it passes, demo the tested local simulator rather than instructing judges to create an account.
