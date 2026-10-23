@@ -8,7 +8,7 @@
 
 <p align="center">
   A consent-first gifting companion for Alexa+ and the web.<br />
-  WanderWrap turns confirmed clues into explainable ideas, checks a safe fulfilment route, and never purchases without approval.
+  Preserve the surprise: turn remembered, confirmed clues into explainable ideas, check a safe fulfilment route, and never purchase without approval.
 </p>
 
 <p align="center">
@@ -16,6 +16,7 @@
   <a href="docs/WEB_LAUNCH_RUNBOOK.md">Deploy the web app</a> ·
   <a href="docs/ALEXA_PLUS_TEST_PLAN.md">Test Alexa+</a> ·
   <a href="docs/DEMO_SCRIPT.md">Record the demo</a> ·
+  <a href="devpost-submission.md">Submission draft</a> ·
   <a href="docs/README.md">Documentation</a>
 </p>
 
@@ -128,7 +129,7 @@ PROJECT_STATE.md          Durable checkpoint, evidence, blockers and next action
 - Protocol: Streamable HTTP MCP `2025-11-25`
 - Authentication: Cognito authorization code + PKCE foundation with scoped, resource-bound JWT validation
 - Runtime: Lambda, API Gateway, DynamoDB and CloudWatch
-- Web host: ready to import into Vercel; domain activation is still pending
+- Web host: `https://www.wanderwrap.co.uk` on Vercel; production signup/login requires a final environment smoke test
 - AWS deployment identity: GitHub OIDC restricted to `joboyebisi/WanderWrap:main`
 
 See the [web launch runbook](docs/WEB_LAUNCH_RUNBOOK.md) for the exact Vercel variables, domain sequence and post-deployment customer test.
@@ -148,6 +149,8 @@ Start at the [documentation index](docs/README.md). The most useful next steps a
 - [Web/Vercel launch](docs/WEB_LAUNCH_RUNBOOK.md)
 - [Alexa+ remaining test plan](docs/ALEXA_PLUS_TEST_PLAN.md)
 - [Three-minute demo script](docs/DEMO_SCRIPT.md)
+- [Devpost submission draft](devpost-submission.md)
+- [Hackathon friction log](docs/FRICTION_LOG.md)
 - [Product requirements](docs/PRD.md)
 - [Technical specification](docs/TECHNICAL_SPEC.md)
 - [Live integration gates](docs/LIVE_INTEGRATION_CHECKLIST.md)

@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-23
 
-Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests, and GitHub CI passed for commit `2cdfac6`. Both public hostnames now reach Vercel: `wanderwrap.co.uk` returns Vercel's permanent `308` redirect to `www.wanderwrap.co.uk`, and `www` serves the latest app, including the X/Twitter banner. A cache-bypassed production smoke test still receives `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`, despite the variables being reported as added and redeployed; confirm the exact key, Production scope, correct Vercel project and deployment association. The live MCP resource metadata returns `200`, unauthenticated initialize returns the Alexa-required `401` without `WWW-Authenticate`, and CORS accepts `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` is `UPDATE_COMPLETE`, Cognito callback/logout URLs use the `www` origin, both intended origins are allow-listed, and both alarms are `OK`.
+Latest verification: `npm run check` passed on 2026-10-23 after the partner-first demo update — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. The last production smoke test still received `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`; the submission assets do not claim production account creation is ready. The live MCP resource metadata previously returned `200`, unauthenticated initialize returned the Alexa-required `401` without `WWW-Authenticate`, and CORS accepted `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` was `UPDATE_COMPLETE`, Cognito callback/logout URLs used the `www` origin, both intended origins were allow-listed, and both alarms were `OK`.
 
 Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified state commit `2cdfac6` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
@@ -34,6 +34,8 @@ The primary hackathon story is: ask for a gift, receive evidence-backed recommen
 - Alexa Cognito infrastructure now accepts Amazon's complete comma-separated redirect list and creates a separate confidential app client when onboarding values are supplied.
 - Public Next.js deployment is available at `https://www.wanderwrap.co.uk`; X/Twitter is represented honestly as a planned channel in the landing banner and connections hub.
 - Repeatable `npm run test:web:live -- <origin>` production smoke test covers Vercel delivery, security headers, health, signed-out behavior and Cognito PKCE redirect configuration.
+- Devpost event state is initialized for `amazonappdev2026`; project `wanderwrap` has been populated as an editable pre-draft, not submitted. A judge-ready narrative, product-feedback answers, friction log, MIT license and partner-first recording script are prepared locally.
+- The primary demo story now begins with surprising a partner using remembered, user-confirmed clues; the web and local simulators default to that scenario.
 
 ## Proof commands
 
@@ -66,18 +68,16 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 4. Amazon Developer registration/identity verification is complete, but Alexa+ selected-partner enablement is not yet proven. A direct public-npm install of `@alexa-ai/cli` returned `404`; Amazon's current setup requires the AWS account to be associated through an Alexa+ Solutions Architect, an `alexa-ai` role-assumption profile, and authentication to Amazon's private CodeArtifact registry before installation. The exact Alexa redirect URI, development add-on deployment, and Web Simulator evidence remain incomplete.
 5. Amazon Creators and PayPal sandbox credentials have not been supplied through a secure secret store.
 6. The provider webhook/reconciliation loop and fulfilment/thank-you UI are not yet complete.
-7. `.devpost-hackathon-state.json` is absent, so no specific event, deadline, rules, or submission record is attached to the repo yet.
+7. The Devpost deadline is 23 October 2026 at 19:00 UTC. Project `1502859` / `wanderwrap` is populated but remains a pre-draft; a public YouTube/Vimeo video, submitter declarations and explicit final-submit confirmation are still required.
 
 ## Next actions, in order
 
-1. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, then redeploy and run `npm run test:web:live -- https://www.wanderwrap.co.uk` until it passes.
-2. Complete one human browser sign-up/login and prove dashboard plus protected simulator journeys. Configure IAM Identity Center/SSO for routine human AWS work.
-3. Request/confirm Alexa+ MCP Toolkit partner enablement with Amazon, supplying the AWS account ID (never credentials) for association. After Amazon grants the private tooling role, configure the dedicated least-privilege `alexa-ai` AWS profile and CodeArtifact registry, install/authenticate the Alexa AI CLI, then create the development add-on.
-4. Add every exact Amazon redirect URI to `AlexaRedirectUris`, configure the generated client secret securely in Amazon, and verify resource-bound OAuth 2.1/PKCE account linking.
-5. Integrate Amazon Creators API and verify live search responses without presenting unverified price, delivery, or stock.
-6. Complete the PayPal sandbox create/approve/capture/signed-webhook loop and replay/idempotency tests.
-7. Record Alexa+ Web Simulator, provider sandbox, latency, accessibility, and failure-recovery evidence.
-8. Initialize the specific Devpost hackathon workflow when the event is known, then map the evidence to its rules and submission fields.
+1. Run the full local verification suite, commit and push the submission assets and MIT license so the public repository is eligible for judging.
+2. Record the 2:35-2:50 English demo from `docs/DEMO_SCRIPT.md`, upload it publicly to YouTube or Vimeo, and add the URL to `devpost-submission.md` and Devpost.
+3. Confirm the submitter country plus the age, eligible-jurisdiction and non-employee declarations; then perform the explicit final Devpost submit before 19:00 UTC.
+4. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, redeploy, and run `npm run test:web:live -- https://www.wanderwrap.co.uk`. Until it passes, demo the tested local simulator rather than instructing judges to create an account.
+5. After submission, continue the official Alexa+ path: obtain selected-partner tooling access, add the exact redirect URIs, deploy the development add-on and capture Web Simulator evidence.
+6. Integrate Amazon Creators and PayPal sandbox only when credentials are available, then capture provider/webhook evidence before changing any capability to live.
 
 The web launch and non-administrator customer test sequence is in `docs/WEB_LAUNCH_RUNBOOK.md`.
 

@@ -25,8 +25,8 @@ export default function HomePage() {
           <aside className="giftPreview" aria-label="Example recommendation conversation">
             <div className="voiceOrb" aria-hidden="true"><span /><span /><span /></div>
             <p className="previewLabel">WANDERWRAP IS LISTENING</p>
-            <blockquote>“A Christmas gift for my sister in Toronto. She loves ceramics and slow weekends.”</blockquote>
-            <div className="previewResult"><span>01</span><div><strong>A hand-thrown tea set</strong><small>Fits her ceramics interest and unhurried rituals. Delivery must be verified.</small></div></div>
+            <blockquote>“Help me surprise my partner. They love ceramics and slow Sunday mornings.”</blockquote>
+            <div className="previewResult"><span>01</span><div><strong>A hand-thrown tea set</strong><small>Fits their ceramics interest and unhurried rituals. Delivery must be verified.</small></div></div>
           </aside>
         </section>
       </div>

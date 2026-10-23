@@ -58,9 +58,9 @@ export default function AlexaSimulator() {
 
   return <section className="simulatorShell" aria-busy={busy}>
     <div className="simulatorControls"><p className="stepLabel">YOUR REQUEST</p><form className="stackForm" onSubmit={run}>
-      <label>Who is it for?<input name="recipient" required defaultValue="my sister" maxLength={80} /></label>
-      <label>What have they told you they enjoy?<input name="interest" required defaultValue="ceramics and slow weekends" maxLength={120} /></label>
-      <div className="formRow"><label>Budget (£)<input name="budget" type="number" min="5" max="5000" defaultValue="60" /></label><label>Destination country<input name="destinationCountry" defaultValue="CA" maxLength={2} /></label></div>
+      <label>Who is it for?<input name="recipient" required defaultValue="my partner" maxLength={80} /></label>
+      <label>What have they told you they enjoy?<input name="interest" required defaultValue="ceramics and slow Sunday mornings" maxLength={120} /></label>
+      <div className="formRow"><label>Budget (£)<input name="budget" type="number" min="5" max="5000" defaultValue="60" /></label><label>Destination country<input name="destinationCountry" defaultValue="GB" maxLength={2} /></label></div>
       <button className="primary" disabled={busy}>{busy ? 'Running the journey…' : 'Ask WanderWrap'}</button>
     </form><p className="privacyNote">Signed in{session.user?.displayName ? ` as ${session.user.displayName}` : ''}. This demo uses deterministic catalogue fixtures; it does not verify live stock or transact.</p></div>
     <div className="conversationPanel"><div className="alexaHeader"><div className="voiceOrb small" aria-hidden="true"><span /><span /><span /></div><div><strong>Alexa+ journey preview</strong><small>Browser simulator · protected MCP</small></div></div><div className="speechBubble" role="status" aria-live="polite">{spoken}</div>

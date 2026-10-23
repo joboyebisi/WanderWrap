@@ -11,10 +11,10 @@ device.dataset.surface = surface.value;
 
 const scenarios = {
   amazon: {
-    utterance: 'Find a thoughtful gift for my sister in Toronto. She likes ceramics and slow weekends. Keep it under GBP 60.',
+    utterance: 'Help me surprise my partner with a thoughtful gift. They like ceramics and slow Sunday mornings. Keep it under GBP 60.',
     recipient: { budget: 60, signals: [{ value: 'creative', source: 'stated' }, { value: 'home', source: 'stated' }] },
-    route: { giftKind: 'physical', senderCountry: 'GB', destinationCountry: 'CA', amazonOffer: { available: true, shipsToDestination: true, detailPageUrl: 'https://www.amazon.ca/s?k=ceramic+gift' } },
-    fixture: 'Demo fixture: Amazon Canada offer marked deliverable.'
+    route: { giftKind: 'physical', senderCountry: 'GB', destinationCountry: 'GB', amazonOffer: { available: true, shipsToDestination: true, detailPageUrl: 'https://www.amazon.co.uk/s?k=ceramic+gift' } },
+    fixture: 'Demo fixture: Amazon UK offer marked deliverable.'
   },
   paypal: {
     utterance: 'Find a local pottery experience for Maya in Toronto, under GBP 60.',
@@ -89,7 +89,7 @@ function inferScenario(value) {
   if (normalized.includes('experience') || normalized.includes('pottery')) return scenarios.paypal;
   return scenarios.amazon;
 }
-function friendlyRoute(route) { return ({ 'amazon-retail-handoff': 'an Amazon Canada handoff', 'paypal-merchant-checkout': 'a PayPal-approved supplier checkout' })[route] || route; }
+function friendlyRoute(route) { return ({ 'amazon-retail-handoff': 'an Amazon marketplace handoff', 'paypal-merchant-checkout': 'a PayPal-approved supplier checkout' })[route] || route; }
 function addMessage(kind, label, text) {
   conversation.insertAdjacentHTML('beforeend', `<div class="message ${kind}"><small>${escapeText(label)}</small><p>${escapeText(text)}</p></div>`);
   conversation.scrollTop = conversation.scrollHeight;

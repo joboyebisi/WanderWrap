@@ -1,0 +1,43 @@
+{
+  "plugin": "devpost-hackathon",
+  "version": 2,
+  "hackathon": {
+    "slug": "amazonappdev2026",
+    "name": "Build, Ship, Shape: Amazon Developer Hackathon",
+    "url": "https://amazonappdev2026.devpost.com",
+    "selected": true,
+    "source": "known"
+  },
+  "participant": {
+    "name": "Job Oyebisi",
+    "display_name": "Job Oyebisi"
+  },
+  "project": {
+    "name": "WanderWrap",
+    "summary": "A consent-first Alexa+ and web companion that turns remembered, user-confirmed clues into explainable gift ideas and safe fulfilment handoffs.",
+    "ai_usage": "Deterministic explainable ranking with an optional Amazon Bedrock explanation adapter and safe fallback.",
+    "codex_usage": "Implementation, security review, tests, deployment diagnosis, documentation and submission preparation.",
+    "devpost_project_id": 1502859,
+    "devpost_project_slug": "wanderwrap",
+    "devpost_project_url": "https://devpost.com/software/wanderwrap"
+  },
+  "current_stage": "prepare",
+  "completed_stages": [
+    "start-hackathon",
+    "review",
+    "resources"
+  ],
+  "rules_acknowledged": true,
+  "learning": {
+    "status": "not-started",
+    "current_step": "",
+    "completed_steps": [],
+    "plan_file": "",
+    "checklist_file": ""
+  },
+  "submission": {
+    "draft_file": "devpost-submission.md",
+    "status": "drafting"
+  },
+  "next_command": "prepare-submission"
+}
