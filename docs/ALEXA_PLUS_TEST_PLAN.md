@@ -35,11 +35,13 @@ Acceptance:
 
 ## 2. Create the Amazon development add-on
 
-1. Sign into the [Amazon Developer Console](https://developer.amazon.com/).
-2. Install/configure the current Alexa AI CLI and authenticate with `alexa-ai configure`.
-3. Introspect the deployed MCP URL and scaffold or reconcile the add-on package.
-4. Record the Add-on ID and the complete Amazon redirect URI list. Redirects vary by customer registration region; register every URI Amazon supplies.
-5. Keep the returned identifiers out of public screenshots until reviewed. They are configuration, not passwords, but should still be handled deliberately.
+1. Sign into the [Amazon Developer Console](https://developer.amazon.com/) and complete developer identity/profile verification.
+2. Confirm Amazon has enabled the account for the selected-partner Alexa+ MCP Toolkit and associated the intended AWS account. The Alexa AI CLI is served through Amazon's private CodeArtifact registry; a `404` from public npm is not a successful installation.
+3. Configure the dedicated `alexa-ai` AWS role-assumption profile and CodeArtifact npm registry using Amazon's current setup instructions. Do not commit or share its credentials.
+4. Install/configure the current Alexa AI CLI and authenticate with `alexa-ai configure`.
+5. Introspect the deployed MCP URL and scaffold or reconcile the add-on package.
+6. Record the Add-on ID and the complete Amazon redirect URI list. Redirects vary by customer registration region; register every URI Amazon supplies.
+7. Keep the returned identifiers out of public screenshots until reviewed. They are configuration, not passwords, but should still be handled deliberately.
 
 Acceptance:
 

@@ -63,7 +63,7 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 1. The GitHub deployment identity is now created, but human AWS CLI access still identifies as account root. Configure IAM Identity Center/SSO before further routine human operations.
 2. Both domains reach Vercel and the apex redirects permanently to `www`; no DNS blocker remains.
 3. The deployed Vercel function still cannot read `WANDERWRAP_OAUTH_BASE_URL`, despite the variables being reported as configured and redeployed, so signup/login currently return `503`. Confirm the exact key, Production environment scope, correct WanderWrap project, and that the production deployment was created after the variable was saved.
-4. Alexa+ remote onboarding, the exact Alexa redirect URI, development add-on deployment, and Web Simulator evidence are incomplete.
+4. Amazon Developer registration/identity verification is complete, but Alexa+ selected-partner enablement is not yet proven. A direct public-npm install of `@alexa-ai/cli` returned `404`; Amazon's current setup requires the AWS account to be associated through an Alexa+ Solutions Architect, an `alexa-ai` role-assumption profile, and authentication to Amazon's private CodeArtifact registry before installation. The exact Alexa redirect URI, development add-on deployment, and Web Simulator evidence remain incomplete.
 5. Amazon Creators and PayPal sandbox credentials have not been supplied through a secure secret store.
 6. The provider webhook/reconciliation loop and fulfilment/thank-you UI are not yet complete.
 7. `.devpost-hackathon-state.json` is absent, so no specific event, deadline, rules, or submission record is attached to the repo yet.
@@ -72,7 +72,8 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 
 1. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, then redeploy and run `npm run test:web:live -- https://www.wanderwrap.co.uk` until it passes.
 2. Complete one human browser sign-up/login and prove dashboard plus protected simulator journeys. Configure IAM Identity Center/SSO for routine human AWS work.
-4. Complete Alexa+ developer onboarding, add every exact Amazon redirect URI to `AlexaRedirectUris`, configure the generated client secret securely in Amazon, and verify resource-bound OAuth 2.1/PKCE account linking.
+3. Request/confirm Alexa+ MCP Toolkit partner enablement with Amazon, supplying the AWS account ID (never credentials) for association. After Amazon grants the private tooling role, configure the dedicated least-privilege `alexa-ai` AWS profile and CodeArtifact registry, install/authenticate the Alexa AI CLI, then create the development add-on.
+4. Add every exact Amazon redirect URI to `AlexaRedirectUris`, configure the generated client secret securely in Amazon, and verify resource-bound OAuth 2.1/PKCE account linking.
 5. Integrate Amazon Creators API and verify live search responses without presenting unverified price, delivery, or stock.
 6. Complete the PayPal sandbox create/approve/capture/signed-webhook loop and replay/idempotency tests.
 7. Record Alexa+ Web Simulator, provider sandbox, latency, accessibility, and failure-recovery evidence.
