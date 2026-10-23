@@ -20,7 +20,7 @@ Gift shopping tools are good at finding products, but weak at remembering the pe
 
 ## Solution
 
-WanderWrap is a channel-neutral gifting companion with Alexa+ and web entry points. A customer describes the person, occasion, budget and one confirmed preference clue. WanderWrap returns a concise, explainable shortlist, then checks an eligible handoff route separately from recommendation quality. The journey can continue on the web, while purchases, payments, transfers, recipient claims and private-data actions remain behind explicit approval.
+WanderWrap is a channel-neutral gifting companion with Alexa+ and web entry points. A customer can describe the person directly or paste a few selected public excerpts they are allowed to use. A privacy-first MCP tool processes that text transiently, discards sensitive material, and returns confirmation-only preference candidates. Only the candidates the giver personally recognises can influence the explainable shortlist. WanderWrap then checks an eligible handoff route separately from recommendation quality, while purchases, payments, transfers, recipient claims and private-data actions remain behind explicit approval.
 
 For this hackathon we built a self-hosted MCP server using specification `2025-11-25` and Streamable HTTP, an MCP App gift board, a clearly labelled browser-based Alexa+ journey simulator, a Next.js companion, and an AWS deployment with Cognito, Lambda, API Gateway, DynamoDB and CloudWatch.
 
@@ -42,11 +42,13 @@ Codex helped translate the product requirements into the MCP/AWS/web implementat
 ## Key features
 
 1. **Surprise without surveillance:** remembered clues become ranking evidence only after the customer confirms them.
-2. **Explainable gift shortlist:** every recommendation says why it fits and distinguishes guide data from provider-verified facts.
-3. **Alexa+-ready MCP:** Streamable HTTP, protocol `2025-11-25`, protected-resource discovery, scoped bearer validation, tool discovery and MCP Apps UI.
-4. **Safe fulfilment routing:** recommendation and routing are separate; unavailable providers return an honest fallback, never invented stock or delivery.
-5. **Explicit approval:** no purchase, payment or recipient-data action occurs silently, and ambiguous writes never fail over automatically.
-6. **Web continuation:** a normal customer can create an account, manage confirmed clues, save an idea for approval and see honest connection readiness.
+2. **Consent-first clue inbox:** selected excerpts are transient input to an MCP tool; raw text is not returned to downstream agents, and candidates require human confirmation.
+3. **Visible specialist coordination:** privacy, preference, recommendation, catalogue, fulfilment and approval responsibilities are shown as real MCP-driven state transitions.
+4. **Explainable gift shortlist:** every recommendation says why it fits and distinguishes guide data from provider-verified facts.
+5. **Alexa+-ready MCP:** Streamable HTTP, protocol `2025-11-25`, protected-resource discovery, scoped bearer validation, tool discovery and MCP Apps UI.
+6. **Safe Amazon handoff:** recommendation and routing are separate; the demo ends at a clearly disclosed Amazon review boundary and never invents a purchase.
+7. **Explicit approval:** no purchase, payment or recipient-data action occurs silently, and ambiguous writes never fail over automatically.
+8. **Web continuation:** a normal customer can create an account, manage confirmed clues, save an idea for approval and see honest connection readiness.
 
 ## Architecture
 
@@ -54,8 +56,9 @@ Alexa+ or the browser simulator connects to the authenticated Streamable HTTP MC
 
 ## Testing
 
-- `npm run check` builds the Alexa MCP App and Next.js app, validates the AWS handler, and runs 92 automated contracts.
+- `npm run check` builds the Alexa MCP App and Next.js app, validates the AWS handler, and runs the automated contract suite, including confirmation-only clue extraction.
 - `npm run test:e2e` proves health, simulator delivery, OAuth metadata, bearer/origin enforcement, MCP initialization, tool discovery, recommendation, routing and rejection of an unapproved write.
+- The interactive browser journey was exercised end to end: fixture excerpts, permission, candidate confirmation, recommendation, selected gift, and Amazon handoff.
 - Provider, approval, idempotency, webhook-signature and fallback behaviour have focused tests.
 - The public website and AWS development endpoint are deployed. The recording uses the clearly labelled browser simulator unless official Alexa+ partner tooling becomes available before capture.
 - Amazon catalogue responses, PayPal transactions and official Alexa+ Web Simulator execution are not presented as live without their remaining credential/evidence gates.

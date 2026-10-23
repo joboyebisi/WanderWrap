@@ -3,62 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WanderWrap Alexa+ Simulator</title>
+  <title>WanderWrap — interactive Alexa+ journey</title>
   <link rel="stylesheet" href="alexa-simulator.css">
 </head>
 <body>
   <main>
-    <header>
-      <a href="/">WanderWrap</a>
-      <span>Alexa+ simulated experience</span>
+    <header class="topbar">
+      <a href="/" class="brand"><span>W</span> WanderWrap</a>
+      <div class="demoStatus"><i></i> Interactive MCP demo <b>Fixtures disclosed</b></div>
     </header>
 
-    <section class="device" aria-labelledby="simulator-title">
-      <div class="device-bar">
-        <div><i></i><i></i><i></i></div>
-        <label class="surface-label" for="surface">Surface</label>
-        <select id="surface" aria-label="Simulated Alexa surface">
-          <option value="show8">Echo Show 8</option>
-          <option value="show15">Echo Show 15</option>
-          <option value="mobile">Alexa mobile</option>
-          <option value="voice">Voice only</option>
-        </select>
-        <span id="connection">Local MCP App</span>
-      </div>
-      <section class="visual" id="visual" aria-live="polite" aria-label="Alexa+ visual response">
-        <p>Visual recommendations will appear here on screened devices.</p>
-      </section>
-      <div class="conversation" id="conversation" aria-live="polite">
-        <div class="message alexa">
-          <small>Alexa+</small>
-          <p>Hi. Ask WanderWrap to find a thoughtful gift, or choose a demo journey below.</p>
-        </div>
-      </div>
-      <form id="promptForm">
-        <label for="prompt">Test utterance</label>
-        <div class="composer">
-          <input id="prompt" value="Help me surprise my partner with a thoughtful gift. They like ceramics and slow Sunday mornings. Keep it under GBP 60." autocomplete="off">
-          <button type="submit">Run</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="scenarios" aria-labelledby="simulator-title">
+    <section class="hero">
       <div>
-        <p class="eyebrow">DEVICE-FREE DEMO HARNESS</p>
-        <h1 id="simulator-title">Test the Alexa+ journey without an Echo.</h1>
-        <p>This page calls WanderWrap's real MCP endpoint and previews voice-only, mobile, Echo Show inline, and fullscreen behaviour. Provider availability is an explicitly labelled fixture; recommendation and routing decisions are produced by the application code.</p>
+        <p class="eyebrow">A SURPRISE, WITHOUT THE GUESSWORK</p>
+        <h1>Turn little clues into one beautifully thoughtful gift.</h1>
       </div>
-      <div class="scenario-grid">
-        <button data-scenario="amazon"><b>Amazon route</b><span>Deliverable physical gift in the UK</span></button>
-        <button data-scenario="paypal"><b>PayPal fallback</b><span>Amazon unavailable; approved local supplier</span></button>
-        <button data-scenario="xoom"><b>Xoom handoff</b><span>Cross-border money gift</span></button>
+      <p>Paste only selected words you are allowed to use. WanderWrap proposes interests, waits for your confirmation, coordinates specialist agents, and hands the final choice to Amazon—never a silent purchase.</p>
+    </section>
+
+    <nav class="journeyRail" aria-label="Demo journey">
+      <button class="active" data-stage="clues"><span>1</span><b>Clues</b><small>Selected by you</small></button>
+      <button data-stage="consent"><span>2</span><b>Confirm</b><small>You stay in control</small></button>
+      <button data-stage="ideas"><span>3</span><b>Ideas</b><small>Agents collaborate</small></button>
+      <button data-stage="handoff"><span>4</span><b>Handoff</b><small>Review on Amazon</small></button>
+    </nav>
+
+    <section class="experienceGrid">
+      <section class="chatPanel" aria-labelledby="chat-title">
+        <div class="panelHeader">
+          <div><p class="eyebrow">ALEXA+ CONVERSATION</p><h2 id="chat-title">Gift concierge</h2></div>
+          <label>Surface<select id="surface"><option value="show8">Echo Show 8</option><option value="show15">Echo Show 15</option><option value="mobile">Alexa mobile</option><option value="voice">Voice only</option></select></label>
+        </div>
+        <div class="conversation" id="conversation" aria-live="polite">
+          <article class="message alexa"><div class="avatar">A+</div><div><small>Alexa+ with WanderWrap</small><p>Who are we surprising today?</p></div></article>
+          <article class="message user"><div><small>You</small><p>My partner. I want something personal, but asking directly would spoil it.</p></div></article>
+          <article class="message alexa"><div class="avatar">W</div><div><small>WanderWrap</small><p>Share a few clues you already know, or paste selected public posts you are allowed to use. I will never connect to their account or retain the raw text in this demo.</p></div></article>
+        </div>
+        <form id="promptForm">
+          <label for="prompt">Continue the conversation</label>
+          <div class="composer"><input id="prompt" value="Keep it under GBP 60 and make it feel calm and creative." autocomplete="off"><button>Send</button></div>
+        </form>
+      </section>
+
+      <aside class="intelligencePanel">
+        <section id="clueStage" class="stageCard">
+          <div class="stageHeading"><span>01</span><div><p class="eyebrow">CLUE INBOX</p><h2>What have they shared?</h2></div></div>
+          <p class="supporting">Paste only a few relevant excerpts—not an account export. URLs and raw text are not stored by this demo.</p>
+          <label for="clues">Selected posts or remembered quotes</label>
+          <textarea id="clues" rows="7" placeholder="One excerpt per line…"></textarea>
+          <div class="buttonRow"><button type="button" class="secondary" id="loadExample">Load example clues</button><button type="button" class="primary" id="analyseClues">Find safe clues</button></div>
+          <label class="permission"><input type="checkbox" id="permission"> I confirm I am allowed to use these selected excerpts for this private gift search.</label>
+        </section>
+
+        <section id="confirmStage" class="stageCard" hidden>
+          <div class="stageHeading"><span>02</span><div><p class="eyebrow">YOUR CONFIRMATION</p><h2>Which clues feel true?</h2></div></div>
+          <p class="supporting">These are candidates—not facts. Nothing influences ranking until you confirm it.</p>
+          <div id="candidateList" class="candidateList"></div>
+          <div id="privacyNotice" class="privacyNotice"></div>
+          <div class="buttonRow"><button type="button" class="secondary" id="backToClues">Edit excerpts</button><button type="button" class="primary" id="confirmClues">Confirm & coordinate</button></div>
+        </section>
+
+        <section id="resultStage" class="stageCard" hidden>
+          <div class="stageHeading"><span>03</span><div><p class="eyebrow">THOUGHTFUL SHORTLIST</p><h2>Made for this moment</h2></div></div>
+          <div id="giftGrid" class="giftGrid"></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="coordination" aria-labelledby="coordination-title">
+      <div class="coordinationIntro"><p class="eyebrow">MULTI-AGENT COORDINATION</p><h2 id="coordination-title">One request. Clear responsibilities.</h2><p>Each agent receives the minimum data and capability it needs. The approval guard controls every external handoff.</p></div>
+      <div id="agentRail" class="agentRail">
+        <article data-agent="privacy"><i></i><b>Privacy guard</b><small>Waiting for permission</small></article>
+        <article data-agent="preference"><i></i><b>Preference agent</b><small>Waiting for clues</small></article>
+        <article data-agent="recommendation"><i></i><b>Recommendation agent</b><small>Waiting for confirmation</small></article>
+        <article data-agent="catalogue"><i></i><b>Catalogue agent</b><small>Waiting for selection</small></article>
+        <article data-agent="routing"><i></i><b>Fulfilment agent</b><small>Waiting for provider evidence</small></article>
+        <article data-agent="approval"><i></i><b>Approval guard</b><small>No external action</small></article>
       </div>
     </section>
 
-    <details class="trace" open>
-      <summary>MCP trace</summary>
-      <pre id="trace">Waiting for a scenario…</pre>
+    <section id="handoffStage" class="handoff" hidden>
+      <div class="handoffCopy"><p class="eyebrow">FINAL HANDOFF</p><h2>Ready to review on Amazon</h2><p>WanderWrap has finished its job. Amazon confirms the live price, stock, delivery address and purchase. Nothing has been ordered yet.</p><div class="assurance"><span>✓ Confirmed preference fit</span><span>✓ UK marketplace route</span><span>✓ Customer approval required</span></div></div>
+      <div class="amazonCard">
+        <small>SELECTED GIFT</small><h3 id="selectedGift">Make-your-own ceramic cup</h3><p id="selectedReason">Chosen from your confirmed clues.</p><dl><div><dt>Guide price</dt><dd id="selectedPrice">GBP 38</dd></div><div><dt>Marketplace</dt><dd>Amazon.co.uk</dd></div><div><dt>Demo status</dt><dd>Fixture route</dd></div></dl>
+        <a id="amazonHandoff" class="amazonButton" href="https://www.amazon.co.uk/s?k=ceramic+gift" target="_blank" rel="noopener noreferrer">Continue to Amazon <span>↗</span></a>
+        <p class="finePrint">External handoff. Availability, price, delivery and checkout are confirmed on Amazon.</p>
+      </div>
+    </section>
+
+    <details class="trace">
+      <summary>Technical evidence <span>MCP 2025-11-25 · Streamable HTTP</span></summary>
+      <pre id="trace">Run the journey to see redacted MCP calls and agent outcomes.</pre>
     </details>
   </main>
   <script type="module" src="alexa-simulator.js"></script>

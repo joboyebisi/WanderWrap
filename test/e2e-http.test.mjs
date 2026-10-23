@@ -34,7 +34,7 @@ test('serves health, simulator, and OAuth protected-resource metadata', async ()
 
   const simulator = await fetch(`${baseUrl}/alexa-simulator.html`);
   assert.equal(simulator.status, 200);
-  assert.match(await simulator.text(), /Alexa\+ simulated experience/);
+  assert.match(await simulator.text(), /interactive Alexa\+ journey/);
 
   const metadata = await fetch(`${baseUrl}/.well-known/oauth-protected-resource/mcp`);
   assert.equal(metadata.status, 200);

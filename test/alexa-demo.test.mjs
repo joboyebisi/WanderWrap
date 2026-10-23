@@ -26,6 +26,22 @@ test('device-free Alexa+ golden path discovers, recommends and routes through MC
   assert.equal(route.autoPurchase, false);
 });
 
+test('selected social text becomes confirmation-only clues before ranking', async () => {
+  const analysed = await call('analyse_gift_clues', {
+    allowedToUse: true,
+    snippets: [
+      { id: 'post-1', source: 'x', text: 'I love ceramics and want to try pottery this year.' },
+      { id: 'post-2', source: 'facebook', text: 'I enjoy reading with tea on slow Sunday mornings.' },
+      { id: 'post-3', source: 'x', text: 'I am in debt and worried about my credit score.' }
+    ]
+  });
+  assert.equal(analysed.ephemeral, true);
+  assert.equal(analysed.candidates.some(candidate => candidate.value === 'creative'), true);
+  assert.equal(analysed.candidates.some(candidate => candidate.value === 'books'), true);
+  assert.equal(analysed.candidates.every(candidate => candidate.rankEligible === false), true);
+  assert.equal(analysed.rejected.some(item => item.reason === 'sensitive_trait'), true);
+});
+
 test('MCP Apps discovery links tools to a hashed adaptive UI resource', async () => {
   const initialized = await handleMcpRequest({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: PROTOCOL_VERSION } });
   assert.deepEqual(initialized.result.capabilities.extensions['io.modelcontextprotocol/ui'], {});

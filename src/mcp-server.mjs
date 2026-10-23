@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { invokeTool } from './mcp-tools.mjs';
+import { extractPreferenceCandidates } from './preference-intelligence.mjs';
 
 export const PROTOCOL_VERSION = '2025-11-25';
 export const MCP_APP_MIME_TYPE = 'text/html;profile=mcp-app';
@@ -26,6 +27,17 @@ const commonUiMeta = {
 };
 
 const TOOL_DEFINITIONS = [
+  tool({
+    name: 'analyse_gift_clues', title: 'Analyse selected gift clues',
+    description: 'Extract non-sensitive preference candidates from text the customer deliberately pasted and is allowed to use. Raw text is transient, candidates still require customer confirmation, and rejected sensitive snippets never reach ranking.',
+    properties: {
+      snippets: { type: 'array', minItems: 1, maxItems: 8, items: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string' }, source: { enum: ['x', 'facebook', 'manual_export'] } }, required: ['id', 'text'], additionalProperties: false } },
+      allowedToUse: { const: true, description: 'True only after the customer confirms they are allowed to use the selected text.' }
+    },
+    required: ['snippets', 'allowedToUse'],
+    outputSchema: objectOutput({ voiceSummary: { type: 'string' }, candidates: { type: 'array', items: { type: 'object' } }, rejected: { type: 'array', items: { type: 'object' } }, ephemeral: { type: 'boolean' }, nextAction: { type: 'string' } }),
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false }
+  }),
   tool({
     name: 'recommend_gifts', title: 'Find thoughtful gifts',
     description: 'Find and rank up to four gift ideas using only recipient preferences the customer has confirmed. Use this before routing or checkout. Returns concise spoken context and structured cards for a screen.',
@@ -101,6 +113,10 @@ export async function handleMcpRequest(message, context = {}) {
     const args = message.params?.arguments || {};
     if (WRITE_TOOLS.has(name) && args.userApproved !== true) return failure(message.id, -32001, 'Explicit user approval required');
     try {
+      if (name === 'analyse_gift_clues') {
+        const structuredContent = analyseGiftClues(args);
+        return success(message.id, { content: [{ type: 'text', text: structuredContent.voiceSummary }], structuredContent, _meta: { 'wanderwrap/resultVersion': '1.0' } });
+      }
       const value = await invokeTool(name, args, {
         userId: context.userId,
         tenantId: context.tenantId,
@@ -116,6 +132,43 @@ export async function handleMcpRequest(message, context = {}) {
     }
   }
   return failure(message.id, -32601, 'Method not found');
+}
+
+function analyseGiftClues({ snippets, allowedToUse } = {}) {
+  if (allowedToUse !== true) throw new Error('Permission confirmation is required before analysing pasted clues');
+  if (!Array.isArray(snippets) || snippets.length === 0 || snippets.length > 8) throw new Error('Provide between one and eight selected clues');
+  const now = new Date().toISOString();
+  const subjectId = 'transient-demo-subject';
+  const connection = {
+    provider: 'manual_export', accountOwnerId: subjectId, enabled: true,
+    consent: { subjectId, selfConsented: true, grantedAt: now, scopes: ['posts.read'], purposes: ['preference_intelligence'] }
+  };
+  const content = snippets.map((snippet, index) => ({
+    id: String(snippet?.id || `clue-${index + 1}`).slice(0, 80),
+    kind: 'post', authorId: subjectId,
+    text: String(snippet?.text || '').slice(0, 1_000),
+    createdAt: now,
+    categories: []
+  }));
+  const analysed = extractPreferenceCandidates({ connection, subjectId, content, now });
+  const candidates = analysed.candidates.map(candidate => ({
+    id: candidate.id,
+    value: candidate.value,
+    confidence: candidate.confidence,
+    status: candidate.status,
+    rankEligible: false,
+    provenance: { source: 'customer-selected-text', contentId: candidate.provenance.contentId, basis: candidate.provenance.basis }
+  }));
+  const rejected = analysed.rejected.map(item => ({ contentId: item.id, reason: item.reason }));
+  return {
+    voiceSummary: candidates.length
+      ? `I found ${candidates.length} possible interests. Please confirm the ones you personally recognise before I use them.`
+      : 'I did not find a safe, explicit gift preference in those clues. Try another selected post or tell me what they enjoy.',
+    candidates,
+    rejected,
+    ephemeral: true,
+    nextAction: 'Confirm or remove every candidate before recommendation.'
+  };
 }
 
 async function presentToolResult(name, value, context) {
