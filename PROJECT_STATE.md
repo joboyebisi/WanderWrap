@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-23
 
-Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. `www.wanderwrap.co.uk` serves the Vercel app and web health returns `200`; the production smoke test correctly stops at signup because `WANDERWRAP_OAUTH_BASE_URL` is not yet configured in Vercel. AWS `wanderwrap-development` is `UPDATE_COMPLETE`, Cognito callback/logout URLs now use `https://www.wanderwrap.co.uk`, both intended origins are allow-listed, and both alarms are `OK`.
+Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests, and GitHub CI passed for commit `3c39e17`. `www.wanderwrap.co.uk` serves the latest Vercel app, including the X/Twitter banner, and web health returns `200`; the production smoke test correctly stops at signup because `WANDERWRAP_OAUTH_BASE_URL` is not yet configured in Vercel. The live MCP resource metadata returns `200`, unauthenticated initialize returns the Alexa-required `401` without `WWW-Authenticate`, and CORS accepts `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` is `UPDATE_COMPLETE`, Cognito callback/logout URLs use the `www` origin, both intended origins are allow-listed, and both alarms are `OK`.
 
-Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified launch commit `d535808` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified hosted-launch commit `3c39e17` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
