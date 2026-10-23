@@ -1,6 +1,6 @@
 # WanderWrap web launch runbook
 
-The public web app belongs at `https://wanderwrap.co.uk` (and optionally `https://www.wanderwrap.co.uk`). Keep the core API and provider secrets on AWS. Vercel hosts only the Next.js companion and its server-side backend-for-frontend routes.
+The current canonical public web app is `https://www.wanderwrap.co.uk`. Configure `https://wanderwrap.co.uk` to redirect to it. Keep the core API and provider secrets on AWS. Vercel hosts only the Next.js companion and its server-side backend-for-frontend routes.
 
 ## 1. Import the GitHub repository into Vercel
 
@@ -12,13 +12,15 @@ The public web app belongs at `https://wanderwrap.co.uk` (and optionally `https:
 | Name | Value |
 |---|---|
 | `WANDERWRAP_CORE_API_URL` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com` |
-| `NEXT_PUBLIC_WANDERWRAP_URL` | `https://wanderwrap.co.uk` |
+| `NEXT_PUBLIC_WANDERWRAP_URL` | `https://www.wanderwrap.co.uk` |
 | `WANDERWRAP_OAUTH_BASE_URL` | `https://wanderwrap-development-695912022574.auth.eu-west-2.amazoncognito.com` |
 | `WANDERWRAP_WEB_CLIENT_ID` | `5c521h6hf7pmkuiug6s15jnvhk` |
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
 | `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords, PayPal secrets or provider secrets to the Vercel project.
+
+After adding or changing an environment variable, redeploy Production. Public testing on 2026-10-23 found `WANDERWRAP_OAUTH_BASE_URL` missing from the deployed functions, so signup/login returned `503` even though static pages were healthy.
 
 ## 2. Attach the domain
 
@@ -27,12 +29,14 @@ These values identify public endpoints/clients; they are not credentials. Do not
 3. Make one hostname canonical and redirect the other in Vercel.
 4. Wait for Vercel to show valid DNS and TLS before updating OAuth.
 
+Public verification on 2026-10-23 found `www.wanderwrap.co.uk` correctly served by Vercel, while the apex `wanderwrap.co.uk` still returned the registrar `/lander` page. Replace the apex A records with the exact values Vercel shows in the project, then configure one hostname to redirect permanently to the canonical hostname.
+
 ## 3. Update AWS after the domain is verified
 
 Update `wanderwrap-development` with:
 
-- `WebUrl=https://wanderwrap.co.uk`
-- `AllowedOrigins=https://wanderwrap.co.uk,https://www.wanderwrap.co.uk`
+- `WebUrl=https://www.wanderwrap.co.uk`
+- `AllowedOrigins=https://www.wanderwrap.co.uk,https://wanderwrap.co.uk`
 
 This changes the Cognito callback/logout URLs and API CORS allow-list together. Do not change only one side: a mismatch will break PKCE or browser API calls.
 
@@ -46,6 +50,8 @@ This changes the Cognito callback/logout URLs and API CORS allow-list together. 
 6. Sign out and confirm the protected dashboard and simulator require authentication again.
 
 This proves the normal non-administrator customer flow. It does not prove Amazon Alexa+ onboarding, live catalogue inventory, delivery, payment or purchase.
+
+Before the manual journey, run `npm run test:web:live -- https://www.wanderwrap.co.uk`. It verifies Vercel delivery, security headers, web health, signed-out behavior and the Cognito PKCE redirect without creating an account.
 
 ## 5. AWS deployment identity
 

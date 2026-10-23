@@ -6,6 +6,7 @@ const channels = [
   { name: 'Google calendar', state: 'Optional · not connected', tone: 'planned', text: 'A future just-in-time connection for occasions you choose to share. It is not required to use WanderWrap.' },
   { name: 'Telegram', state: 'Adapter planned', tone: 'planned', text: 'A signed webhook and explicit bot permissions are required before this can be enabled.' },
   { name: 'Facebook / Messenger', state: 'Review required', tone: 'planned', text: 'Login never means access to friends or feeds. Any messaging connection will require separate Meta approval and consent.' },
+  { name: 'X / Twitter', state: 'Review required', tone: 'planned', text: 'A future connection can use only actions and content the account holder explicitly authorizes. Timeline monitoring and automated replies are not enabled.' },
   { name: 'Mobile', state: 'On the roadmap', tone: 'planned', text: 'The responsive website works on mobile now; a native app can follow once identity and journey contracts are stable.' }
 ];
 

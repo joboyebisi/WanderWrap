@@ -30,7 +30,7 @@ export default function HomePage() {
           </aside>
         </section>
       </div>
-      <section className="marquee" aria-label="Available and planned channels"><div>WEB <span>✦</span> ALEXA+ <span>✦</span> TELEGRAM <span>✦</span> MESSENGER <span>✦</span> MOBILE</div></section>
+      <section className="marquee" aria-label="Available and planned channels"><div>WEB <span>✦</span> ALEXA+ <span>✦</span> TELEGRAM <span>✦</span> MESSENGER <span>✦</span> X / TWITTER <span>✦</span> MOBILE</div></section>
       <section className="shell storySection">
         <div className="sectionHeading"><p className="eyebrow">LESS SEARCHING. MORE KNOWING.</p><h2>A calm path from “I should get something” to “this feels right.”</h2></div>
         <div className="stepGrid">{steps.map((step, index) => <article className="stepCard" key={step[0]}><span>0{index + 1}</span><h3>{step[0]}</h3><p>{step[1]}</p></article>)}</div>

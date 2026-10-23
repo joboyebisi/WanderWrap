@@ -10,6 +10,7 @@
     "start": "node server.mjs",
     "demo": "node server.mjs",
     "test:e2e": "node --test test/e2e-http.test.mjs",
+    "test:web:live": "node scripts/verify-web-launch.mjs",
     "web:dev": "npm run dev --workspace @wanderwrap/web",
     "web:build": "npm run build --workspace @wanderwrap/web",
     "build:alexa": "vite build",

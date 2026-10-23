@@ -16,10 +16,10 @@ Parameters:
     Type: String
   WebUrl:
     Type: String
-    Default: https://wanderwrap.co.uk
+    Default: https://www.wanderwrap.co.uk
   AllowedOrigins:
     Type: CommaDelimitedList
-    Default: https://wanderwrap.co.uk,https://www.wanderwrap.co.uk
+    Default: https://www.wanderwrap.co.uk,https://wanderwrap.co.uk
   AlexaRedirectUris:
     Type: String
     Default: ''
