@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-23
 
-Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build (including landing, connections, sign-up, dashboard and simulator routes), AWS handler syntax, and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. Local HTTP smoke checks returned 200 for `/`, `/connections` and `/simulator`; the unauthenticated session failed closed and `/api/auth/signup` produced a Cognito PKCE redirect. AWS health returned 200, both application alarms were `OK`, and the deployment IAM stack reached `CREATE_COMPLETE`.
+Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build (including landing, connections, sign-up, dashboard and simulator routes), AWS handler syntax, and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests. Repository image/document links were verified locally. AWS CloudFormation accepted the updated `AlexaRedirectUris` list and confidential Alexa client configuration. Earlier live checks returned API health `200`, both application alarms `OK`, and deployment IAM `UPDATE_COMPLETE`.
 
-Git checkpoint: the verified launch history belongs in `joboyebisi/WanderWrap`. Its remote `main` points to the local history's `8593fbf` base, so the current work can be published as a normal fast-forward. The former `joboyebisi/TenderTeddy` remote was identified as the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified launch commit `d535808` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
@@ -30,6 +30,8 @@ The primary hackathon story is: ask for a gift, receive evidence-backed recommen
 - PayPal sandbox client boundary for OAuth, idempotent create/capture, and provider-verified webhooks; it remains disabled until sandbox credentials and trusted supplier pricing are configured.
 - Automated domain, provider, orchestration, channel, MCP, AWS, and HTTP end-to-end tests.
 - `wanderwrap-deployment-iam` AWS stack with a GitHub OIDC role restricted to `joboyebisi/WanderWrap` on `main`, a separate CloudFormation execution role, and no long-lived CI access key.
+- GitHub-facing README with existing approved artwork, architecture/journey diagrams, documentation index, Vercel runbook, Alexa+ remaining-test plan, demo script, pull-request template and automatic CI.
+- Alexa Cognito infrastructure now accepts Amazon's complete comma-separated redirect list and creates a separate confidential app client when onboarding values are supplied.
 
 ## Proof commands
 
@@ -69,7 +71,7 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 1. Import `joboyebisi/WanderWrap` into Vercel using `apps/web`, configure the variables in `docs/WEB_LAUNCH_RUNBOOK.md`, and attach `wanderwrap.co.uk` in Vercel/GoDaddy.
 2. Update the AWS stack to use the verified HTTPS web URL for both Cognito callback/logout and API allowed origins; keep the AWS API separate from Vercel.
 3. Complete one human browser sign-up/login and prove dashboard plus protected simulator journeys. Configure IAM Identity Center/SSO for routine human AWS work.
-4. Complete Alexa+ developer onboarding, add the exact redirect URI to the development stack, and verify resource-bound OAuth 2.1/PKCE account linking.
+4. Complete Alexa+ developer onboarding, add every exact Amazon redirect URI to `AlexaRedirectUris`, configure the generated client secret securely in Amazon, and verify resource-bound OAuth 2.1/PKCE account linking.
 5. Integrate Amazon Creators API and verify live search responses without presenting unverified price, delivery, or stock.
 6. Complete the PayPal sandbox create/approve/capture/signed-webhook loop and replay/idempotency tests.
 7. Record Alexa+ Web Simulator, provider sandbox, latency, accessibility, and failure-recovery evidence.
@@ -83,7 +85,8 @@ The web launch and non-administrator customer test sequence is in `docs/WEB_LAUN
 - Technical design: `docs/TECHNICAL_SPEC.md`
 - Delivery status: `docs/IMPLEMENTATION_STATUS.md`
 - Omnichannel architecture: `docs/OMNICHANNEL_ARCHITECTURE.md`
-- Alexa readiness and testing: `docs/ALEXA_PLUS_READINESS.md`, `docs/ALEXA_SIMULATOR_TESTING.md`
+- Alexa readiness and testing: `docs/ALEXA_PLUS_READINESS.md`, `docs/ALEXA_SIMULATOR_TESTING.md`, `docs/ALEXA_PLUS_TEST_PLAN.md`
+- Recording: `docs/DEMO_SCRIPT.md`
 - Credential/live gates: `docs/LIVE_INTEGRATION_CHECKLIST.md`
 - Provider extension contract: `docs/PROVIDER_ADAPTER_GUIDE.md`
 

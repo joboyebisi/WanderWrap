@@ -20,10 +20,10 @@ Parameters:
   AllowedOrigins:
     Type: CommaDelimitedList
     Default: https://wanderwrap.co.uk,https://www.wanderwrap.co.uk
-  AlexaRedirectUri:
+  AlexaRedirectUris:
     Type: String
     Default: ''
-    Description: Exact redirect URI supplied by Alexa+ onboarding. Leave empty until onboarding.
+    Description: Comma-separated exact redirect URIs supplied by Alexa+ onboarding. Leave empty until onboarding.
   ApiDomainName:
     Type: String
     Default: ''
@@ -32,7 +32,7 @@ Parameters:
     Default: ''
 
 Conditions:
-  HasAlexaRedirect: !Not [!Equals [!Ref AlexaRedirectUri, '']]
+  HasAlexaRedirect: !Not [!Equals [!Ref AlexaRedirectUris, '']]
   HasCustomApiDomain: !And
     - !Not [!Equals [!Ref ApiDomainName, '']]
     - !Not [!Equals [!Ref ApiCertificateArn, '']]
@@ -147,7 +147,7 @@ Resources:
     Properties:
       ClientName: !Sub ${ProjectName}-${Environment}-alexa
       UserPoolId: !Ref UserPool
-      GenerateSecret: false
+      GenerateSecret: true
       PreventUserExistenceErrors: ENABLED
       EnableTokenRevocation: true
       AccessTokenValidity: 60
@@ -161,7 +161,7 @@ Resources:
         - openid
         - wanderwrap/gifts.read
         - wanderwrap/gifts.write
-      CallbackURLs: [!Ref AlexaRedirectUri]
+      CallbackURLs: !Split [',', !Ref AlexaRedirectUris]
       SupportedIdentityProviders: [COGNITO]
 
   FunctionRole:

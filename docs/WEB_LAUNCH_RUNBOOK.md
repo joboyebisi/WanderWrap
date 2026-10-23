@@ -66,3 +66,5 @@ Deploy this IAM stack once with an administrator. Routine GitHub deployments the
 - [Meta for Developers](https://developers.facebook.com/) only when Messenger permissions, review and deletion/revocation flows are implemented.
 
 Google, Telegram and Meta credentials are not needed to launch the core account, web workspace or authenticated browser demo.
+
+Alexa onboarding later supplies `AlexaRedirectUris` for the AWS stack and requires the generated Alexa Cognito client secret in Amazon’s secure account-linking configuration. This secret does not belong in Vercel because the web client is a separate public PKCE client.

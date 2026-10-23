@@ -20,6 +20,7 @@ This file turns the launch PRD and technical specification into a living deliver
 - [x] Next.js App Router web workspace with constrained core-API backend-for-frontend
 - [x] Branded responsive landing page, honest channel-connection hub and verified-email customer sign-up entry point
 - [x] Authenticated browser Alexa+ journey simulator calling the protected MCP initialize, discovery, recommendation and routing sequence
+- [x] Public repository presentation, documentation index, verified CI workflow, Alexa+ external test plan and timed demo script
 - [x] Deliverability-aware Amazon / PayPal / Xoom routing policy
 - [x] Claim-link and group-gift state machines
 - [x] Server-priced PayPal Orders payload and capture guard

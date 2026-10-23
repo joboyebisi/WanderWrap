@@ -12,12 +12,12 @@ WanderWrap uses the Alexa+ MCP Toolkit because gifting does not fit a current ca
 | Device adaptation | Host context drives display mode/theme; local harness previews Echo Show 8/15, mobile and voice-only | Implemented locally |
 | Touch interaction | Gift selection sends `ui/message` back into the Alexa+ conversation; purchase intent hands control to Alexa+ | Implemented locally |
 | Accessibility | Voice/touch parity, semantic content, 48px targets, focus states, contrast-aware themes, reduced motion and listing alt text | Implemented baseline; device QA pending |
-| Account linking | Protected Resource Metadata and scoped bearer boundary exist | OAuth 2.1 Authorization Code + PKCE S256, refresh-token and production token validation pending |
+| Account linking | Protected Resource Metadata, Cognito Authorization Code + PKCE S256, refresh handling and resource/scope JWT validation are deployed | Alexa client, complete Amazon redirect URI registration and linked-customer evidence pending |
 | Personalisation | Stable linked-user context is accepted by MCP and stored domain data already exists | Enabled after account linking |
-| Generative AI | Amazon Bedrock Nova 2 Lite explains deterministic matches; IAM role auth, constrained prompts and deterministic fallback prevent an AI outage from blocking gifting | Implemented and tested locally; account invocation pending login |
+| Generative AI | Amazon Bedrock Nova 2 Lite explains deterministic matches; IAM role auth, constrained prompts and deterministic fallback prevent an AI outage from blocking gifting | Adapter and AWS IAM deployed; linked-user live invocation evidence pending |
 | Payments | Discovery provides product context; Alexa+ owns confirmation, payment selection and PIN; no payment UI is embedded | UCP checkout endpoints and Amazon Pay/PSP onboarding pending |
 | Store listing | `alexa/addon-package/addon.json`, six icon sizes, carousel art, privacy and terms pages | Draft complete; public asset verification pending deployment |
-| Testing | 63 automated contracts plus local multimodal harness | Passing; Local Inspector, Web Simulator and real-device QA pending |
+| Testing | 92 automated contracts, HTTP end-to-end suite and local multimodal harness | Passing; Amazon Local Inspector, Web Simulator and real-device QA pending |
 | Certification | Clear no-auto-purchase boundary, provider disclosures and customer-facing policies | Submission pending external onboarding and QA |
 
 ## Identity decision
