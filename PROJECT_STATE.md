@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-23
 
-Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests, and GitHub CI passed for commit `3c39e17`. `www.wanderwrap.co.uk` serves the latest Vercel app, including the X/Twitter banner, and web health returns `200`; the production smoke test correctly stops at signup because `WANDERWRAP_OAUTH_BASE_URL` is not yet configured in Vercel. The live MCP resource metadata returns `200`, unauthenticated initialize returns the Alexa-required `401` without `WWW-Authenticate`, and CORS accepts `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` is `UPDATE_COMPLETE`, Cognito callback/logout URLs use the `www` origin, both intended origins are allow-listed, and both alarms are `OK`.
+Latest verification: `npm run check` passed on 2026-10-23 — Alexa MCP App build, Next.js production build, AWS handler syntax and 92/92 automated tests. `npm run test:e2e` independently passed 3/3 HTTP golden-path tests, and GitHub CI passed for commit `2cdfac6`. Both public hostnames now reach Vercel: `wanderwrap.co.uk` returns Vercel's permanent `308` redirect to `www.wanderwrap.co.uk`, and `www` serves the latest app, including the X/Twitter banner. A cache-bypassed production smoke test still receives `503` from signup with `WANDERWRAP_OAUTH_BASE_URL is not configured`, despite the variables being reported as added and redeployed; confirm the exact key, Production scope, correct Vercel project and deployment association. The live MCP resource metadata returns `200`, unauthenticated initialize returns the Alexa-required `401` without `WWW-Authenticate`, and CORS accepts `https://www.wanderwrap.co.uk`. AWS `wanderwrap-development` is `UPDATE_COMPLETE`, Cognito callback/logout URLs use the `www` origin, both intended origins are allow-listed, and both alarms are `OK`.
 
-Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified hosted-launch commit `3c39e17` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
+Git checkpoint: `origin` is `https://github.com/joboyebisi/WanderWrap.git`; verified state commit `2cdfac6` is on remote `main`. The former `joboyebisi/TenderTeddy` remote was the wrong destination and must not be used for deployment.
 
 This is the durable handoff for humans and coding agents. Read it first; update it after material work. It records what is proven, what is simulated, and the next safe step. It must never contain secrets.
 
@@ -61,8 +61,8 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 ## Current blockers and external dependencies
 
 1. The GitHub deployment identity is now created, but human AWS CLI access still identifies as account root. Configure IAM Identity Center/SSO before further routine human operations.
-2. `www.wanderwrap.co.uk` is live on Vercel, but the apex still resolves to the registrar lander. Replace its old A records with Vercel's current project values and redirect the apex to `www`.
-3. Vercel production is missing `WANDERWRAP_OAUTH_BASE_URL` (and the remaining documented variables must be confirmed), so signup/login currently return `503`. Redeploy after setting them, then create and verify one human test account.
+2. Both domains reach Vercel and the apex redirects permanently to `www`; no DNS blocker remains.
+3. The deployed Vercel function still cannot read `WANDERWRAP_OAUTH_BASE_URL`, despite the variables being reported as configured and redeployed, so signup/login currently return `503`. Confirm the exact key, Production environment scope, correct WanderWrap project, and that the production deployment was created after the variable was saved.
 4. Alexa+ remote onboarding, the exact Alexa redirect URI, development add-on deployment, and Web Simulator evidence are incomplete.
 5. Amazon Creators and PayPal sandbox credentials have not been supplied through a secure secret store.
 6. The provider webhook/reconciliation loop and fulfilment/thank-you UI are not yet complete.
@@ -70,9 +70,8 @@ Then open `http://127.0.0.1:4202/alexa-simulator.html`. `npm run test:e2e` start
 
 ## Next actions, in order
 
-1. Add/confirm all six variables in `docs/WEB_LAUNCH_RUNBOOK.md` for Vercel Production, using `NEXT_PUBLIC_WANDERWRAP_URL=https://www.wanderwrap.co.uk`, then redeploy.
-2. Correct the apex DNS/redirect and run `npm run test:web:live -- https://www.wanderwrap.co.uk` until it passes.
-3. Complete one human browser sign-up/login and prove dashboard plus protected simulator journeys. Configure IAM Identity Center/SSO for routine human AWS work.
+1. Resolve why the production Vercel function cannot read `WANDERWRAP_OAUTH_BASE_URL`, then redeploy and run `npm run test:web:live -- https://www.wanderwrap.co.uk` until it passes.
+2. Complete one human browser sign-up/login and prove dashboard plus protected simulator journeys. Configure IAM Identity Center/SSO for routine human AWS work.
 4. Complete Alexa+ developer onboarding, add every exact Amazon redirect URI to `AlexaRedirectUris`, configure the generated client secret securely in Amazon, and verify resource-bound OAuth 2.1/PKCE account linking.
 5. Integrate Amazon Creators API and verify live search responses without presenting unverified price, delivery, or stock.
 6. Complete the PayPal sandbox create/approve/capture/signed-webhook loop and replay/idempotency tests.

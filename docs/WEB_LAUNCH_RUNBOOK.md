@@ -20,7 +20,7 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords, PayPal secrets or provider secrets to the Vercel project.
 
-After adding or changing an environment variable, redeploy Production. Public testing on 2026-10-23 found `WANDERWRAP_OAUTH_BASE_URL` missing from the deployed functions, so signup/login returned `503` even though static pages were healthy.
+After adding or changing an environment variable, redeploy Production. Cache-bypassed public testing on 2026-10-23 still found `WANDERWRAP_OAUTH_BASE_URL` unavailable to the deployed function after the variables were reported as added and redeployed. If signup returns `503`, verify the exact key spelling, **Production** scope, correct WanderWrap Vercel project, and that the tested production deployment was created after the variable was saved.
 
 ## 2. Attach the domain
 
@@ -29,7 +29,7 @@ After adding or changing an environment variable, redeploy Production. Public te
 3. Make one hostname canonical and redirect the other in Vercel.
 4. Wait for Vercel to show valid DNS and TLS before updating OAuth.
 
-Public verification on 2026-10-23 found `www.wanderwrap.co.uk` correctly served by Vercel, while the apex `wanderwrap.co.uk` still returned the registrar `/lander` page. Replace the apex A records with the exact values Vercel shows in the project, then configure one hostname to redirect permanently to the canonical hostname.
+Public verification on 2026-10-23 confirmed both hostnames reach Vercel: `wanderwrap.co.uk` returns a permanent `308` redirect to the canonical `https://www.wanderwrap.co.uk/` hostname.
 
 ## 3. Update AWS after the domain is verified
 
