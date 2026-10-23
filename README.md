@@ -45,7 +45,7 @@
 | Surface | Role | Current state |
 |---|---|---|
 | Alexa+ MCP add-on | Voice-led discovery, recommendation and fulfilment routing | Server and package implemented; Amazon onboarding and Web Simulator evidence pending |
-| Next.js web | Landing page, public `/route` gifting journey, customer account, connections, gift workspace and authenticated demo | Ready for Vercel deployment |
+| Next.js web | Landing page, public `/gift-finder` gifting journey, customer account, connections, gift workspace and authenticated demo | Ready for Vercel deployment |
 | AWS core | OAuth, MCP, APIs, DynamoDB, Bedrock boundary and alarms | Development stack deployed in `eu-west-2` |
 | Telegram / Messenger / mobile | Future channel adapters over the same journey | Architecture only; not presented as live |
 
@@ -129,7 +129,7 @@ PROJECT_STATE.md          Durable checkpoint, evidence, blockers and next action
 - Protocol: Streamable HTTP MCP `2025-11-25`
 - Authentication: Cognito authorization code + PKCE foundation with scoped, resource-bound JWT validation
 - Runtime: Lambda, API Gateway, DynamoDB and CloudWatch
-- Web host: `https://www.wanderwrap.co.uk` on Vercel; the public `/route` demo needs no account, while production signup/login still requires a final environment smoke test
+- Web host: `https://www.wanderwrap.co.uk` on Vercel; the public `/gift-finder` demo needs no account, while production signup/login still requires a final environment smoke test
 - AWS deployment identity: GitHub OIDC restricted to `joboyebisi/WanderWrap:main`
 
 See the [web launch runbook](docs/WEB_LAUNCH_RUNBOOK.md) for the exact Vercel variables, domain sequence and post-deployment customer test.

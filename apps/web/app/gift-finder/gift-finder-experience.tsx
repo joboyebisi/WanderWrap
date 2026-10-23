@@ -27,7 +27,7 @@ async function demoAction<T>(payload: Record<string, unknown>): Promise<T> {
   return value as T;
 }
 
-export default function GiftRoute() {
+export default function GiftFinderExperience() {
   const [stage, setStage] = useState(1);
   const [clues, setClues] = useState('');
   const [allowed, setAllowed] = useState(false);

@@ -20,7 +20,7 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords or PayPal secrets to the Vercel project.
 
-The public `/route` journey works without additional credentials and finishes with a normal Amazon marketplace search. To upgrade that handoff to provider-authored product links, images, offer availability and price fields, add these as encrypted **Production** variables (never `NEXT_PUBLIC_*`):
+The public `/gift-finder` journey works without additional credentials and finishes with a normal Amazon marketplace search. The former `/route` URL permanently redirects to it. To upgrade that handoff to provider-authored product links, images, offer availability and price fields, add these as encrypted **Production** variables (never `NEXT_PUBLIC_*`):
 
 | Name | Source |
 |---|---|
@@ -53,7 +53,7 @@ This changes the Cognito callback/logout URLs and API CORS allow-list together. 
 
 ## 4. Prove the customer journey
 
-1. Visit `/route` while signed out and run the fictional-example flow: permission → clue confirmation → shortlist → Amazon handoff.
+1. Visit `/gift-finder` while signed out and run the fictional-example flow: permission → clue confirmation → shortlist → Amazon handoff.
 2. Confirm the final card says `Amazon search handoff` when Creators API is not configured, or shows `LIVE AMAZON RESULT` cards when it is configured.
 3. Confirm no purchase occurs and the external Amazon link opens only after the customer clicks it.
 4. Visit `/api/auth/signup` and create a new test customer using an email you control.
@@ -61,7 +61,7 @@ This changes the Cognito callback/logout URLs and API CORS allow-list together. 
 6. Confirm the callback returns to `/dashboard` and `/api/auth/session` reports an authenticated user.
 7. Add a person, add one confirmed preference, request recommendations and save one for approval.
 8. Open `/simulator`; run initialize → tools/list → recommend_gifts → route_gift and check the visible trace.
-9. Sign out and confirm the protected dashboard and simulator require authentication again while `/route` remains publicly usable.
+9. Sign out and confirm the protected dashboard and simulator require authentication again while `/gift-finder` remains publicly usable.
 
 This proves the public preview and normal non-administrator customer flow. The Creators API badge proves catalogue response provenance only; it does not prove delivery to the eventual address, payment, purchase, or official Alexa+ onboarding.
 
