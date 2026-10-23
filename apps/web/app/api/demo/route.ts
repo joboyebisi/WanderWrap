@@ -91,6 +91,15 @@ async function handoff(input: Record<string, unknown>) {
 function sameOrigin(request: NextRequest) {
   const origin = request.headers.get('origin');
   if (!origin) return false;
+  if (origin === request.nextUrl.origin) return true;
+  try {
+    const actual = new URL(origin);
+    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host');
+    const forwardedProtocol = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
+    if (forwardedHost && actual.host === forwardedHost && actual.protocol === `${forwardedProtocol}:`) return true;
+  } catch {
+    return false;
+  }
   const configured = process.env.NEXT_PUBLIC_WANDERWRAP_URL;
   if (configured) {
     try {
@@ -106,5 +115,5 @@ function sameOrigin(request: NextRequest) {
       return false;
     }
   }
-  return process.env.NODE_ENV !== 'production' && origin === request.nextUrl.origin;
+  return false;
 }
