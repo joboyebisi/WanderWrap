@@ -11,6 +11,7 @@
     "start": "node server.mjs",
     "demo": "node server.mjs",
     "demo:record": "node scripts/record-gift-finder-demo.mjs",
+    "demo:record:narration": "node scripts/record-narration-ready-demo.mjs",
     "test:e2e": "node --test test/e2e-http.test.mjs",
     "test:web:live": "node scripts/verify-web-launch.mjs",
     "web:dev": "npm run dev --workspace @wanderwrap/web",

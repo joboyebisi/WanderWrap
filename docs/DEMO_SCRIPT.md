@@ -2,6 +2,8 @@
 
 Target length: 2:45–3:00. Record in English at 1080p. Use `https://www.wanderwrap.co.uk/gift-finder` after the production smoke test passes. Use only the fictional partner story; never show credentials, tokens or real partner data.
 
+Run `npm run demo:record:narration` to generate the silent, production-backed footage at `artifacts/wanderwrap-demo-narration-ready.webm`, then add this voice-over in an editor. The prepared artifact is 2:56 and contains no third-party music.
+
 ## Before recording
 
 - Hide notifications and close unrelated tabs.

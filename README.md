@@ -101,6 +101,8 @@ npm run test:e2e
 npm run demo
 # With the Next.js app running on port 3000:
 npm run demo:record
+# Record the production journey with narration-length pauses:
+npm run demo:record:narration
 ```
 
 Then open `http://127.0.0.1:4202/alexa-simulator.html`.
@@ -143,6 +145,7 @@ See the [web launch runbook](docs/WEB_LAUNCH_RUNBOOK.md) for the exact Vercel va
 - `npm run check`: Alexa MCP App build, Next.js production build, AWS handler syntax and 94 automated contracts.
 - `npm run test:e2e`: health, simulator delivery, OAuth discovery, bearer/origin enforcement, MCP initialization, tool discovery, recommendation, routing and approval rejection.
 - `npm run demo:record`: repeatable 1080p silent Gift Finder walkthrough saved under ignored `artifacts/`; pair it with `docs/DEMO_SCRIPT.md` for narration.
+- `npm run demo:record:narration`: a production-backed, narration-ready 1080p walkthrough paced to stay under the hackathon's three-minute limit.
 - AWS: development health endpoint returns `200`; error and duration alarms are `OK`.
 
 These checks prove application behaviour. They do not claim that Alexa+ onboarding, Amazon catalogue availability, PayPal payment or Xoom transfer is live.

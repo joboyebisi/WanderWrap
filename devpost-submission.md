@@ -20,7 +20,7 @@ Gift shopping tools are good at finding products, but weak at remembering the pe
 
 ## Solution
 
-WanderWrap is a channel-neutral gifting companion with Alexa+ and web entry points. A customer can describe the person directly or paste a few selected public excerpts they are allowed to use. A privacy-first MCP tool processes that text transiently, discards sensitive material, and returns confirmation-only preference candidates. Only the candidates the giver personally recognises can influence the explainable shortlist. WanderWrap then checks an eligible handoff route separately from recommendation quality, while purchases, payments, transfers, recipient claims and private-data actions remain behind explicit approval.
+WanderWrap is a channel-neutral gifting companion with Alexa+ and web entry points. Its seven-stage public journey moves from the emotional moment through selected evidence, confirmation, a shared Gift Brief, four distinct directions and a complete gift plan before preparing an Amazon handoff. A privacy-first MCP tool processes selected text transiently, discards sensitive material, and returns confirmation-only preference candidates. Only the candidates the giver personally recognises can influence recommendations. Purchases, payments, transfers, recipient claims and private-data actions remain behind explicit approval.
 
 For this hackathon we built a self-hosted MCP server using specification `2025-11-25` and Streamable HTTP, an MCP App gift board, a clearly labelled browser-based Alexa+ journey simulator, a Next.js companion, and an AWS deployment with Cognito, Lambda, API Gateway, DynamoDB and CloudWatch.
 
@@ -43,8 +43,8 @@ Codex helped translate the product requirements into the MCP/AWS/web implementat
 
 1. **Surprise without surveillance:** remembered clues become ranking evidence only after the customer confirms them.
 2. **Consent-first clue inbox:** selected excerpts are transient input to an MCP tool; raw text is not returned to downstream agents, and candidates require human confirmation.
-3. **Visible specialist coordination:** privacy, preference, recommendation, catalogue, fulfilment and approval responsibilities are shown as real MCP-driven state transitions.
-4. **Explainable gift shortlist:** every recommendation says why it fits and distinguishes guide data from provider-verified facts.
+3. **Visible specialist coordination:** ten bounded roles leave concrete artifacts across the moment, privacy, preferences, constraints, curation, recipient fit, catalogue, routing, story and approval.
+4. **Explainable gift directions:** every option shows recipient value, fit, effort, a watch-out and a trade-off instead of presenting four copies of one product.
 5. **Alexa+-ready MCP:** Streamable HTTP, protocol `2025-11-25`, protected-resource discovery, scoped bearer validation, tool discovery and MCP Apps UI.
 6. **Safe Amazon handoff:** recommendation and routing are separate; the demo ends at a clearly disclosed Amazon review boundary and never invents a purchase.
 7. **Explicit approval:** no purchase, payment or recipient-data action occurs silently, and ambiguous writes never fail over automatically.
@@ -56,9 +56,9 @@ Alexa+ or the browser simulator connects to the authenticated Streamable HTTP MC
 
 ## Testing
 
-- `npm run check` builds the Alexa MCP App and Next.js app, validates the AWS handler, and runs the automated contract suite, including confirmation-only clue extraction.
+- `npm run check` builds the Alexa MCP App and Next.js app, validates the AWS handler, and runs 94 automated contracts, including confirmation-only clue extraction.
 - `npm run test:e2e` proves health, simulator delivery, OAuth metadata, bearer/origin enforcement, MCP initialization, tool discovery, recommendation, routing and rejection of an unapproved write.
-- The interactive browser journey was exercised end to end: fixture excerpts, permission, candidate confirmation, recommendation, selected gift, and Amazon handoff.
+- The live public browser journey was exercised end to end: moment, selected fictional evidence, permission, candidate confirmation, Gift Brief, four directions, complete plan and Amazon handoff.
 - Provider, approval, idempotency, webhook-signature and fallback behaviour have focused tests.
 - The public website and AWS development endpoint are deployed. The recording uses the clearly labelled browser simulator unless official Alexa+ partner tooling becomes available before capture.
 - Amazon catalogue responses, PayPal transactions and official Alexa+ Web Simulator execution are not presented as live without their remaining credential/evidence gates.
@@ -69,16 +69,16 @@ Alexa+ or the browser simulator connects to the authenticated Streamable HTTP MC
 - Repository: https://github.com/joboyebisi/WanderWrap
 - Friction log: https://github.com/joboyebisi/WanderWrap/blob/main/docs/FRICTION_LOG.md
 - Demo video: **TODO — add public English YouTube or Vimeo URL (under 3 minutes)**
-- Optional testing link: https://www.wanderwrap.co.uk/simulator
+- Testing link: https://www.wanderwrap.co.uk/gift-finder
+- Thumbnail: https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/005/659/290/datas/medium.png
 
 ## Suggested screenshots
 
 1. Landing hero with “Remember the person. Find the gift.”
-2. Browser simulator showing the partner scenario, tool trace and explainable shortlist.
-3. MCP App gift board with recommendation reasons.
-4. Web gift workspace showing a confirmed clue and saved-for-approval idea.
-5. Connections page showing honest Ready / Developer setup / Planned states.
-6. Passing automated test summary with no credentials or tokens visible.
+2. Gift Brief showing confirmed interests, visible constraints and confidence.
+3. Four distinct directions showing recipient lens, watch-outs and trade-offs.
+4. Complete gift plan with delivery check, editable note and approval boundary.
+5. Safe Amazon handoff beside the completed ten-role Agent Studio.
 
 ## Limitations and honest readiness
 
@@ -103,7 +103,7 @@ Alexa+ or the browser simulator connects to the authenticated Streamable HTTP MC
 | Open Source mini challenge | No — the primary repository is MIT-licensed, but no separate qualifying OSS contribution is being claimed |
 | Feature request | **Important:** provide a public account-access preflight and self-service sandbox for the Alexa+ MCP Toolkit, including role/registry validation and exact OAuth redirect outputs. |
 | Friction log | https://github.com/joboyebisi/WanderWrap/blob/main/docs/FRICTION_LOG.md |
-| Testing link | https://www.wanderwrap.co.uk/simulator (use only after the production OAuth smoke test passes) |
+| Testing link | https://www.wanderwrap.co.uk/gift-finder (public, no account required) |
 | AI tools | Amazon Bedrock adapter for optional explanations; Codex for implementation, testing, documentation and submission preparation. |
 | Learning level | Significant |
 | Career AI value | Yes |
@@ -140,9 +140,10 @@ Yes. MCP is a strong fit for separating a reusable gifting capability from voice
 - [x] AWS Builder integration is documented.
 - [x] Product feedback and friction log are drafted.
 - [ ] Country, age-of-majority, eligible-jurisdiction and non-employee declarations confirmed by the submitter.
-- [ ] Production OAuth signup/login smoke test passes, or judge instructions use the no-account local demo path.
+- [x] Public no-account production Gift Finder passed the complete seven-stage browser journey.
 - [ ] Under-three-minute public English YouTube/Vimeo demo URL added.
-- [ ] Final screenshots/thumbnail uploaded.
+- [x] Demo image uploaded as the Devpost project thumbnail.
+- [ ] Confirm country plus age, eligible-jurisdiction and non-employee declarations so the Additional info page can be saved.
 - [ ] Final Devpost submit action explicitly approved by the user.
 
 ### ⏳ Not submitted yet
