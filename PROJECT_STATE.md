@@ -108,3 +108,11 @@ The web launch and non-administrator customer test sequence is in `docs/WEB_LAUN
 - Only registered, code-reviewed adapters may be selected by configuration; configuration does not dynamically import code.
 - Read providers may fail over only where semantically safe. Payment, fulfilment, and other ambiguous writes never fail over automatically.
 - Every external purchase, contribution, money transfer, recipient claim, or private-data action requires explicit human approval.
+
+## Landing page checkpoint (2026-11-13)
+
+The public Next.js homepage now follows the supplied Stitch luxury-atelier direction: emerald, ivory, rose and champagne styling; the WanderWrap emblem; responsive editorial hero, occasion arches, workspace banner, inspirational gift directions, disclosure band and footer. All active calls to action use existing `/gift-finder`, `/connections`, `/simulator` or authentication routes. Team gifting is labelled as a planned workspace, gift imagery is labelled illustrative, and the page still states that nothing is ordered or paid for without explicit approval. Existing credentials, API routes and provider boundaries were unchanged.
+
+Verification: `npm run check` passed on 2026-11-13, including the Alexa MCP App build, Next.js production build, AWS handler syntax validation and 94/94 automated tests. Desktop (1440 px) and mobile (390 px) browser checks found no horizontal overflow, missing-link targets, broken loaded images or page errors; the mobile navigation opened successfully. HTTP end-to-end tests were not re-run because the MCP server, authentication boundary, recommendation/routing paths, simulator and approval behaviour did not change.
+
+Next action: deploy the pushed homepage through the existing Vercel project, then run the production web smoke test before treating the redesigned page as the public checkpoint.
