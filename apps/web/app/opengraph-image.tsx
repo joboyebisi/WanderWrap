@@ -22,7 +22,7 @@ export default function OpenGraphImage() {
             <span style={{ fontFamily: 'serif', fontSize: '34px', letterSpacing: '8px', textTransform: 'uppercase' }}>WanderWrap</span>
           </div>
           <div style={{ display: 'flex', fontFamily: 'serif', fontSize: '74px', lineHeight: 1.02, letterSpacing: '-2px' }}>Make every gift feel personal.</div>
-          <div style={{ width: '680px', display: 'flex', justifyContent: 'center', marginTop: '30px', color: 'rgba(248,243,234,.72)', fontSize: '23px', lineHeight: 1.45 }}>Thoughtful gifts, shaped around the people who matter.</div>
+          <div style={{ width: '760px', display: 'flex', justifyContent: 'center', marginTop: '30px', color: 'rgba(248,243,234,.72)', fontSize: '23px', lineHeight: 1.45 }}>AI gifting agents that research thoughtful ideas. You make the final choice.</div>
           <div style={{ width: '72px', height: '1px', display: 'flex', marginTop: '42px', background: '#d8bc8e' }} />
         </div>
       </div>

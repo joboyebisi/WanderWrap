@@ -270,6 +270,8 @@ This is the non-invasive acquisition loop: **learn about yourself → receive us
 
 ## 7. Explainable recommendation system
 
+The consented preference-intelligence pipeline is productized as **WanderSignal**. Its interactive review, hosted inference boundary, Channel3 discovery role, evaluation programme and release sequence are specified in [`WANDERSIGNAL_PRD.md`](WANDERSIGNAL_PRD.md). WanderSignal extracts reviewable gift-relevant clues; it is not a personality verdict and it cannot authorize evidence, spend or provider actions.
+
 ### 7.0 Social-content and personality boundary
 
 WanderWrap does not silently infer a recipient's personality, psychographic profile, protected traits, diagnosis or life circumstances from posts. It extracts narrowly scoped, gift-relevant **interest clues**—topics, activities, explicit wants/dislikes, saved places/items and occasion clues—from content the subject intentionally shared with WanderWrap or that a separate, documented policy permits.

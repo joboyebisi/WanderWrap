@@ -4,21 +4,24 @@ import { useState } from 'react';
 
 type Candidate = { id: string; value: string; confidence: number };
 type AgentState = 'waiting' | 'working' | 'done';
-type Offer = { asin: string; title: string; detailPageUrl: string; imageUrl?: string; availability?: string; price?: { displayAmount: string } };
+type Offer = {
+  id?: string; asin?: string; title: string; url?: string; detailPageUrl?: string; imageUrl?: string;
+  imageAlt?: string; merchant?: string; availability?: string; price?: number | { displayAmount: string } | null; currency?: string | null;
+};
 type Gift = {
   id: string; name: string; price: number; categories: string[]; story: string;
   direction?: string; giftType?: string; confidence?: number; feasibility?: string;
   risk?: string; why?: string; tradeoff?: string;
 };
-type Handoff = { mode: string; selected: Gift; marketplace: string; url: string; offers: Offer[]; disclosure: string };
+type Handoff = { mode: string; provider?: string; selected: Gift; marketplace: string; url: string; offers: Offer[]; disclosure: string; observedAt?: string };
 type ChatMessage = { role: 'alexa' | 'user' | 'wanderwrap'; text: string };
 
 const EXAMPLE = `“I love pottery studios—making something imperfect by hand is the best kind of reset.”\n“I enjoy tea, a good novel, and nowhere to be on slow Sunday mornings.”\n“I like houseplants, especially the tiny ones that fit on the kitchen shelf.”`;
-const STEPS = ['Moment', 'Evidence', 'Confirm', 'Gift brief', 'Directions', 'Gift plan', 'Amazon'];
+const STEPS = ['Moment', 'Evidence', 'Confirm', 'Gift brief', 'Directions', 'Gift plan', 'Matches'];
 const AGENTS: Array<[string, string, string]> = [
   ['moment', '💛', 'Moment planner'], ['privacy', '🛡️', 'Privacy guard'], ['preference', '✨', 'Clue finder'],
   ['constraints', '🚧', 'Constraint guard'], ['recommendation', '💡', 'Gift curator'], ['recipient', '🪞', 'Recipient lens'],
-  ['catalogue', '🛍️', 'Amazon scout'], ['routing', '🧭', 'Route planner'], ['storyteller', '✍️', 'Storyteller'],
+  ['catalogue', '🛍️', 'Catalogue scout'], ['routing', '🧭', 'Route planner'], ['storyteller', '✍️', 'Storyteller'],
   ['approval', '✅', 'Approval guard']
 ];
 
@@ -97,18 +100,20 @@ export default function GiftFinderExperience() {
 
   function chooseGift(gift: Gift) {
     setSelectedGift(gift); setStage(6); setAgents(['storyteller'], 'done');
-    append(`You chose ${gift.name}. I turned it into a complete gift plan before asking Amazon for a matching product.`);
+    append(`You chose ${gift.name}. I turned it into a complete gift plan before asking our catalogue agent for current matching products.`);
   }
 
   async function prepareHandoff() {
     if (!selectedGift) return;
     setBusy(true); setError(''); setAgents(['catalogue', 'routing', 'approval'], 'working');
     try {
-      const result = await demoAction<Handoff>({ action: 'handoff', giftId: selectedGift.id, destinationCountry: 'GB' });
+      const result = await demoAction<Handoff>({ action: 'handoff', giftId: selectedGift.id, destinationCountry: 'GB', budget, interests: confirmed, brief });
       setHandoff(result); setStage(7); setAgents(['catalogue', 'routing', 'approval'], 'done');
-      append(result.mode === 'amazon-creators-live'
-        ? `Amazon returned live product links for ${selectedGift.name}. You still choose whether to continue.`
-        : `I prepared an Amazon.co.uk search for ${selectedGift.name}. Amazon confirms the product, price, delivery and checkout.`);
+      append(result.mode === 'channel3-live-discovery'
+        ? `The catalogue agent found current merchant matches for ${selectedGift.name}. You still choose whether to visit a retailer.`
+        : result.mode === 'amazon-creators-live'
+          ? `Amazon returned current product links for ${selectedGift.name}. You still choose whether to continue.`
+          : `I prepared a retailer search for ${selectedGift.name}. The retailer confirms product, price, delivery and checkout.`);
     } catch (value) { setError(value instanceof Error ? value.message : 'The handoff stopped safely.'); setAgents(['catalogue', 'routing', 'approval'], 'waiting'); }
     finally { setBusy(false); }
   }
@@ -170,7 +175,7 @@ export default function GiftFinderExperience() {
             <BriefRow icon="📦" label="Practical fit" value={`Up to £${budget} · UK · ${deadline}`} />
             <div className="briefEditable"><label><input type="checkbox" checked={avoidClutter} onChange={event => setAvoidClutter(event.target.checked)} /> Prefer low-clutter ideas</label><label>Anything to avoid?<input value={avoid} onChange={event => setAvoid(event.target.value)} /></label></div>
           </div>
-          <div className="confidencePanel"><span>86%</span><div><strong>Strong enough to recommend</strong><small>High confidence in interests; Amazon availability remains unknown until handoff.</small></div></div>
+          <div className="confidencePanel"><span>86%</span><div><strong>Strong enough to recommend</strong><small>High confidence in interests; live price and availability remain unknown until catalogue search.</small></div></div>
           <div className="routeActions"><button className="routeSecondary" onClick={() => setStage(3)}>← Refine answers</button><button className="routePrimary" disabled={busy} onClick={createDirections}>{busy ? 'Agents are comparing…' : 'Explore gift directions →'}</button></div>
         </section>}
 
@@ -190,18 +195,18 @@ export default function GiftFinderExperience() {
           <div className="chosenGift planChoice"><span>{giftEmoji(selectedGift.id)}</span><div><small>{selectedGift.direction || 'YOUR DIRECTION'}</small><strong>{selectedGift.name}</strong><p>{selectedGift.story}</p></div></div>
           <div className="planGrid">
             <article><span>🪞</span><div><small>RECIPIENT LENS</small><strong>{selectedGift.feasibility || 'Easy to enjoy'}</strong><p>{selectedGift.risk}</p></div></article>
-            <article><span>📦</span><div><small>DELIVERY CHECK</small><strong>{deadline} · UK</strong><p>Amazon must confirm stock, final price and arrival.</p></div></article>
+            <article><span>📦</span><div><small>DELIVERY CHECK</small><strong>{deadline} · UK</strong><p>The retailer must confirm stock, final price and arrival.</p></div></article>
             <article><span>✍️</span><div><small>GIFT NOTE</small><strong>“A little something for your slow Sundays.”</strong><p>Editable before anything is shared.</p></div></article>
             <article><span>🔐</span><div><small>APPROVAL</small><strong>Your click is required</strong><p>No order, message or address request has happened.</p></div></article>
           </div>
-          <div className="routeActions"><button className="routeSecondary" onClick={() => setStage(5)}>← Compare directions</button><button className="routePrimary" disabled={busy} onClick={prepareHandoff}>{busy ? 'Checking the UK route…' : 'Prepare Amazon matches →'}</button></div>
+          <div className="routeActions"><button className="routeSecondary" onClick={() => setStage(5)}>← Compare directions</button><button className="routePrimary" disabled={busy} onClick={prepareHandoff}>{busy ? 'Searching current catalogues…' : 'Find current matches →'}</button></div>
         </section>}
 
         {stage === 7 && handoff && <section className="routeCard finalHandoff">
           <div className="celebration" aria-hidden="true">✨ 🎁 ✨</div><p className="routeKicker">07 · READY WHEN YOU ARE</p><h2>A thoughtful choice, wrapped for handoff.</h2>
           <div className="chosenGift"><span>{giftEmoji(handoff.selected.id)}</span><div><small>YOUR GIFT PLAN</small><strong>{handoff.selected.name}</strong><p>{meaning} · {recipientValue} · {deadline}</p></div></div>
-          {handoff.offers.length > 0 && <div className="amazonOffers">{handoff.offers.slice(0, 3).map(offer => <a href={offer.detailPageUrl} target="_blank" rel="noopener noreferrer" key={offer.asin}>{offer.imageUrl ? <img src={offer.imageUrl} alt="" /> : <span>🛍️</span>}<div><small>LIVE AMAZON RESULT</small><strong>{offer.title}</strong><em>{offer.price?.displayAmount || 'See Amazon for price'} · {availability(offer.availability)}</em></div></a>)}</div>}
-          <a className="amazonCta" href={handoff.url} target="_blank" rel="noopener noreferrer"><span>amazon</span><strong>{handoff.mode === 'amazon-creators-live' ? 'View the best match' : 'See matching gifts'} ↗</strong></a>
+          {handoff.offers.length > 0 && <div className="amazonOffers">{handoff.offers.slice(0, 3).map(offer => <a href={offer.url || offer.detailPageUrl} target="_blank" rel="noopener noreferrer" key={offer.id || offer.asin}>{offer.imageUrl ? <img src={offer.imageUrl} alt={offer.imageAlt || ''} /> : <span>🛍️</span>}<div><small>CURRENT {offer.merchant || handoff.provider || 'RETAILER'} MATCH</small><strong>{offer.title}</strong><em>{offerPrice(offer)} · {availability(offer.availability)}</em></div></a>)}</div>}
+          <a className="amazonCta" href={handoff.url} target="_blank" rel="noopener noreferrer"><span>{handoff.provider || 'retailer'}</span><strong>{handoff.offers.length ? 'View the best match' : 'See matching gifts'} ↗</strong></a>
           <p className="handoffDisclosure">{handoff.disclosure} Nothing has been ordered.</p>
           <button className="routeSecondary restart" onClick={reset}>↻ Surprise someone else</button>
         </section>}
@@ -222,9 +227,14 @@ function BriefRow({ icon, label, value }: { icon: string; label: string; value: 
 function title(value: string) { return value.charAt(0).toUpperCase() + value.slice(1); }
 function interestEmoji(value: string) { return ({ creative: '🎨', food: '🍵', books: '📚', gardening: '🌿', travel: '🧳', music: '🎵', tech: '✨' } as Record<string, string>)[value] || '💛'; }
 function giftEmoji(id: string) { return ({ ceramic: '🏺', tasting: '🥐', journal: '📔', tea: '🫖', speaker: '🎶' } as Record<string, string>)[id] || '🎁'; }
-function availability(value?: string) { return value?.replaceAll('_', ' ').toLowerCase() || 'availability on Amazon'; }
+function availability(value?: string) { return value?.replaceAll('_', ' ').toLowerCase() || 'availability at retailer'; }
+function offerPrice(offer: Offer) {
+  if (typeof offer.price === 'object' && offer.price?.displayAmount) return offer.price.displayAmount;
+  if (typeof offer.price === 'number') return new Intl.NumberFormat('en-GB', { style: 'currency', currency: offer.currency || 'GBP' }).format(offer.price);
+  return 'See retailer for price';
+}
 function agentCopy(key: string, state: AgentState) {
   if (state === 'working') return 'Working now…';
-  if (state === 'done') return ({ moment: 'Meaning and timing set', privacy: 'Permission checked', preference: 'Safe labels proposed', constraints: 'Trade-offs captured', recommendation: 'Directions compared', recipient: 'Usefulness challenged', catalogue: 'Amazon link prepared', routing: 'UK route selected', storyteller: 'Gift plan written', approval: 'Your click required' } as Record<string, string>)[key];
+  if (state === 'done') return ({ moment: 'Meaning and timing set', privacy: 'Permission checked', preference: 'Safe labels proposed', constraints: 'Trade-offs captured', recommendation: 'Directions compared', recipient: 'Usefulness challenged', catalogue: 'Current matches prepared', routing: 'UK route selected', storyteller: 'Gift plan written', approval: 'Your click required' } as Record<string, string>)[key];
   return ({ moment: 'Waiting for the moment', privacy: 'Waiting for permission', preference: 'Waiting for evidence', constraints: 'Waiting for priorities', recommendation: 'Waiting for the brief', recipient: 'Waiting to challenge', catalogue: 'Waiting for a gift', routing: 'Waiting for provider evidence', storyteller: 'Waiting for a choice', approval: 'No external action' } as Record<string, string>)[key];
 }

@@ -5,6 +5,8 @@ import { extractPreferenceCandidates } from '../../../../../src/preference-intel
 import { CATALOG, rankGifts } from '../../../../../src/recommendation.mjs';
 // @ts-ignore Shared JavaScript domain modules are intentionally consumed by the web BFF.
 import { searchAmazonCreators } from '../../../../../src/amazon.mjs';
+// @ts-ignore Shared JavaScript provider adapter is intentionally consumed by the web BFF.
+import { channel3Capability, searchChannel3Gifts } from '../../../../../src/channel3.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,6 +81,31 @@ async function handoff(input: Record<string, unknown>) {
   const selected = CATALOG.find((gift: { id: string }) => gift.id === String(input.giftId || ''));
   if (!selected) throw new Error('Select one of the recommended gifts first.');
   const country = String(input.destinationCountry || 'GB').toUpperCase();
+  const channel3 = channel3Capability();
+  if (channel3.status === 'available') {
+    try {
+      const interests = Array.isArray(input.interests) ? input.interests.map(String).slice(0, 8).join(', ') : '';
+      const brief = input.brief && typeof input.brief === 'object' ? input.brief as Record<string, unknown> : {};
+      const query = [
+        `Find a thoughtful ${selected.name} gift or close alternative.`,
+        selected.story,
+        interests ? `Confirmed interests: ${interests}.` : '',
+        brief.recipientValue ? `The recipient would value ${String(brief.recipientValue).toLowerCase()}.` : '',
+        brief.avoid ? `Avoid: ${String(brief.avoid)}.` : '',
+        'Prefer a distinctive, well-made gift from a reputable UK retailer.'
+      ].filter(Boolean).join(' ');
+      const result = await searchChannel3Gifts({ query, budget: input.budget, country, limit: 8 });
+      if (result.products.length) {
+        return {
+          mode: 'channel3-live-discovery', provider: 'Channel3', selected, marketplace: country,
+          url: result.products[0].url, offers: result.products, observedAt: result.observedAt,
+          disclosure: 'These current product matches and merchant links came from Channel3. The retailer confirms final price, availability, delivery and checkout; WanderWrap has not placed an order.'
+        };
+      }
+    } catch {
+      // Discovery is read-only, so a safe provider fallback is allowed before any handoff.
+    }
+  }
   const marketplace = AMAZON_DOMAINS[country] || AMAZON_DOMAINS.GB;
   const partnerTag = PARTNER_TAGS[country] || PARTNER_TAGS.GB;
   const fallbackUrl = `https://${marketplace}/s?k=${encodeURIComponent(selected.name)}`;
@@ -88,13 +115,13 @@ async function handoff(input: Record<string, unknown>) {
     credentialVersion: process.env.AMAZON_CREATORS_CREDENTIAL_VERSION
   };
   if (!partnerTag || !credentials.credentialId || !credentials.credentialSecret || !credentials.credentialVersion) {
-    return { mode: 'amazon-search-handoff', selected, marketplace, url: fallbackUrl, offers: [], disclosure: 'Amazon Creators API is not configured yet. This is a marketplace search handoff; Amazon confirms products, price, availability, delivery and checkout.' };
+    return { mode: 'amazon-search-handoff', provider: 'Amazon', selected, marketplace, url: fallbackUrl, offers: [], disclosure: 'Live catalogue discovery is not available, so this is an Amazon marketplace search handoff. Amazon confirms products, price, availability, delivery and checkout.' };
   }
   try {
     const catalog = await searchAmazonCreators({ keywords: selected.name, destinationCountry: country, partnerTag, ...credentials, itemCount: 4 });
     const first = catalog.offers.find((offer: { available: boolean }) => offer.available) || catalog.offers[0];
     return {
-      mode: first ? 'amazon-creators-live' : 'amazon-search-handoff', selected, marketplace,
+      mode: first ? 'amazon-creators-live' : 'amazon-search-handoff', provider: 'Amazon', selected, marketplace,
       url: first?.detailPageUrl || catalog.searchUrl || fallbackUrl,
       offers: catalog.offers,
       disclosure: first
@@ -102,7 +129,7 @@ async function handoff(input: Record<string, unknown>) {
         : 'Amazon returned no suitable product offer, so WanderWrap prepared a marketplace search handoff.'
     };
   } catch {
-    return { mode: 'amazon-search-handoff', selected, marketplace, url: fallbackUrl, offers: [], disclosure: 'Amazon Creators API was unavailable, so WanderWrap failed safely to a marketplace search. Amazon confirms products, price, availability, delivery and checkout.' };
+    return { mode: 'amazon-search-handoff', provider: 'Amazon', selected, marketplace, url: fallbackUrl, offers: [], disclosure: 'Live catalogue discovery was unavailable, so WanderWrap failed safely to an Amazon marketplace search. Amazon confirms products, price, availability, delivery and checkout.' };
   }
 }
 

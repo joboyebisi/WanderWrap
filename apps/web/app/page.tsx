@@ -38,7 +38,7 @@ export default function HomePage() {
           </div>
           <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
           <div className={styles.navRight}>
-            <Link className={styles.conciergeLink} href="/gift-finder"><span>✦</span> Gift Concierge</Link><a href="/api/auth/login">Sign in</a>
+            <Link className={styles.conciergeLink} href="/gift-finder"><span>✦</span> AI Gift Concierge</Link><a href="/api/auth/login">Sign in</a>
           </div>
           <details className={styles.mobileMenu}>
             <summary aria-label="Open navigation"><span /><span /><span /></summary>
@@ -51,24 +51,24 @@ export default function HomePage() {
         <Image className={styles.heroImage} src={assets.hero} alt="Emerald velvet gift box tied with rose satin ribbon" fill sizes="100vw" loading="eager" priority />
         <div className={styles.heroShade} />
         <div className={styles.heroContent}>
-          <p className={styles.kicker}><span>✦</span> Your personal gifting concierge</p>
+          <p className={styles.kicker}><span>✦</span> Your personal AI gifting team</p>
           <h1>Make Every Gift<br /><em>Feel Personal.</em></h1>
-          <p className={styles.heroLead}>Tell us who you’re celebrating and what makes them special. WanderWrap turns the details into gifts that feel truly considered.</p>
+          <p className={styles.heroLead}>Tell us about the person and the moment. Our specialist agents shape a Gift Brief, research promising ideas and bring back a shortlist that feels personal—not generic.</p>
           <div className={styles.heroActions}>
             <Link className={styles.primaryButton} href="/gift-finder">Find a Gift <span>🎁</span></Link>
             <Link className={styles.outlineButton} href="/connections">For Teams</Link>
             <Link className={styles.roseButton} href="/unwrap">Unwrap a Gift <span>💝</span></Link>
           </div>
-          <p className={styles.heroNote}>Start without an account · Share only what you choose · You approve every purchase</p>
+          <p className={styles.heroNote}>Start without an account · Share only what you choose · Nothing is purchased without your approval</p>
         </div>
       </header>
 
       <section className={styles.pillars} aria-labelledby="how-it-works">
         <h2 className={styles.visuallyHidden} id="how-it-works">How WanderWrap works</h2>
         <div className={styles.pillarGrid}>
-          <article><span className={styles.pillarIcon}>♡</span><h3>Tell Us About Them</h3><p>Share the little things that make them who they are—their passions, rituals, memories and tastes.</p></article>
-          <article><span className={styles.pillarIcon}>✣</span><h3>Discover Their Gift</h3><p>We bring together a considered collection, with a clear reason each gift belongs on the list.</p></article>
-          <article><span className={styles.pillarIcon}>◇</span><h3>Make It Theirs</h3><p>Choose the gift that feels right, add your message and make the moment unmistakably personal.</p></article>
+          <article><span className={styles.pillarIcon}>♡</span><h3>Build the Gift Brief</h3><p>Share the occasion, budget and a few things you know about them. Our agents turn those details into a brief you can check and edit.</p></article>
+          <article><span className={styles.pillarIcon}>✣</span><h3>Let the Agents Research</h3><p>Specialists compare ideas, current products and practical trade-offs, then explain why each recommendation earned its place.</p></article>
+          <article><span className={styles.pillarIcon}>◇</span><h3>Choose What Moves Forward</h3><p>Review the shortlist, refine the plan and approve the next step. WanderWrap coordinates the work; the decision stays with you.</p></article>
         </div>
       </section>
 
@@ -89,14 +89,14 @@ export default function HomePage() {
         <div className={styles.teamsShade} />
         <div className={styles.teamsContent}>
           <p>WanderWrap for teams · Early access</p><h2 id="teams-title">Make Every Employee<br /><em>Feel Valued.</em></h2>
-          <p className={styles.teamsLead}>Remember every birthday, welcome and work anniversary. Give your team one beautiful place to choose meaningful gifts, manage budgets and keep delivery details private.</p>
+          <p className={styles.teamsLead}>Give the agents your programme rules, budgets and recipient context. They prepare personalised gift briefs, research options, organise approvals and report back—so your team can run ten gifts or hundreds without losing the human touch.</p>
           <Link href="/connections">Explore WanderWrap for Teams <span>→</span></Link>
         </div>
       </section>
 
       <section className={styles.recommendations} aria-labelledby="recommendations-title">
         <div className={styles.recommendationHeading}>
-          <div><p>Handpicked inspiration</p><h2 id="recommendations-title">Thoughtful Gifts, Chosen for Them.</h2><small>Curated around the person · Shaped by the details you share</small></div>
+          <div><p>Agent-researched inspiration</p><h2 id="recommendations-title">Thoughtful Gifts, Chosen for Them.</h2><small>Built from the Gift Brief · Explained before you decide</small></div>
           <Link href="/gift-finder">Find Their Gift</Link>
         </div>
         <div className={styles.directionGrid}>
@@ -112,11 +112,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className={styles.disclosure}><span>✦</span><p><strong>The final choice is always yours.</strong> WanderWrap brings the ideas, the meaning and the next step together. You decide what feels right—and nothing moves forward until you say so.</p></section>
+      <section className={styles.disclosure}><span>✦</span><p><strong>Agents do the legwork. You stay in control.</strong> WanderWrap researches, compares and prepares the next step. You decide what feels right, and no purchase or recipient contact happens without your approval.</p></section>
 
       <footer className={styles.footer}>
         <div className={styles.footerGrid}>
-          <div className={styles.footerBrand}><Link href="/"><Emblem size={32} /><span>WanderWrap</span></Link><p>A more thoughtful way to discover gifts for the people who matter most.</p></div>
+          <div className={styles.footerBrand}><Link href="/"><Emblem size={32} /><span>WanderWrap</span></Link><p>AI agents for personal gifting—researching the right ideas while you keep the final say.</p></div>
           <div><h2>Platform</h2><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/connections">Connections & teams</Link><Link href="/simulator">Alexa+ simulator</Link></div>
           <div><h2>WanderWrap</h2><a href="/api/auth/login">Sign in</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div>
           <div className={styles.footerCta}><h2>Your next thoughtful gift</h2><p>Begin with the person, the occasion and the little things that make them special.</p><Link href="/gift-finder">Find a Gift <span>→</span></Link></div>

@@ -61,6 +61,12 @@ Creators API uses its own credential ID/secret and marketplace Partner Tags; AWS
 
 Acceptance gate: searches return provider-sourced ASIN, link, price/availability fields where offered, correct marketplace attribution, rate-limit handling, and an honest fallback when delivery cannot be verified.
 
+## 3a. Channel3 catalogue discovery
+
+Store `CHANNEL3_API_KEY` only in the deployment platform's encrypted server-side secret store and set `CHANNEL3_DISCOVERY_ENABLED=true` only after the configured environment has passed the checks below. Never expose the key through `NEXT_PUBLIC_*`, browser code, logs or screenshots. A key pasted into chat should be rotated before production use.
+
+Acceptance gate: a UK Gift Brief returns normalized Channel3 product IDs, merchant links, current GBP offer fields and observation timestamps; rate limits, timeouts, empty results and malformed payloads fall back safely; recommendation cards name Channel3 and the merchant; every link is presented as an external retailer handoff; no click is recorded as a WanderWrap purchase or fulfilment event.
+
 ## 4. PayPal sandbox, then live
 
 Provide through the server-side secret store:
