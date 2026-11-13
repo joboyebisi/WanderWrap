@@ -34,7 +34,7 @@ export default function HomePage() {
         <div className={styles.navInner}>
           <div className={styles.navLeft}>
             <Link href="/gift-finder">Gift Finder <span>🎁</span></Link><Link href="/connections">For Teams</Link>
-            <Link className={styles.claimLink} href="/gift-finder">Start a Gift <span>💝</span></Link>
+            <Link className={styles.claimLink} href="/unwrap">Unwrap a Gift <span>💝</span></Link>
           </div>
           <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
           <div className={styles.navRight}>
@@ -42,7 +42,7 @@ export default function HomePage() {
           </div>
           <details className={styles.mobileMenu}>
             <summary aria-label="Open navigation"><span /><span /><span /></summary>
-            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/connections">For Teams</Link><Link href="/gift-finder">Start a Gift 💝</Link><a href="/api/auth/login">Sign in</a></div>
+            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/connections">For Teams</Link><Link href="/unwrap">Unwrap a Gift 💝</Link><a href="/api/auth/login">Sign in</a></div>
           </details>
         </div>
       </nav>
@@ -57,7 +57,7 @@ export default function HomePage() {
           <div className={styles.heroActions}>
             <Link className={styles.primaryButton} href="/gift-finder">Find a Gift <span>🎁</span></Link>
             <Link className={styles.outlineButton} href="/connections">For Teams</Link>
-            <Link className={styles.roseButton} href="/gift-finder">Start a Gift <span>💝</span></Link>
+            <Link className={styles.roseButton} href="/unwrap">Unwrap a Gift <span>💝</span></Link>
           </div>
           <p className={styles.heroNote}>No account needed to explore · You control every clue · No automatic purchases</p>
         </div>

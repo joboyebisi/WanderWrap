@@ -116,3 +116,5 @@ The public Next.js homepage now follows the supplied Stitch luxury-atelier direc
 Verification: `npm run check` passed on 2026-11-13, including the Alexa MCP App build, Next.js production build, AWS handler syntax validation and 94/94 automated tests. Desktop (1440 px) and mobile (390 px) browser checks found no horizontal overflow, missing-link targets, broken loaded images or page errors; the mobile navigation opened successfully. HTTP end-to-end tests were not re-run because the MCP server, authentication boundary, recommendation/routing paths, simulator and approval behaviour did not change.
 
 Next action: deploy the pushed homepage through the existing Vercel project, then run the production web smoke test before treating the redesigned page as the public checkpoint.
+
+Recipient entry correction (2026-11-13): the homepage navigation and hero now say “Unwrap a Gift” and route recipients to `/unwrap`. That page explains that a real claim requires the unique, expiring private link sent by the giver; it does not expose or fabricate a claim without a token. `npm run check` passed with 94/94 tests and `npm run test:e2e` passed 3/3 HTTP tests.
