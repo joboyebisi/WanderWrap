@@ -10,7 +10,13 @@ export const metadata: Metadata = {
     title: 'WanderWrap — Make every gift feel personal',
     description: 'Discover thoughtful gifts shaped around the people you know and the moments that matter.',
     type: 'website',
-    siteName: 'WanderWrap'
+    siteName: 'WanderWrap',
+    locale: 'en_GB'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WanderWrap — Make every gift feel personal',
+    description: 'Discover thoughtful gifts shaped around the people you know and the moments that matter.'
   }
 };
 
