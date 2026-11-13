@@ -48,7 +48,7 @@ export default function HomePage() {
       </nav>
 
       <header className={styles.hero}>
-        <Image className={styles.heroImage} src={assets.hero} alt="Emerald velvet gift box tied with rose satin ribbon" fill sizes="100vw" priority />
+        <Image className={styles.heroImage} src={assets.hero} alt="Emerald velvet gift box tied with rose satin ribbon" fill sizes="100vw" loading="eager" priority />
         <div className={styles.heroShade} />
         <div className={styles.heroContent}>
           <p className={styles.kicker}><span>✦</span> Your AI gifting concierge</p>
