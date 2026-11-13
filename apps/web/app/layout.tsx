@@ -5,10 +5,10 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_WANDERWRAP_URL || 'http://127.0.0.1:3000'),
   title: { default: 'WanderWrap — Make every gift feel personal', template: '%s · WanderWrap' },
-  description: 'A consent-first gifting companion that turns confirmed clues into thoughtful, explainable ideas across web and Alexa+.',
+  description: 'Discover thoughtful gifts shaped around the people you know and the moments that matter.',
   openGraph: {
     title: 'WanderWrap — Make every gift feel personal',
-    description: 'Thoughtful, explainable gift ideas across web and Alexa+.',
+    description: 'Discover thoughtful gifts shaped around the people you know and the moments that matter.',
     type: 'website',
     siteName: 'WanderWrap'
   }
