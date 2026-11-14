@@ -10,3 +10,7 @@ coverage/
 .aws-sam/
 *.log
 artifacts/
+
+.vercel/
+.env.local
+apps/web/.env.local
