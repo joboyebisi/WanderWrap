@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Candidate = { id: string; value: string; confidence: number };
 type AgentState = 'waiting' | 'working' | 'done';
@@ -15,9 +15,10 @@ type Gift = {
 };
 type Handoff = { mode: string; provider?: string; selected: Gift; marketplace: string; url: string; offers: Offer[]; disclosure: string; observedAt?: string };
 type ChatMessage = { role: 'alexa' | 'user' | 'wanderwrap'; text: string };
+type RetailerDeparture = { url: string; title: string; merchant: string };
 
 const EXAMPLE = `“I love pottery studios—making something imperfect by hand is the best kind of reset.”\n“I enjoy tea, a good novel, and nowhere to be on slow Sunday mornings.”\n“I like houseplants, especially the tiny ones that fit on the kitchen shelf.”`;
-const STEPS = ['Moment', 'Evidence', 'Confirm', 'Gift brief', 'Directions', 'Gift plan', 'Matches'];
+const STEPS = ['Moment', 'Evidence', 'Confirm', 'Gift brief', 'Directions', 'Gift plan', 'Curated gifts'];
 const AGENTS: Array<[string, string, string]> = [
   ['moment', '💛', 'Moment planner'], ['privacy', '🛡️', 'Privacy guard'], ['preference', '✨', 'Clue finder'],
   ['constraints', '🚧', 'Constraint guard'], ['recommendation', '💡', 'Gift curator'], ['recipient', '🪞', 'Recipient lens'],
@@ -52,6 +53,7 @@ export default function GiftFinderExperience() {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   const [handoff, setHandoff] = useState<Handoff | null>(null);
+  const [departure, setDeparture] = useState<RetailerDeparture | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [agent, setAgent] = useState<Record<string, AgentState>>({});
@@ -60,6 +62,15 @@ export default function GiftFinderExperience() {
     { role: 'user', text: 'My partner. I want it to feel personal without spoiling the surprise.' },
     { role: 'wanderwrap', text: 'Let’s understand the moment first, then use only the clues you choose.' }
   ]);
+
+  useEffect(() => {
+    if (!departure) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setDeparture(null); };
+    document.addEventListener('keydown', closeOnEscape);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', closeOnEscape); document.body.style.overflow = previousOverflow; };
+  }, [departure]);
 
   const append = (text: string, role: ChatMessage['role'] = 'wanderwrap') => setChat(current => [...current, { role, text }]);
   const setAgents = (keys: string[], value: AgentState) => setAgent(current => ({ ...current, ...Object.fromEntries(keys.map(key => [key, value])) }));
@@ -119,7 +130,16 @@ export default function GiftFinderExperience() {
   }
 
   function reset() {
-    setStage(1); setClues(''); setAllowed(false); setCandidates([]); setConfirmed([]); setGifts([]); setSelectedGift(null); setHandoff(null); setAgent({}); setError('');
+    setStage(1); setClues(''); setAllowed(false); setCandidates([]); setConfirmed([]); setGifts([]); setSelectedGift(null); setHandoff(null); setDeparture(null); setAgent({}); setError('');
+  }
+
+  function prepareRetailerDeparture(offer?: Offer) {
+    if (!handoff) return;
+    setDeparture({
+      url: offer?.url || offer?.detailPageUrl || handoff.url,
+      title: offer?.title || handoff.selected.name,
+      merchant: offer?.merchant || handoff.provider || 'the retailer'
+    });
   }
 
   return <>
@@ -203,16 +223,29 @@ export default function GiftFinderExperience() {
         </section>}
 
         {stage === 7 && handoff && <section className="routeCard finalHandoff">
-          <div className="celebration" aria-hidden="true">✨ 🎁 ✨</div><p className="routeKicker">07 · READY WHEN YOU ARE</p><h2>A thoughtful choice, wrapped for handoff.</h2>
-          <div className="chosenGift"><span>{giftEmoji(handoff.selected.id)}</span><div><small>YOUR GIFT PLAN</small><strong>{handoff.selected.name}</strong><p>{meaning} · {recipientValue} · {deadline}</p></div></div>
-          {handoff.offers.length > 0 && <div className="amazonOffers">{handoff.offers.slice(0, 3).map(offer => <a href={offer.url || offer.detailPageUrl} target="_blank" rel="noopener noreferrer" key={offer.id || offer.asin}>{offer.imageUrl ? <img src={offer.imageUrl} alt={offer.imageAlt || ''} /> : <span>🛍️</span>}<div><small>CURRENT {offer.merchant || handoff.provider || 'RETAILER'} MATCH</small><strong>{offer.title}</strong><em>{offerPrice(offer)} · {availability(offer.availability)}</em></div></a>)}</div>}
-          <a className="amazonCta" href={handoff.url} target="_blank" rel="noopener noreferrer"><span>{handoff.provider || 'retailer'}</span><strong>{handoff.offers.length ? 'View the best match' : 'See matching gifts'} ↗</strong></a>
+          <div className="celebration" aria-hidden="true">✨ 🎁 ✨</div><p className="routeKicker">07 · CURATED FROM YOUR GIFT BRIEF</p><h2>Current gifts, researched for them.</h2>
+          <p className="routeLead">The catalogue agent used your confirmed interests, budget and practical constraints to find current options. Compare them here, then choose which retailer you want to visit.</p>
+          <div className="chosenGift"><span>{giftEmoji(handoff.selected.id)}</span><div><small>YOUR GIFT DIRECTION</small><strong>{handoff.selected.name}</strong><p>{meaning} · {recipientValue} · {deadline}</p></div></div>
+          <div className="catalogueProof"><span>{handoff.mode === 'channel3-live-discovery' ? 'Curated with Channel3' : 'Retailer handoff'}</span>{handoff.observedAt && <small>Checked {formatObservedAt(handoff.observedAt)}</small>}</div>
+          {handoff.offers.length > 0 && <div className="amazonOffers">{handoff.offers.slice(0, 4).map(offer => <button type="button" onClick={() => prepareRetailerDeparture(offer)} key={offer.id || offer.asin}>{offer.imageUrl ? <img src={offer.imageUrl} alt={offer.imageAlt || ''} /> : <span>🛍️</span>}<div><small>{offer.merchant || handoff.provider || 'RETAILER'}</small><strong>{offer.title}</strong><em>{offerPrice(offer)} · {availability(offer.availability)}</em><i>Review at retailer ↗</i></div></button>)}</div>}
+          {handoff.offers.length === 0 && <button className="amazonCta" type="button" onClick={() => prepareRetailerDeparture()}><span>{handoff.provider || 'retailer'}</span><strong>See matching gifts ↗</strong></button>}
           <p className="handoffDisclosure">{handoff.disclosure} Nothing has been ordered.</p>
           <button className="routeSecondary restart" onClick={reset}>↻ Surprise someone else</button>
         </section>}
         {error && <div className="routeError" role="alert">🛡️ {error}</div>}
       </div>
     </section>
+
+    {departure && <div className="retailerModal" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setDeparture(null); }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="retailer-title" aria-describedby="retailer-description">
+        <button className="retailerClose" type="button" aria-label="Close retailer handoff" onClick={() => setDeparture(null)} autoFocus>×</button>
+        <p className="routeKicker">YOUR RETAILER HANDOFF</p>
+        <h2 id="retailer-title">Continue with {departure.merchant}?</h2>
+        <p id="retailer-description">Today, WanderWrap builds the Gift Brief, researches current options and brings you to the retailer to complete checkout. Our full experience is being built to keep the approved purchase, recipient choices and delivery progress together in WanderWrap.</p>
+        <div className="retailerNotice"><strong>No order has been placed.</strong><span>{departure.merchant} will confirm the final price, availability, delivery, returns and payment for “{departure.title}”.</span></div>
+        <div className="retailerActions"><button type="button" onClick={() => setDeparture(null)}>Stay and compare</button><a href={departure.url} target="_blank" rel="noopener noreferrer" onClick={() => setDeparture(null)}>Continue to retailer ↗</a></div>
+      </section>
+    </div>}
 
     <section className="agentStudio"><div><p className="eyebrow">THE AGENT STUDIO</p><h2>Every specialist leaves evidence.</h2><p>Status lights now correspond to visible work in the Gift Brief, recommendation trade-offs and final plan.</p></div><div className="agentGrid">{AGENTS.map(([key, emoji, label]) => <article className={agent[key] || 'waiting'} key={key}><span>{emoji}</span><div><strong>{label}</strong><small>{agentCopy(key, agent[key] || 'waiting')}</small></div><i /></article>)}</div></section>
   </>;
@@ -232,6 +265,10 @@ function offerPrice(offer: Offer) {
   if (typeof offer.price === 'object' && offer.price?.displayAmount) return offer.price.displayAmount;
   if (typeof offer.price === 'number') return new Intl.NumberFormat('en-GB', { style: 'currency', currency: offer.currency || 'GBP' }).format(offer.price);
   return 'See retailer for price';
+}
+function formatObservedAt(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'just now' : new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 function agentCopy(key: string, state: AgentState) {
   if (state === 'working') return 'Working now…';

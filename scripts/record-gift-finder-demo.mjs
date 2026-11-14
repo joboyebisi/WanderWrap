@@ -60,8 +60,17 @@ try {
   await page.getByRole("heading", { name: /More than a shopping link/i }).waitFor();
   await pause(5500);
 
-  await page.getByRole("button", { name: /Prepare Amazon matches/ }).click();
-  await page.getByRole("heading", { name: /A thoughtful choice/i }).waitFor();
+  await page.getByRole("button", { name: /Find current matches/ }).click();
+  await page.getByRole("heading", { name: /Current gifts, researched for them/i }).waitFor();
+  const retailerChoice = page.locator(".amazonOffers button").first();
+  if (await retailerChoice.count()) {
+    await retailerChoice.click();
+  } else {
+    await page.getByRole("button", { name: /See matching gifts/ }).click();
+  }
+  await page.getByRole("dialog", { name: /Continue with/i }).waitFor();
+  await pause(3500);
+  await page.getByRole("button", { name: /Stay and compare/i }).click();
   await page.getByRole("heading", { name: /Every specialist leaves evidence/i }).scrollIntoViewIfNeeded();
   await pause(6000);
 } finally {

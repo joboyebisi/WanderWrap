@@ -9,14 +9,14 @@ Run `npm run demo:record:narration` to generate the silent, production-backed fo
 - Hide notifications and close unrelated tabs.
 - Open the Gift Finder at stage one with the page title and seven-step journey visible.
 - Keep a terminal ready with the final `npm run check` and `npm run test:e2e` summaries.
-- Do not open the external Amazon link during the recording.
+- Do not open the external retailer link during the recording; show the WanderWrap handoff message, then choose **Stay and compare**.
 - If official Alexa+ onboarding is incomplete, say “Alexa+ journey preview,” not “live Alexa add-on.”
 
 ## 0:00–0:20 — The real problem
 
 **On screen:** WanderWrap landing page, then click **Gift Finder**.
 
-> WanderWrap began when I wanted to surprise my partner with something they would genuinely enjoy. Asking directly would spoil the surprise, but searching Amazon from a single keyword felt impersonal. WanderWrap does the thoughtful work before shopping begins.
+> WanderWrap began when I wanted to surprise my partner with something they would genuinely enjoy. Asking directly would spoil the surprise, but starting with a generic product search felt impersonal. WanderWrap does the thoughtful work before shopping begins.
 
 ## 0:20–0:42 — Define the moment
 
@@ -50,15 +50,15 @@ Run `npm run demo:record:narration` to generate the silent, production-backed fo
 
 ## 2:20–2:40 — A complete gift plan
 
-**On screen:** Show Recipient Lens, Delivery Check, Gift Note and Approval. Click **Prepare Amazon matches**.
+**On screen:** Show Recipient Lens, Delivery Check, Gift Note and Approval. Click **Find current matches**.
 
-> The selected direction becomes a complete gift plan with a recipient check, delivery requirement, editable message and explicit approval boundary. Only now does the Amazon Scout begin its work.
+> The selected direction becomes a complete gift plan with a recipient check, delivery requirement, editable message and explicit approval boundary. Only now does the catalogue agent use Channel3 to research current products.
 
-## 2:40–2:55 — Safe Amazon handoff
+## 2:40–2:55 — Curated products and honest retailer handoff
 
-**On screen:** Show the final handoff and “Nothing has been ordered.”
+**On screen:** Show the Channel3-curated products, choose one, display the retailer handoff panel and then select **Stay and compare**.
 
-> Amazon confirms the actual product, live price, availability, delivery and checkout. Nothing is silently purchased. WanderWrap remembers the person, builds confidence and hands off only when I am ready.
+> Channel3 brings back current merchant options shaped by the Gift Brief. Before I leave, WanderWrap explains that the retailer owns today’s payment, delivery and returns. Nothing is silently purchased. The full WanderWrap experience is being built to keep approved purchasing, recipient choice and delivery progress together.
 
 ## 2:55–3:00 — Close
 
@@ -75,13 +75,13 @@ Run `npm run demo:record:narration` to generate the silent, production-backed fo
 5. Gift Brief and agent evidence — 25 seconds.
 6. Four contrasting directions — 28 seconds.
 7. Complete gift plan — 20 seconds.
-8. Amazon handoff and closing frame — 18 seconds.
+8. Channel3 shortlist, retailer handoff panel and closing frame — 18 seconds.
 
 ## Optional judge Q&A
 
-**Did it place an Amazon order?**
+**Did it place an order?**
 
-No. It prepares a marketplace handoff. Amazon or Alexa+ owns eligible checkout and final confirmation.
+No. It prepares a retailer handoff. The selected merchant owns today’s checkout and final confirmation; WanderWrap’s end-to-end approval and fulfilment experience remains under development.
 
 **Does it read Facebook, X or private messages?**
 
@@ -91,9 +91,9 @@ No. This demo accepts only evidence the giver deliberately selects and confirms 
 
 The visible specialists correspond to bounded analysis, policy, recommendation and routing responsibilities. The production-shaped core enforces least-privilege tool access, signed approvals, idempotency and audit events.
 
-**Is Amazon catalogue data live?**
+**Is the catalogue data live?**
 
-The Creators API client is implemented and contract-tested, but the public demo uses an explicitly labelled Amazon search fallback until approved credentials and live-response evidence pass the integration checklist.
+Channel3 discovery is enabled only when its server credential and feature flag are configured. The final cards identify current merchant results and observation time. If Channel3 is unavailable, the experience labels the retailer-search fallback instead of presenting it as live catalogue data.
 
 **Do you need an Echo?**
 

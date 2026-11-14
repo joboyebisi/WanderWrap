@@ -65,11 +65,20 @@ try {
 
   // 2:20–2:40 — complete gift plan
   await pause(7000);
-  await page.getByRole("button", { name: /Prepare Amazon matches/ }).click();
-  await page.getByRole("heading", { name: /A thoughtful choice/i }).waitFor();
+  await page.getByRole("button", { name: /Find current matches/ }).click();
+  await page.getByRole("heading", { name: /Current gifts, researched for them/i }).waitFor();
   await pause(13000);
 
-  // 2:40–2:58 — safe Amazon handoff and agent close
+  // 2:40–2:58 — current retailer matches, honest handoff and agent close
+  const retailerChoice = page.locator(".amazonOffers button").first();
+  if (await retailerChoice.count()) {
+    await retailerChoice.click();
+  } else {
+    await page.getByRole("button", { name: /See matching gifts/ }).click();
+  }
+  await page.getByRole("dialog", { name: /Continue with/i }).waitFor();
+  await pause(6000);
+  await page.getByRole("button", { name: /Stay and compare/i }).click();
   await page.getByRole("heading", { name: /Every specialist leaves evidence/i }).scrollIntoViewIfNeeded();
   await pause(8000);
 } finally {
