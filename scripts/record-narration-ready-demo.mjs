@@ -3,9 +3,7 @@ import { resolve } from "node:path";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.WANDERWRAP_DEMO_URL ?? "https://www.wanderwrap.co.uk";
-const edgeExecutable =
-  process.env.WANDERWRAP_BROWSER_PATH ??
-  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+const edgeExecutable = process.env.WANDERWRAP_BROWSER_PATH ?? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 const outputDirectory = resolve("artifacts");
 const temporaryDirectory = resolve("artifacts", ".narration-recording");
 const outputPath = resolve(outputDirectory, "wanderwrap-demo-narration-ready.webm");
@@ -13,7 +11,6 @@ const pause = (milliseconds) => new Promise((resolvePause) => setTimeout(resolve
 
 await mkdir(temporaryDirectory, { recursive: true });
 await rm(outputPath, { force: true });
-
 const browser = await chromium.launch({ executablePath: edgeExecutable, headless: true });
 const context = await browser.newContext({
   colorScheme: "light",
@@ -24,63 +21,37 @@ const page = await context.newPage();
 const video = page.video();
 
 try {
-  // 0:00–0:20 — problem and landing page
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
+  await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
   await pause(12000);
   await page.getByRole("link", { name: /Gift Finder/i }).first().click();
-  await page.getByRole("heading", { name: /What should this gift say/i }).waitFor();
+  await page.getByRole("heading", { name: /Who are you celebrating/i }).waitFor();
   await pause(8000);
 
-  // 0:20–0:42 — define the moment
-  await page.getByRole("button", { name: /Build the moment/ }).click();
-  await page.getByRole("heading", { name: /What have they chosen to share/i }).waitFor();
-  await pause(21000);
+  await page.getByLabel("First name or nickname").fill("Maya");
+  await page.getByRole("button", { name: /Tell us about them/ }).click();
+  await page.getByRole("heading", { name: /What do they genuinely enjoy/i }).waitFor();
+  await pause(18000);
 
-  // 0:42–1:05 — selected evidence and permission
-  await page.getByRole("button", { name: /Fill with a fictional example/ }).click();
-  await page.getByRole("checkbox", { name: /allowed to use these excerpts/i }).check();
-  await pause(12000);
-  await page.getByRole("button", { name: /Find thoughtful signals/ }).click();
-  await page.getByRole("heading", { name: /What feels true/ }).waitFor();
-  await pause(11000);
+  await page.getByRole("button", { name: "Books" }).click();
+  await page.getByRole("button", { name: "Wellness" }).click();
+  await page.getByLabel("Anything else that would help?").fill("She loves literary fiction, quiet Sunday mornings and beautiful, useful objects for a small flat.");
+  await pause(22000);
 
-  // 1:05–1:27 — confirmation and adaptive questions
-  await pause(10000);
-  await page.getByRole("button", { name: /Create the Gift Brief/ }).click();
-  await page.getByRole("heading", { name: /Understanding before shopping/i }).waitFor();
-  await pause(12000);
+  await page.getByRole("button", { name: /Review Gift Brief/ }).click();
+  await page.getByRole("heading", { name: /One clear brief for our gift agents/i }).waitFor();
+  await pause(25000);
 
-  // 1:27–1:52 — shared Gift Brief
-  await pause(12000);
-  await page.getByRole("button", { name: /Explore gift directions/ }).click();
-  await page.getByRole("heading", { name: /Four ways to make them feel seen/i }).waitFor();
-  await page.locator(".directionGrid").scrollIntoViewIfNeeded();
-  await pause(13000);
+  await page.getByRole("button", { name: /Find gifts with our agents/ }).click();
+  await page.getByRole("heading", { name: /Thoughtful options for Maya/i }).waitFor();
+  await pause(32000);
 
-  // 1:52–2:20 — compare four genuinely different directions
-  await pause(15000);
-  await page.locator(".directionGrid button").filter({ hasText: /ceramic/i }).first().click();
-  await page.getByRole("heading", { name: /More than a shopping link/i }).waitFor();
-  await pause(13000);
-
-  // 2:20–2:40 — complete gift plan
-  await pause(7000);
-  await page.getByRole("button", { name: /Find current matches/ }).click();
-  await page.getByRole("heading", { name: /Current gifts, researched for them/i }).waitFor();
-  await pause(13000);
-
-  // 2:40–2:58 — current retailer matches, honest handoff and agent close
   const retailerChoice = page.locator(".amazonOffers button").first();
-  if (await retailerChoice.count()) {
-    await retailerChoice.click();
-  } else {
-    await page.getByRole("button", { name: /See matching gifts/ }).click();
-  }
+  if (await retailerChoice.count()) await retailerChoice.click();
+  else await page.getByRole("button", { name: /See matching gifts/ }).click();
   await page.getByRole("dialog", { name: /Continue with/i }).waitFor();
-  await pause(6000);
+  await pause(18000);
   await page.getByRole("button", { name: /Stay and compare/i }).click();
-  await page.getByRole("heading", { name: /Every specialist leaves evidence/i }).scrollIntoViewIfNeeded();
-  await pause(8000);
+  await pause(10000);
 } finally {
   await context.close();
   await browser.close();

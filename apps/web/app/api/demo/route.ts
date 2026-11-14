@@ -31,11 +31,57 @@ export async function POST(request: NextRequest) {
   try {
     if (input.action === 'analyse') return Response.json(analyse(input));
     if (input.action === 'recommend') return Response.json(recommend(input));
+    if (input.action === 'discover') return Response.json(await discover(input));
     if (input.action === 'handoff') return Response.json(await handoff(input));
     return Response.json({ error: 'Unknown demo action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : 'Demo step failed safely' }, { status: 400 });
   }
+}
+
+async function discover(input: Record<string, unknown>) {
+  const rawBrief = input.brief && typeof input.brief === 'object' ? input.brief as Record<string, unknown> : {};
+  const recipient = cleanText(rawBrief.recipient, 80) || 'the recipient';
+  const relationship = cleanText(rawBrief.relationship, 60);
+  const occasion = cleanText(rawBrief.occasion, 80);
+  const meaning = cleanText(rawBrief.meaning, 100);
+  const deadline = cleanText(rawBrief.deadline, 80);
+  const format = cleanText(rawBrief.format, 80);
+  const style = cleanText(rawBrief.style, 80);
+  const notes = cleanText(rawBrief.notes, 800);
+  const avoid = cleanText(rawBrief.avoid, 240);
+  const interests = Array.isArray(rawBrief.interests) ? rawBrief.interests.slice(0, 12).map(value => cleanText(value, 80)).filter(Boolean) : [];
+  if (!interests.length && !notes) throw new Error('Add an interest or a short note before searching.');
+  const budget = Math.min(5_000, Math.max(10, Number(rawBrief.budget) || 60));
+  const country = cleanText(rawBrief.destinationCountry, 2).toUpperCase() || 'GB';
+  const query = [
+    `Find thoughtful gifts for ${recipient}${relationship ? `, the giver's ${relationship.toLowerCase()}` : ''}.`,
+    occasion ? `Occasion: ${occasion}.` : '', meaning ? `The gift should communicate: ${meaning}.` : '',
+    interests.length ? `Confirmed interests: ${interests.join(', ')}.` : '', notes ? `Useful context from the giver: ${notes}.` : '',
+    style ? `Preferred style: ${style}.` : '', format && format !== 'Flexible' ? `Preferred format: ${format}.` : '',
+    avoid ? `Avoid: ${avoid}.` : '', deadline ? `Needed: ${deadline}.` : '',
+    `Budget ceiling: GBP ${budget}. Prefer distinctive, well-made options available from reputable UK retailers.`
+  ].filter(Boolean).join(' ');
+  const channel3 = channel3Capability();
+  if (channel3.status === 'available') {
+    const result = await searchChannel3Gifts({ query, budget, country, limit: 10 });
+    if (result.products.length) return {
+      mode: 'channel3-live-discovery', provider: 'Channel3', marketplace: country,
+      url: result.products[0].url, offers: result.products, observedAt: result.observedAt,
+      disclosure: 'These current product matches and merchant links came from Channel3. The retailer confirms final price, availability, delivery and checkout.'
+    };
+  }
+  const marketplace = AMAZON_DOMAINS[country] || AMAZON_DOMAINS.GB;
+  const keywords = [occasion, interests.slice(0, 3).join(' '), style, format].filter(Boolean).join(' ');
+  return {
+    mode: 'amazon-search-handoff', provider: 'Amazon', marketplace,
+    url: `https://${marketplace}/s?k=${encodeURIComponent(keywords || 'thoughtful gift')}`, offers: [],
+    disclosure: 'Live catalogue discovery is not available, so this is a retailer search handoff. The retailer confirms products, price, availability, delivery and checkout.'
+  };
+}
+
+function cleanText(value: unknown, maxLength: number) {
+  return typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, maxLength) : '';
 }
 
 function analyse(input: Record<string, unknown>) {

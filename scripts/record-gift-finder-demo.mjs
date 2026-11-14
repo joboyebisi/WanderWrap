@@ -33,35 +33,21 @@ const page = await context.newPage();
 const video = page.video();
 
 try {
-  await page.goto(`${baseUrl}/gift-finder`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/gift-finder`, { waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: /Who are you celebrating/i }).waitFor();
   await pause(3500);
-
-  await page.getByRole("button", { name: /Build the moment/ }).click();
+  await page.getByLabel("First name or nickname").fill("Maya");
+  await page.getByRole("button", { name: /Tell us about them/ }).click();
+  await page.getByRole("heading", { name: /What do they genuinely enjoy/ }).waitFor();
+  await page.getByRole("button", { name: "Books" }).click();
+  await page.getByRole("button", { name: "Wellness" }).click();
+  await page.getByLabel("Anything else that would help?").fill("She loves literary fiction, quiet Sunday mornings and beautiful, useful objects for a small flat.");
   await pause(3000);
-
-  await page.getByRole("button", { name: /Fill with a fictional example/ }).click();
-  await page.getByRole("checkbox", { name: /allowed to use these excerpts/i }).check();
-  await pause(2500);
-
-  await page.getByRole("button", { name: /Find thoughtful signals/ }).click();
-  await page.getByRole("heading", { name: /What feels true/ }).waitFor();
-  await pause(3500);
-
-  await page.getByRole("button", { name: /Create the Gift Brief/ }).click();
-  await page.getByRole("heading", { name: /Understanding before shopping/i }).waitFor();
-  await pause(5000);
-
-  await page.getByRole("button", { name: /Explore gift directions/ }).click();
-  await page.getByRole("heading", { name: /Four ways to make them feel seen/i }).waitFor();
-  await page.locator(".directionGrid").scrollIntoViewIfNeeded();
-  await pause(6500);
-
-  await page.locator(".directionGrid button").filter({ hasText: /ceramic/i }).first().click();
-  await page.getByRole("heading", { name: /More than a shopping link/i }).waitFor();
-  await pause(5500);
-
-  await page.getByRole("button", { name: /Find current matches/ }).click();
-  await page.getByRole("heading", { name: /Current gifts, researched for them/i }).waitFor();
+  await page.getByRole("button", { name: /Review Gift Brief/ }).click();
+  await page.getByRole("heading", { name: /One clear brief for our gift agents/ }).waitFor();
+  await pause(4000);
+  await page.getByRole("button", { name: /Find gifts with our agents/ }).click();
+  await page.getByRole("heading", { name: /Thoughtful options for Maya/i }).waitFor();
   const retailerChoice = page.locator(".amazonOffers button").first();
   if (await retailerChoice.count()) {
     await retailerChoice.click();
@@ -71,7 +57,6 @@ try {
   await page.getByRole("dialog", { name: /Continue with/i }).waitFor();
   await pause(3500);
   await page.getByRole("button", { name: /Stay and compare/i }).click();
-  await page.getByRole("heading", { name: /Every specialist leaves evidence/i }).scrollIntoViewIfNeeded();
   await pause(6000);
 } finally {
   await context.close();
