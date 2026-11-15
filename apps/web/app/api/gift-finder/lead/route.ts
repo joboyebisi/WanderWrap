@@ -5,13 +5,14 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   if (!sameOrigin(request)) return Response.json({ error: 'Origin not allowed' }, { status: 403 });
+  const requestOrigin = request.headers.get('origin') as string;
   const base = process.env.WANDERWRAP_CORE_API_URL;
   if (!base) return Response.json({ error: 'Lead capture is not configured yet.' }, { status: 503 });
   const body = await request.text();
   try {
     const response = await fetch(new URL('/v1/public/leads', base), {
       method: 'POST',
-      headers: { 'content-type': 'application/json', origin: process.env.NEXT_PUBLIC_WANDERWRAP_URL || request.nextUrl.origin },
+      headers: { 'content-type': 'application/json', origin: requestOrigin },
       body,
       cache: 'no-store',
       signal: AbortSignal.timeout(8_000)
