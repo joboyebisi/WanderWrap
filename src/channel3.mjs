@@ -43,7 +43,59 @@ export async function searchChannel3Gifts({
     products: page.data.map(normalizeProduct).filter(Boolean)
   };
 }
-function normalizeProduct(product) {
+
+export async function runChannel3GiftFinderTurn({
+  message,
+  conversationId,
+  userId,
+  apiKey = process.env.CHANNEL3_API_KEY,
+  client
+} = {}) {
+  const text = String(message || '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!text) throw new TypeError('A shopper message is required');
+  if (text.length > 1_600) throw new TypeError('Shopper message is too long');
+  if (!apiKey && !client) throw new Error('Channel3 is not configured');
+  const activeClient = client || new Channel3({ apiKey, timeoutInSeconds: 25, maxRetries: 1 });
+  const result = await activeClient.conversations.createTurn({
+    message: { role: 'user', parts: [{ type: 'text', text }] },
+    ...(conversationId ? { conversation_id: String(conversationId).slice(0, 160) } : {}),
+    ...(userId ? { 'x-user-id': String(userId).replace(/[^a-zA-Z0-9._@-]/g, '').slice(0, 128) } : {}),
+    config: { country: 'GB', currency: 'GBP', language: 'en' },
+    ...(!conversationId ? { context: {
+      application_context: 'WanderWrap Gift Finder: a calm, consent-first gifting assistant for UK shoppers. Ask one concise, high-value question at a time. Understand the recipient, relationship, occasion, budget, timing, interests, dislikes and practical constraints before searching. Use only information the giver supplies. When there is enough context, search for meaningfully different current gifts. Never imply that WanderWrap has ordered, paid for or guaranteed delivery of anything.',
+      user_context: 'This is a no-account gifting conversation. The giver makes the final choice and completes any purchase with the retailer.'
+    } } : {})
+  });
+  const parts = Array.isArray(result.message?.parts) ? result.message.parts : [];
+  const products = [];
+  for (const part of parts) {
+    if (part?.type !== 'tool' || !part.output || part.output.is_error) continue;
+    for (const product of part.output.products || []) {
+      const normalized = normalizeProduct(product);
+      if (normalized && !products.some(item => item.id === normalized.id)) products.push(normalized);
+    }
+  }
+  const reply = parts.filter(part => part?.type === 'text').map(part => cleanConversationText(part.text)).filter(Boolean).join('\n\n');
+  return {
+    provider: 'channel3-conversations',
+    conversationId: result.conversation_id,
+    turnId: result.turn_id,
+    reply: reply || (products.length ? 'I found a few current options worth comparing.' : 'Tell me a little more about the person you are celebrating.'),
+    suggestions: Array.isArray(result.message?.suggestions) ? result.message.suggestions.slice(0, 4).map(String) : [],
+    products: products.slice(0, 10),
+    usage: result.usage || null,
+    observedAt: new Date().toISOString()
+  };
+}
+
+function cleanConversationText(value) {
+  return String(value || '')
+    .replace(/\[([^\]]+)\]\(cp:[^)]+\)/g, '$1')
+    .replace(/\s+\n/g, '\n')
+    .trim();
+}
+
+export function normalizeProduct(product) {
   const offer = product?.offers?.find(item => item?.availability === 'InStock') || product?.offers?.[0];
   if (!product?.id || !product?.title || !offer?.url) return null;
   const image = product.images?.find(item => item?.is_main_image) || product.images?.[0];

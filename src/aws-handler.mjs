@@ -24,6 +24,7 @@ import { CATALOG } from './recommendation.mjs';
 import { handleMcpRequest, PROTOCOL_VERSION } from './mcp-server.mjs';
 import { CAPABILITIES } from './provider-platform.mjs';
 import { createDefaultProviderPlatform } from './provider-adapters.mjs';
+import { leadRateKey, normalizeLead } from './lead-capture.mjs';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true }
@@ -64,6 +65,11 @@ export async function handler(event) {
       return await authRoute(path, body(event));
     }
     if (path.startsWith('/claim/')) return await claimRoute(method, path, event);
+    if (path === '/v1/public/leads') {
+      if (method !== 'POST') throw httpError(405, 'Use POST');
+      if (!isAllowedOrigin(event.headers?.origin)) throw httpError(403, 'Origin not allowed');
+      return await publicLeadRoute(body(event), event);
+    }
 
     if (path === '/mcp') {
       if (!isAllowedOrigin(event.headers?.origin)) throw httpError(403, 'Origin not allowed');
@@ -93,6 +99,40 @@ export async function handler(event) {
     if (status >= 500) console.error(JSON.stringify({ type: error.name, message: error.message, path, method }));
     return json(status, { error: status === 500 ? 'Internal error' : error.message });
   }
+}
+
+async function publicLeadRoute(input, event) {
+  const lead = normalizeLead(input);
+  const sourceIp = event.requestContext?.http?.sourceIp || event.headers?.['x-forwarded-for']?.split(',')[0] || 'unknown';
+  const rate = leadRateKey(sourceIp);
+  try {
+    await db.send(new UpdateCommand({
+      TableName: tableName,
+      Key: { PK: rate.PK, SK: rate.SK },
+      UpdateExpression: 'SET expiresAt = :expiresAt ADD requestCount :one',
+      ConditionExpression: 'attribute_not_exists(requestCount) OR requestCount < :limit',
+      ExpressionAttributeValues: { ':one': 1, ':limit': 5, ':expiresAt': rate.expiresAt }
+    }));
+  } catch (error) {
+    if (error?.name === 'ConditionalCheckFailedException') throw httpError(429, 'Please wait before trying again.');
+    throw error;
+  }
+  const key = { PK: `LEAD#${lead.id}`, SK: 'LEAD' };
+  const existing = await get(key.PK, key.SK);
+  await put({
+    ...key,
+    entity: 'gift-finder-lead',
+    email: lead.email,
+    source: lead.source,
+    serviceConsentAt: lead.serviceConsentAt,
+    marketingConsentAt: lead.marketingConsentAt,
+    recommendationCount: lead.recommendationCount,
+    status: existing?.status || 'captured',
+    createdAt: existing?.createdAt || lead.createdAt,
+    updatedAt: lead.updatedAt
+  });
+  await audit(key.PK, 'GIFT_FINDER_LEAD_CAPTURED', { serviceConsent: true, marketingConsent: Boolean(lead.marketingConsentAt), source: lead.source });
+  return json(202, { captured: true, message: 'Your shortlist email preference has been saved.' });
 }
 
 async function authRoute(path, input) {

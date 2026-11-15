@@ -3,8 +3,8 @@ import Link from 'next/link';
 import GiftFinderExperience from './gift-finder-experience';
 
 export const metadata: Metadata = {
-  title: 'Gift Finder · Personal gifts, researched for them',
-  description: 'Build an editable Gift Brief, let WanderWrap agents research current products with Channel3, then choose a retailer to complete checkout.',
+  title: 'Gift Finder · Talk it through, find something personal',
+  description: 'Have a natural conversation with WanderWrap’s specialist gift agent, then compare current gifts researched with Channel3.',
   alternates: { canonical: '/gift-finder' }
 };
 
@@ -16,8 +16,8 @@ export default function GiftFinderPage() {
         <div className="navLinks"><Link href="/connections">Connections</Link><Link className="navButton" href="/gift-finder">Gift Finder</Link></div>
       </nav>
       <header className="routeHero">
-        <div><p className="eyebrow">GIFT FINDER · NO ACCOUNT NEEDED</p><h1>Tell us about them.<br />We’ll find the gifts.</h1></div>
-        <p>Build a Gift Brief with the details that make them who they are. WanderWrap’s agents turn it into thoughtful, current recommendations; you make the final choice.</p>
+        <div><p className="eyebrow">YOUR SPECIALIST GIFT AGENT</p><h1>Talk it through.<br />Find something personal.</h1></div>
+        <p>Describe the person and the moment in your own words. WanderWrap carries the context, asks useful follow-ups and researches current gifts when the brief is ready.</p>
       </header>
       <GiftFinderExperience />
     </div>
