@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { AgentOrchestrator, AgentRegistry, createAgentProposal } from './agent-orchestrator.mjs';
 import { channel3Capability, runChannel3GiftFinderTurn, searchChannel3Gifts } from './channel3.mjs';
 import { advanceGiftBrief, normalizeGiftBrief } from './gift-brief.mjs';
+import { buildGiftFinderInteraction } from './gift-finder-interaction.mjs';
 
 export const GIFT_FINDER_TENANT = 'public-gift-finder';
 export const GIFT_FINDER_AGENT = 'gift-finder-specialist';
@@ -52,12 +53,14 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
         userId: attributionId(request.actorId)
       });
       const ready = briefState.readyToReveal && Boolean(turn.products?.length);
+      const interaction = buildGiftFinderInteraction(briefState, turn.suggestions, request.payload.turnNumber);
       return createAgentProposal(request, {
         proposedAction: ready ? 'prepare-recommendation-reveal' : 'ask-gift-question',
         arguments: {
           ...turn,
-          reply: ready ? 'Lovely — I have enough to make this feel considered. I’ve prepared a shortlist and kept the reasoning tied to your Gift Brief. ✨' : briefState.nextQuestion,
-          suggestions: ready ? ['Show me the shortlist'] : turn.suggestions,
+          reply: ready ? 'Lovely — I have enough to make this feel considered. I’ve prepared a shortlist and kept the reasoning tied to your Gift Brief. ✨' : `${interaction.acknowledgement} ${briefState.nextQuestion}`,
+          suggestions: ready ? [] : interaction.quickReplies,
+          interaction: { persona: interaction.persona, acknowledgement: interaction.acknowledgement },
           brief: briefState.brief,
           briefProgress: briefState.score,
           missingBriefFields: briefState.missing,

@@ -10,6 +10,7 @@ test('gift brief carries structured clues across natural turns', () => {
   const second = advanceGiftBrief(first.brief, 'Around £80 and I need it by next Friday.', 2);
   assert.equal(second.readyToReveal, true);
   assert.match(second.brief.budget, /£80/);
+  assert.match(second.brief.timing, /next Friday/i);
 });
 
 test('gift brief never reveals from one vague turn', () => {
@@ -29,7 +30,28 @@ test('gift brief accepts short guided answers instead of repeatedly asking the s
   const budget = advanceGiftBrief({ recipient: 'mum', occasion: 'birthday', preferences: ['reading'] }, 'about 60', 3);
   assert.equal(budget.score, 4);
   assert.match(budget.brief.budget, /60/);
-  const clue = advanceGiftBrief({ recipient: 'mentor', occasion: 'thank-you', budget: '£50' }, 'A keen cook who hates clutter', 3);
+  const clue = advanceGiftBrief({ recipient: 'mentor', occasion: 'thank-you', budget: '£50', timing: 'no fixed date' }, 'A keen cook who hates clutter', 3);
   assert.equal(clue.score, 4);
   assert.match(clue.brief.preferences[0], /keen cook/i);
+  const flexible = advanceGiftBrief({ recipient: 'friend', occasion: 'birthday' }, 'My budget is flexible; show me good value.', 2);
+  assert.match(flexible.brief.budget, /flexible/i);
+});
+
+test('gift brief recognises common deadlines and asks for timing before reveal', () => {
+  const base = { recipient: 'friend', occasion: 'birthday', budget: 'under £50', preferences: ['running'] };
+  const missing = advanceGiftBrief(base, 'not sure', 2);
+  assert.equal(missing.readyToReveal, false);
+  assert.equal(missing.missing[0], 'when it needs to be ready');
+  assert.match(missing.nextQuestion, /when/i);
+  for (const [message, expected] of [
+    ['I need it within 3 days', /within 3 days/i],
+    ['I need it this month', /need it this month/i],
+    ['It should arrive before 20 December', /before 20 December/i],
+    ['ASAP please', /asap/i],
+    ['No fixed date', /no fixed date/i]
+  ]) {
+    const state = advanceGiftBrief(base, message, 2);
+    assert.match(state.brief.timing, expected);
+    assert.equal(state.readyToReveal, true);
+  }
 });

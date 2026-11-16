@@ -7,9 +7,17 @@ Status: implemented public-web conversation and Channel3 catalogue boundary; ret
 1. The giver describes the recipient and moment in ordinary language.
 2. The specialist asks one useful follow-up at a time and carries the Channel3 `conversation_id` across turns.
 3. The conversation becomes the working Gift Brief; only giver-supplied information is used.
-4. When enough context exists, the agent returns current Channel3 product cards and refinement suggestions.
-5. The customer can refine the result turn by turn or open the explicit retailer handoff.
-6. Only after recommendations are visible does WanderWrap offer to save an email lead and continue account onboarding.
+4. The composer shows two to four server-selected quick replies for the next missing field; the buttons send natural-language messages through the same path as typed input.
+5. Automatic reveal requires an explicit timing answer, including `No fixed date`; a shopper may still deliberately use **Find gifts now** with a partial brief.
+6. When enough context exists, the agent returns current Channel3 product cards and refinement suggestions.
+7. The customer can refine the result turn by turn or open the explicit retailer handoff.
+8. Only after recommendations are visible does WanderWrap offer to save an email lead and continue account onboarding.
+
+## Interaction contract
+
+`src/gift-finder-interaction.mjs` owns the extensible WanderWrap persona and quick-reply templates. The persona is warm, observant, practical and lightly playful, but remains clearly a bounded gift-shopping agent. Templates are keyed by the deterministic next missing field, contain a stable ID, visual icon, short visible label and the full natural-language message sent to the harness. Provider suggestions may supplement a set only after validation; deterministic templates take priority and the response is capped at four choices.
+
+Emoji and symbols are never the only accessible label. The UI hides decorative icons from assistive technology, keeps visible button text, supports keyboard activation and leaves the free-text field available at every step. Analytics and ordinary logs record no selected suggestion text, recipient value or Gift Brief value.
 
 ## Harness
 

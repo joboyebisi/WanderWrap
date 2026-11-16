@@ -6,18 +6,23 @@ import { captureProductEvent } from '../product-analytics';
 import { GiftBrief, Offer, saveReveal } from './gift-finder-state';
 
 type Message = { id: string; role: 'assistant' | 'user'; text: string };
+type QuickReply = { id: string; icon: string; label: string; message: string };
 type Evaluation = { intent: 'continue' | 'search'; turnNumber: number; briefProgress: number; progressDelta: number; missingFieldCount: number; productCount: number; loopRisk: boolean };
-type Turn = { conversationId: string; reply: string; suggestions: string[]; products: Offer[]; observedAt: string; stage: 'building_gift_brief' | 'recommendations_ready'; revealReady: boolean; disclosure: string; brief: GiftBrief; briefProgress: number; missingBriefFields: string[]; evaluation?: Evaluation };
+type Turn = { conversationId: string; reply: string; suggestions: QuickReply[]; products: Offer[]; observedAt: string; stage: 'building_gift_brief' | 'recommendations_ready'; revealReady: boolean; disclosure: string; brief: GiftBrief; briefProgress: number; missingBriefFields: string[]; evaluation?: Evaluation };
 
 const EMPTY: GiftBrief = { recipient: '', occasion: '', budget: '', timing: '', preferences: [], constraints: [] };
-const STARTERS = ['🎂 Mum’s 60th—she loves gardening but owns the obvious things', '💛 A thoughtful thank-you for a colleague I don’t know well', '✨ Something personal for my partner, under £80'];
+const STARTERS: QuickReply[] = [
+  { id: 'starter-birthday', icon: '🎂', label: 'Milestone birthday', message: 'Mum’s 60th—she loves gardening but owns the obvious things. I need it by next week.' },
+  { id: 'starter-thanks', icon: '✦', label: 'Thoughtful thank-you', message: 'A thoughtful thank-you for a colleague I don’t know well, needed this month.' },
+  { id: 'starter-partner', icon: '♥', label: 'Personal partner gift', message: 'Something personal for my partner, under £80, with no fixed date.' }
+];
 
 export default function GiftFinderExperience() {
   const [messages, setMessages] = useState<Message[]>([{ id: 'welcome', role: 'assistant', text: 'Hi, I’m WanderWrap ✨ Tell me who you’re celebrating and what the moment is. I’ll turn the little details into a clear Gift Brief, then do the searching.' }]);
   const [draft, setDraft] = useState('');
   const [conversationId, setConversationId] = useState<string>();
   const [turnNumber, setTurnNumber] = useState(0);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<QuickReply[]>([]);
   const [brief, setBrief] = useState<GiftBrief>(EMPTY);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState<'continue' | 'search' | false>(false);
@@ -78,13 +83,16 @@ export default function GiftFinderExperience() {
   const canSearch = turnNumber > 0 && progress > 0 && !busy;
 
   return <section className="agenticFinder">
-    <aside className="agentContext"><div className="agentIdentity"><span>WW</span><div><strong>Your Gift Brief</strong><small>{progress}/4 essentials understood</small></div><i>{busy ? busy === 'search' ? 'Searching' : 'Listening' : 'Live'}</i></div><div className="briefMeter"><i style={{ width: `${Math.min(100, progress * 25)}%` }} /></div><div className="contextBody"><p className="routeKicker">WHAT WANDERWRAP IS CARRYING FORWARD</p>{facts.map(([icon, label, value]) => <div className={value ? 'briefFact' : 'briefFact empty'} key={label}><span>{icon}</span><div><small>{label}</small><strong>{value || 'Still to learn'}</strong></div></div>)}</div><div className="trustStrip"><span>🔒 Only details you choose</span><span>✏️ Correct WanderWrap at any time</span><span>🛍️ No purchase without your action</span></div></aside>
+    <aside className="agentContext"><div className="agentIdentity"><span>WW</span><div><strong>Your Gift Brief</strong><small>{progress}/4 essentials understood</small></div><i>{busy ? busy === 'search' ? 'Searching' : 'Listening' : 'Live'}</i></div><div className="briefMeter" aria-label={`${progress} of 4 essential gift details understood`}><i style={{ width: `${Math.min(100, progress * 25)}%` }} /></div><div className="contextBody"><p className="routeKicker">WHAT WANDERWRAP IS CARRYING FORWARD</p>{facts.map(([icon, label, value]) => <div className={value ? 'briefFact filled' : 'briefFact empty'} key={label}><span aria-hidden="true">{icon}</span><div><small>{label}</small><strong aria-live="polite">{value || 'Still to learn'}</strong></div></div>)}</div><div className="trustStrip"><span>🔒 Only details you choose</span><span>✏️ Correct WanderWrap at any time</span><span>🛍️ No purchase without your action</span></div></aside>
     <div className="giftChatPanel"><header><div className="chatAgentTitle"><div className="agentAvatar">WW</div><div><p className="routeKicker">WANDERWRAP · PERSONAL GIFT SHOPPER</p><h2>Let’s make it feel like them.</h2></div></div><button type="button" onClick={reset}>Start over</button></header>
-      <div className="giftChatTranscript" aria-live="polite">{messages.map(message => <article className={message.role} key={message.id}><small>{message.role === 'user' ? 'YOU' : 'WANDERWRAP ✦'}</small><p>{message.text}</p></article>)}{busy && <article className="assistant thinking"><small>WANDERWRAP ✦</small><p><span /><span /><span /><em>{busy === 'search' ? 'Searching current gifts with your brief…' : 'Listening for the detail that will make the difference…'}</em></p></article>}<div ref={endRef} /></div>
-      {!turnNumber && <div className="chatStarters">{STARTERS.map(item => <button type="button" onClick={() => sendMessage(item.replace(/^\S+\s/, ''))} key={item}>{item}</button>)}</div>}
-      {suggestions.length > 0 && <div className="chatSuggestions">{suggestions.map(item => <button type="button" onClick={() => sendMessage(item)} key={item}>{item}</button>)}</div>}
+      <div className="giftChatTranscript" aria-live="polite">{messages.map(message => <article className={message.role} key={message.id}><small>{message.role === 'user' ? 'YOU' : 'WANDERWRAP ✦'}</small><p>{message.text}</p></article>)}{busy && <article className="assistant thinking"><small>WANDERWRAP ✦</small><p><span /><span /><span /><em>{busy === 'search' ? 'Searching current gifts with your brief…' : 'Updating the brief with what you shared…'}</em></p></article>}<div ref={endRef} /></div>
       {loopRisk && <div className="loopEscape" role="status"><span>✨</span><p><strong>We can search now.</strong><small>You can keep refining, or let WanderWrap work with what it already knows.</small></p></div>}
-      <form className="giftComposer" onSubmit={(event: FormEvent) => { event.preventDefault(); void sendMessage(draft); }}><label htmlFor="gift-message">Message WanderWrap</label><textarea id="gift-message" rows={2} maxLength={1600} value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(draft); } }} placeholder="Share a detail, a memory, a budget—or say what to avoid…" /><div><small>Share what you know; don’t paste private messages or account exports.</small><span className="composerButtons"><button className="searchNowButton" type="button" disabled={!canSearch} onClick={() => void sendMessage(draft, 'search')} title={progress ? 'Search using the Gift Brief so far' : 'Share one detail first'}>Find gifts now <b>✨</b></button><button className="sendMessageButton" type="submit" disabled={Boolean(busy) || !draft.trim()}>Send <span>↑</span></button></span></div></form>
+      <form className="giftComposer" onSubmit={(event: FormEvent) => { event.preventDefault(); void sendMessage(draft); }}>
+        <label htmlFor="gift-message">Message WanderWrap</label>
+        <div className="composerPromptRail" aria-label={turnNumber ? 'Suggested replies' : 'Conversation starters'}>{(turnNumber ? suggestions : STARTERS).map(item => <button type="button" onClick={() => void sendMessage(item.message)} disabled={Boolean(busy)} key={item.id}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</div>
+        <textarea id="gift-message" rows={2} maxLength={1600} value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(draft); } }} placeholder="Or type a detail, memory, budget, deadline—or what to avoid…" />
+        <div><small>Suggestions adapt to your Gift Brief. You can always type instead.</small><span className="composerButtons"><button className="searchNowButton" type="button" disabled={!canSearch} onClick={() => void sendMessage(draft, 'search')} title={progress ? 'Search using the Gift Brief so far' : 'Share one detail first'}>Find gifts now <b aria-hidden="true">✨</b></button><button className="sendMessageButton" type="submit" disabled={Boolean(busy) || !draft.trim()}>Send <span aria-hidden="true">↑</span></button></span></div>
+      </form>
       {error && <div className="chatError" role="alert">{error}</div>}
     </div>
   </section>;

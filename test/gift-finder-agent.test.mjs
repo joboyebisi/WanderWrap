@@ -10,7 +10,7 @@ test('Gift Finder specialist carries conversation context through the bounded ha
     return { provider: 'channel3-conversations', conversationId: 'conv_1', turnId: `turn_${calls.length}`, reply: calls.length === 1 ? 'What does she enjoy?' : 'I found three options.', suggestions: [], products: calls.length === 1 ? [] : [{ id: 'p1', title: 'Tea set', url: 'https://merchant.example/tea' }], observedAt: '2026-11-15T10:00:00Z' };
   } });
   const first = await harness.turn({ sessionId: 'session_1234567890', message: 'A birthday gift for my mum', turnNumber: 1, requestId: 'request-1' });
-  const second = await harness.turn({ sessionId: 'session_1234567890', message: 'She loves tea and my budget is £60', conversationId: first.conversationId, turnNumber: 2, brief: first.brief, requestId: 'request-2' });
+  const second = await harness.turn({ sessionId: 'session_1234567890', message: 'She loves tea, my budget is £60 and I need it by next Friday', conversationId: first.conversationId, turnNumber: 2, brief: first.brief, requestId: 'request-2' });
   assert.equal(calls[1].conversationId, 'conv_1');
   assert.equal(first.stage, 'building_gift_brief');
   assert.equal(second.stage, 'recommendations_ready');
@@ -50,6 +50,16 @@ test('agent evaluation identifies a stalled question loop without logging conver
   assert.equal(result.evaluation.loopRisk, true);
   assert.equal(Object.hasOwn(result.evaluation, 'message'), false);
   assert.equal(Object.hasOwn(result.evaluation, 'brief'), false);
+});
+
+test('Gift Finder returns contextual structured replies for the next missing detail', async () => {
+  const harness = createGiftFinderHarness({ conversationProvider: async () => ({ provider: 'channel3-conversations', conversationId: 'conv_1', suggestions: ['Tell me more'], products: [], observedAt: '2026-11-16T10:00:00Z' }) });
+  const result = await harness.turn({ sessionId: 'session_1234567890', message: 'It is for my mum, for her birthday, around £60. She loves books.', turnNumber: 1, requestId: 'quick-replies-1' });
+  assert.equal(result.missingBriefFields[0], 'when it needs to be ready');
+  assert.deepEqual(result.suggestions.map(item => item.id), ['timing-weekend', 'timing-week', 'timing-month', 'timing-open']);
+  assert.equal(result.suggestions.every(item => item.label && item.message && item.icon), true);
+  assert.match(result.reply, /When should the gift be ready/i);
+  assert.equal(result.interaction.persona.name, 'WanderWrap');
 });
 
 test('Gift Finder capability requires the server-side Channel3 configuration', () => {
