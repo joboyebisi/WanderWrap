@@ -33,6 +33,7 @@ Create a dedicated Google OAuth web client for WanderWrap. In Google Auth Platfo
 - publish `https://www.wanderwrap.co.uk/privacy` and `https://www.wanderwrap.co.uk/terms`;
 - use Cognito's exact Google redirect URI, normally `https://auth.wanderwrap.co.uk/oauth2/idpresponse`;
 - request only `openid email profile` for sign-in;
+- enable `people.googleapis.com` in the same Google Cloud project because Cognito's Google provider retrieves the mapped basic profile through the Google People API;
 - complete Google's branding verification so the verified WanderWrap name/logo appears instead of an unverified domain label;
 - store the Google client secret in AWS Secrets Manager or the encrypted deployment secret store, never CloudFormation parameters committed to Git.
 
@@ -45,6 +46,8 @@ The callback validates returned state and the PKCE verifier before accepting eit
 Deployment evidence on 16 November 2026: the trigger, its least-privilege `ListUsers` role, invocation permission and 30-day log group were deployed through reviewed change set `wanderwrap-google-auth-1aea149`. Cognito reports the trigger ARN on the production user pool, Lambda reports `Active`/`Successful`, and a content-free synthetic verified-new-user probe returned `200`. The live web route reaches Google's account chooser. The pool contained no users, so a real collision could not yet be produced; first creation, logout, repeat sign-in and existing-email recovery remain release evidence, not assumptions.
 
 Branding evidence on 16 November 2026: change set `wanderwrap-managed-login-v2` updated the custom domain without replacement or deletion. Cognito reports `auth.wanderwrap.co.uk` active on managed-login version 2, and branding ID `113ffcf8-85a8-40be-9d05-088f37bb054e` is attached with the WanderWrap form emblem. The public sign-in page and recommendation gate use the official multicolour Google mark. The first fallback consent-screen journey reached Google successfully; it did not by itself prove account creation, logout, repeat sign-in or collision recovery.
+
+Provider dependency evidence on 16 November 2026: primary Google attempts returned a provider error with valid state and PKCE before the pre-sign-up trigger. The Google client credentials passed a content-free token-endpoint validity diagnostic, while the `WanderWrap Production` project showed the People API disabled. `people.googleapis.com` was enabled and Google Cloud subsequently reported `Status: Enabled`. Re-run the human primary-domain flow before treating this as end-to-end evidence.
 
 Google sign-in is authentication only. Google Calendar and Contacts are separate, just-in-time connections with separate consent, scopes and revoke controls.
 
