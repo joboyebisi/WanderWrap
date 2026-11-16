@@ -2,7 +2,10 @@
   { "ParameterKey": "ProjectName", "UsePreviousValue": true },
   { "ParameterKey": "Environment", "UsePreviousValue": true },
   { "ParameterKey": "ArtifactBucket", "UsePreviousValue": true },
-  { "ParameterKey": "ArtifactKey", "UsePreviousValue": true },
+  {
+    "ParameterKey": "ArtifactKey",
+    "ParameterValue": "development/2026-11-16/wanderwrap-email-identity-20261116.zip"
+  },
   { "ParameterKey": "WebUrl", "UsePreviousValue": true },
   { "ParameterKey": "AllowedOrigins", "UsePreviousValue": true },
   { "ParameterKey": "AlexaRedirectUris", "UsePreviousValue": true },
@@ -27,5 +30,17 @@
   {
     "ParameterKey": "GoogleClientSecretArn",
     "ParameterValue": "arn:aws:secretsmanager:eu-west-2:695912022574:secret:wanderwrap/production/google-oauth-SOaVWF"
+  },
+  {
+    "ParameterKey": "TransactionalEmailSourceArn",
+    "ParameterValue": "arn:aws:ses:eu-west-2:695912022574:identity/wanderwrap.co.uk"
+  },
+  {
+    "ParameterKey": "TransactionalEmailFrom",
+    "ParameterValue": "WanderWrap <no-reply@wanderwrap.co.uk>"
+  },
+  {
+    "ParameterKey": "TransactionalEmailConfigurationSet",
+    "ParameterValue": "wanderwrap-production-transactional"
   }
 ]

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { accessToken, refreshAccessToken } from '../../../../lib/session';
 
-const ALLOWED_ROOTS = new Set(['me', 'briefs', 'saved-items', 'recipients', 'recommendations', 'routes', 'gifts', 'providers', 'audit', 'admin']);
+const ALLOWED_ROOTS = new Set(['me', 'briefs', 'saved-items', 'recipients', 'recommendations', 'routes', 'gifts', 'providers', 'audit', 'admin', 'marketing']);
 const METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 
 async function forward(request: NextRequest, context: RouteContext<'/api/core/[...path]'>) {

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import RecommendationWorkspace from './recommendation-workspace';
+import SiteHeader from '../../site-header';
 export const metadata:Metadata={title:'Your gift shortlist',description:'Compare the current gifts WanderWrap researched for your Gift Brief.',robots:{index:false,follow:false}};
-export default function RecommendationsPage(){return <main className="recommendationsPage"><nav className="nav shell"><Link className="brand" href="/">wanderwrap <span>✦</span></Link><div className="resultsNavLabel">Your WanderWrap shortlist</div></nav><RecommendationWorkspace/></main>;}
+export default function RecommendationsPage(){return <main className="recommendationsPage"><SiteHeader/><RecommendationWorkspace/></main>;}

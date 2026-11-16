@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   const structuredData = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'WanderWrap', applicationCategory: 'ShoppingApplication', operatingSystem: 'Web', description: 'A personal gift-shopping agent that builds Gift Briefs and researches current products for user-approved retailer handoff.', url: process.env.NEXT_PUBLIC_WANDERWRAP_URL || 'https://www.wanderwrap.co.uk' };
   return (
     <html lang="en">
-      <body>{children}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll('<', '\\u003c') }} /><AnalyticsProvider /><CookieConsent /></body>
+      <body><a className="skipLink" href="#main-content">Skip to main content</a><div id="main-content" tabIndex={-1}>{children}</div><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll('<', '\\u003c') }} /><AnalyticsProvider /><CookieConsent /></body>
     </html>
   );
 }

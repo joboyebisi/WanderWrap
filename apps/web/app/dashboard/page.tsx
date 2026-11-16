@@ -1,13 +1,10 @@
 import Link from 'next/link';
 import GiftWorkspace from './gift-workspace';
+import SiteHeader from '../site-header';
 
 export default function DashboardPage() {
   return (
-    <main className="shell dashboard">
-      <nav className="nav" aria-label="Dashboard navigation">
-        <Link className="brand" href="/">wanderwrap <span aria-hidden="true">✦</span></Link>
-        <div className="navLinks"><Link href="/connections">Connections</Link><Link href="/simulator">Alexa+ demo</Link><form action="/api/auth/logout" method="post"><button className="quietButton" type="submit">Sign out</button></form></div>
-      </nav>
+    <main className="dashboard"><SiteHeader/><div className="shell">
       <header className="dashboardIntro">
         <div>
           <p className="eyebrow">YOUR GIFT SPACE</p>
@@ -16,7 +13,7 @@ export default function DashboardPage() {
         </div>
         <div className="trustPill"><span aria-hidden="true">●</span> Nothing is purchased without your approval</div>
       </header>
-      <GiftWorkspace />
+      <GiftWorkspace /></div>
     </main>
   );
 }

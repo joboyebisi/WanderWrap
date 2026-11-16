@@ -3,14 +3,78 @@
 import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
 
-type Profile = { displayName?: string; handle?: string; homeCountry?: string; currency?: string; roles?: string[] };
+type Profile = { email?: string; displayName?: string; handle?: string; homeCountry?: string; currency?: string; roles?: string[] };
 type Brief = { id: string; name: string; brief: { recipient?: string; occasion?: string; timing?: string } };
 
 export default function AccountWorkspace() {
-  const [profile, setProfile] = useState<Profile | null>(null); const [briefs, setBriefs] = useState<Brief[]>([]); const [savedCount, setSavedCount] = useState(0); const [message, setMessage] = useState('');
-  useEffect(() => { void Promise.all([fetch('/api/auth/session', { cache: 'no-store' }).then(response => response.json()), fetch('/api/core/briefs', { cache: 'no-store' }).then(response => response.ok ? response.json() : []), fetch('/api/core/saved-items', { cache: 'no-store' }).then(response => response.ok ? response.json() : [])]).then(([session, giftBriefs, saved]) => { setProfile(session.authenticated ? session.user : {}); setBriefs(giftBriefs); setSavedCount(saved.length); }); }, []);
-  const saveProfile = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const fields = Object.fromEntries(new FormData(event.currentTarget)); const response = await fetch('/api/core/me', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(fields) }); if (response.ok) { setProfile(await response.json()); setMessage('Profile saved'); } else setMessage('Could not save your profile'); };
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [briefs, setBriefs] = useState<Brief[]>([]);
+  const [savedCount, setSavedCount] = useState(0);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    void Promise.all([
+      fetch('/api/auth/session', { cache: 'no-store' }).then(response => response.json()),
+      fetch('/api/core/briefs', { cache: 'no-store' }).then(response => response.ok ? response.json() : []),
+      fetch('/api/core/saved-items', { cache: 'no-store' }).then(response => response.ok ? response.json() : [])
+    ]).then(([session, giftBriefs, saved]) => {
+      setProfile(session.authenticated ? session.user : {});
+      setBriefs(giftBriefs);
+      setSavedCount(saved.length);
+    });
+  }, []);
+
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const fields = Object.fromEntries(new FormData(event.currentTarget));
+    const response = await fetch('/api/core/me', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(fields) });
+    if (response.ok) {
+      setProfile(await response.json());
+      setMessage('Profile saved');
+    } else {
+      setMessage('Could not save your profile');
+    }
+  };
+
   if (profile === null) return <div className="shell accountShell"><p>Opening your gift space…</p></div>;
   if (!profile.handle && !profile.displayName) return <div className="shell accountShell"><header><p className="eyebrow">YOUR WANDERWRAP SPACE</p><h1>Sign in to continue.</h1><p>Your briefs and saved items belong to your private account.</p><Link className="primary" href="/sign-in">Sign in</Link></header></div>;
-  return <div className="shell accountShell"><header><p className="eyebrow">YOUR WANDERWRAP SPACE</p><h1>Welcome, {profile.displayName || profile.handle}.</h1><p>Your conversations, saved Gift Briefs and favourite finds now travel with your account.</p><Link className="primary" href="/gift-finder?new=1">＋ New gift conversation</Link></header><section className="accountProfile"><form onSubmit={saveProfile}><h2>Your identity</h2><label>Display name<input name="displayName" defaultValue={profile.displayName || ''} maxLength={80} required /></label><label>Username<input name="handle" defaultValue={profile.handle?.split('#')[0] || ''} maxLength={24} required /><small>Your private tag suffix keeps usernames stable and collision-resistant.</small></label><label>Shopping region<select name="homeCountry" defaultValue={profile.homeCountry || 'GB'}><option value="GB">United Kingdom · GBP</option><option value="US">United States · USD</option><option value="CA">Canada · CAD</option></select></label><button type="submit">Save profile</button><span aria-live="polite">{message}</span></form></section><section className="accountGrid"><article><span>📝</span><h2>Gift Briefs</h2><p>{briefs.length ? `${briefs.length} saved conversation${briefs.length === 1 ? '' : 's'}, ready to revisit.` : 'Your completed gift conversations will appear here.'}</p><div className="briefList">{briefs.slice(0, 5).map(brief => <Link href={`/account/briefs/${encodeURIComponent(brief.id)}`} key={brief.id}><strong>{brief.name}</strong><small>{[brief.brief.occasion, brief.brief.recipient, brief.brief.timing].filter(Boolean).join(' · ')}</small></Link>)}</div><Link href="/gift-finder?new=1">Start another</Link></article><article><span>💝</span><h2>Saved items</h2><p>{savedCount ? `${savedCount} product${savedCount === 1 ? '' : 's'} saved to your account.` : 'Keep recommendations with the heart button.'}</p><Link href="/wishlist">Open wishlist</Link></article><article><span>👥</span><h2 id="people">People & contacts</h2><p>Consented contact import and relationship suggestions are being prepared. No address book is connected.</p><button disabled>Coming next</button></article><article><span>📅</span><h2 id="occasions">Occasions</h2><p>Birthday and anniversary reminders are coming next. No social birthday or calendar data is read today.</p><button disabled>Coming next</button></article><article><span>🔗</span><h2>Connections</h2><p>See which identity and data connections are available and what each permission means.</p><Link href="/connections">Review connections</Link></article><article><span>💳</span><h2 id="payments">Payments</h2><p>No payment method is stored. Checkout remains with the shopping site.</p><button disabled>Not enabled</button></article>{profile.roles?.includes('admin') && <article><span>🛡️</span><h2>Administration</h2><p>Access the role-gated operational console.</p><Link href="/admin">Open admin</Link></article>}</section></div>;
+
+  const identityName = friendlyIdentityName(profile);
+  const handleStem = safeHandleStem(profile.handle) || identityName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 24);
+
+  return <div className="shell accountShell">
+    <header>
+      <p className="eyebrow">YOUR WANDERWRAP SPACE</p>
+      <h1>Welcome, {identityName}.</h1>
+      <p>Your conversations, saved Gift Briefs and favourite finds now travel with your account.</p>
+      <Link className="primary" href="/gift-finder?new=1">＋ New gift conversation</Link>
+    </header>
+    <section className="accountProfile">
+      <form onSubmit={saveProfile}>
+        <h2>Your identity</h2>
+        <label>Display name<input name="displayName" defaultValue={profile.displayName || identityName} maxLength={80} required /></label>
+        <label>Username<input name="handle" defaultValue={handleStem} maxLength={24} required /><small>Your private tag suffix keeps usernames stable and collision-resistant.</small></label>
+        <label>Shopping region<select name="homeCountry" defaultValue={profile.homeCountry || 'GB'}><option value="GB">United Kingdom · GBP</option><option value="US">United States · USD</option><option value="CA">Canada · CAD</option></select></label>
+        <button type="submit">Save profile</button><span aria-live="polite">{message}</span>
+      </form>
+    </section>
+    <section className="accountGrid">
+      <article><span>📝</span><h2>Gift Briefs</h2><p>{briefs.length ? `${briefs.length} saved conversation${briefs.length === 1 ? '' : 's'}, ready to revisit.` : 'Your completed gift conversations will appear here.'}</p><div className="briefList">{briefs.slice(0, 5).map(brief => <Link href={`/account/briefs/${encodeURIComponent(brief.id)}`} key={brief.id}><strong>{brief.name}</strong><small>{[brief.brief.occasion, brief.brief.recipient, brief.brief.timing].filter(Boolean).join(' · ')}</small></Link>)}</div><Link href="/gift-finder?new=1">Start another</Link></article>
+      <article><span>💝</span><h2>Saved items</h2><p>{savedCount ? `${savedCount} product${savedCount === 1 ? '' : 's'} saved to your account.` : 'Keep recommendations with the heart button.'}</p><Link href="/wishlist">Open wishlist</Link></article>
+      <article><span>👥</span><h2 id="people">People & contacts</h2><p>Consented contact import and relationship suggestions are being prepared. No address book is connected.</p><button disabled>Coming next</button></article>
+      <article><span>📅</span><h2 id="occasions">Occasions</h2><p>Birthday and anniversary reminders are coming next. No social birthday or calendar data is read today.</p><button disabled>Coming next</button></article>
+      <article><span>🔗</span><h2>Connections</h2><p>See which identity and data connections are available and what each permission means.</p><Link href="/connections">Review connections</Link></article>
+      <article><span>💳</span><h2 id="payments">Payments</h2><p>No payment method is stored. Checkout remains with the shopping site.</p><button disabled>Not enabled</button></article>
+      {profile.roles?.includes('admin') && <article><span>🛡️</span><h2>Administration</h2><p>Access the role-gated operational console.</p><Link href="/admin">Open admin</Link></article>}
+    </section>
+  </div>;
+}
+
+function providerIdentifier(value = '') { return /^(google|facebook|signinwithapple)[_-]\d+/i.test(value); }
+function safeHandleStem(value = '') { const stem = value.split('#')[0]; return providerIdentifier(stem) ? '' : stem; }
+function friendlyIdentityName(profile: Profile) {
+  if (profile.displayName && !providerIdentifier(profile.displayName)) return profile.displayName;
+  const handle = safeHandleStem(profile.handle);
+  if (handle) return handle;
+  return profile.email?.split('@')[0] || 'Gift giver';
 }

@@ -9,10 +9,12 @@ import {
   InitiateAuthCommand,
   ForgotPasswordCommand,
   ConfirmForgotPasswordCommand,
-  ListUsersCommand
+  ListUsersCommand,
+  GetUserCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -31,6 +33,7 @@ const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true }
 });
 const cognito = new CognitoIdentityProviderClient({});
+const sqs = new SQSClient({});
 const providerPlatform = createDefaultProviderPlatform();
 const tableName = process.env.TABLE_NAME;
 const clientId = process.env.USER_POOL_CLIENT_ID;
@@ -218,7 +221,7 @@ async function authenticate(event, requiredScope) {
     const payload = await verifier().verify(accessToken);
     const scopes = validateAccessTokenClaims(payload, { requiredScope, audience: `${canonicalUrl}/mcp` });
     const groups = Array.isArray(payload['cognito:groups']) ? payload['cognito:groups'].map(String) : [];
-    return { sub: payload.sub, email: payload.email, username: payload.username || payload['cognito:username'], scopes: [...scopes], groups };
+    return { sub: payload.sub, email: payload.email, username: payload.username || payload['cognito:username'], accessToken, scopes: [...scopes], groups };
   } catch (error) {
     if (error?.statusCode === 403 || error?.statusCode === 500) throw error;
     throw httpError(401, 'Session is invalid or expired. Please sign in again.');
@@ -258,15 +261,38 @@ async function apiRoute(method, path, input, user, origin) {
     return json(200, { capabilities, health: providerPlatform.health() });
   }
   if (path === '/v1/me' && method === 'GET') {
-    const profile = await get(pk, 'PROFILE');
-    return json(200, { id: user.sub, email: user.email, handle: profile?.handle || defaultHandle(user), roles: user.groups.includes('wanderwrap-admins') ? ['admin'] : [], ...(profile || {}) });
+    const identity = await cognitoIdentity(user);
+    const profile = await ensureProfile(pk, user, identity);
+    return json(200, { id: user.sub, email: identity.email || user.email || '', roles: user.groups.includes('wanderwrap-admins') ? ['admin'] : [], ...publicItem(profile) });
   }
   if (path === '/v1/me' && method === 'PUT') {
     const existing = await get(pk, 'PROFILE');
+    const identity = await cognitoIdentity(user);
     const country = supportedCountry(input.homeCountry || existing?.homeCountry || 'GB');
-    const handle = createHandle(input.handle || input.displayName || existing?.handle || user.username || user.email?.split('@')[0] || 'gifter', user.sub);
-    const item = { PK: pk, SK: 'PROFILE', entity: 'profile', displayName: clean(input.displayName || existing?.displayName || user.email?.split('@')[0] || 'Gift giver', 80), handle, locale: clean(input.locale || existing?.locale || country.locale, 16), homeCountry: country.country, currency: country.currency, timezone: clean(input.timezone || existing?.timezone || '', 80), createdAt: existing?.createdAt || now(), updatedAt: now() };
+    const fallbackName = identityDisplayName(identity, user);
+    const handle = createHandle(input.handle || input.displayName || existing?.handle || fallbackName, user.sub);
+    const item = { PK: pk, SK: 'PROFILE', entity: 'profile', displayName: clean(input.displayName || existing?.displayName || fallbackName, 80), handle, locale: clean(input.locale || existing?.locale || country.locale, 16), homeCountry: country.country, currency: country.currency, timezone: clean(input.timezone || existing?.timezone || '', 80), createdAt: existing?.createdAt || now(), updatedAt: now() };
     await put(item); await audit(pk, 'PROFILE_UPDATED', { fields: Object.keys(input) });
+    return json(200, publicItem(item));
+  }
+  if (path === '/v1/marketing/preferences' && method === 'GET') {
+    const existing = await get(pk, 'MARKETING#PREFERENCES');
+    const identity = existing?.email ? {} : await cognitoIdentity(user);
+    return json(200, publicItem(existing || { email: identity.email || user.email || '', productUpdates: false, seasonalIdeas: false, fullServiceWaitlist: false }));
+  }
+  if (path === '/v1/marketing/preferences' && method === 'PUT') {
+    const existing = await get(pk, 'MARKETING#PREFERENCES');
+    const identity = existing?.email || input.email ? {} : await cognitoIdentity(user);
+    const email = String(input.email ?? existing?.email ?? identity.email ?? user.email ?? '').trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw httpError(400, 'A valid email address is required');
+    const consentFields = ['productUpdates', 'seasonalIdeas', 'fullServiceWaitlist'];
+    const item = { PK: pk, SK: 'MARKETING#PREFERENCES', entity: 'marketing-preferences', email, createdAt: existing?.createdAt || now(), updatedAt: now() };
+    for (const field of consentFields) item[field] = input[field] === undefined ? Boolean(existing?.[field]) : input[field] === true;
+    item.consentUpdatedAt = now();
+    item.revokedAt = consentFields.some(field => item[field]) ? undefined : now();
+    await put(item);
+    await audit(pk, 'MARKETING_PREFERENCES_UPDATED', { productUpdates: item.productUpdates, seasonalIdeas: item.seasonalIdeas, fullServiceWaitlist: item.fullServiceWaitlist });
+    await enqueueMarketingEvent(user.sub, 'contact.preferences_updated', { source: clean(input.source || 'account', 40) });
     return json(200, publicItem(item));
   }
   if (path === '/v1/briefs' && method === 'GET') return json(200, await list(pk, 'BRIEF#'));
@@ -278,6 +304,7 @@ async function apiRoute(method, path, input, user, origin) {
     const market = supportedCountry(input.country || existing?.country || 'GB');
     const item = { PK: pk, SK: `BRIEF#${id}`, entity: 'gift-brief', id, name: clean(input.name || existing?.name || briefName(brief), 100), brief, conversationId: clean(input.conversationId || existing?.conversationId || '', 160), country: market.country, currency: market.currency, productIds: normalizeProductIds(input.productIds || existing?.productIds), status: input.status === 'archived' ? 'archived' : 'active', createdAt: existing?.createdAt || now(), updatedAt: now() };
     await put(item); await audit(pk, existing ? 'GIFT_BRIEF_UPDATED' : 'GIFT_BRIEF_CREATED', { briefId: id });
+    if (!existing) await enqueueMarketingEvent(user.sub, 'gift_brief.saved', { country: market.country, currency: market.currency });
     return json(existing ? 200 : 201, publicItem(item));
   }
   const briefMatch = path.match(/^\/v1\/briefs\/([^/]+)$/);
@@ -305,6 +332,7 @@ async function apiRoute(method, path, input, user, origin) {
     const existing = await get(pk, `SAVED#${productId}`);
     const item = { PK: pk, SK: `SAVED#${productId}`, entity: 'saved-item', id: productId, productId, briefId: clean(input.briefId || existing?.briefId || '', 160), title: clean(input.title, 240), imageUrl: safeHttpsUrl(input.imageUrl), merchant: clean(input.merchant || 'Retailer', 120), category: clean(input.category || '', 120), createdAt: existing?.createdAt || now(), updatedAt: now() };
     await put(item); await audit(pk, 'SAVED_ITEM_ADDED', { productId, briefId: item.briefId });
+    if (!existing) await enqueueMarketingEvent(user.sub, 'gift_item.saved', {});
     return json(existing ? 200 : 201, publicItem(item));
   }
   const savedMatch = path.match(/^\/v1\/saved-items\/([^/]+)$/);
@@ -409,6 +437,11 @@ async function apiRoute(method, path, input, user, origin) {
   throw httpError(404, 'API route not found');
 }
 
+async function enqueueMarketingEvent(userId, eventName, properties) {
+  if (process.env.LOOPS_MARKETING_ENABLED !== 'true' || !process.env.MARKETING_QUEUE_URL) return;
+  await sqs.send(new SendMessageCommand({ QueueUrl: process.env.MARKETING_QUEUE_URL, MessageBody: JSON.stringify({ version: 1, userId, eventName, properties, occurredAt: now() }) }));
+}
+
 async function claimRoute(method, path, event) {
   const match = path.match(/^\/claim\/([^/]+)(?:\/(accept|delivery|thanks|decline))?$/);
   if (!match) throw httpError(404, 'Claim not found');
@@ -466,7 +499,48 @@ function body(event) { if (!event.body) return {}; try { return JSON.parse(event
 function clean(value, max) { return String(value ?? '').trim().slice(0, max); }
 function supportedCountry(value) { const country = String(value || '').toUpperCase(); return country === 'US' ? { country: 'US', currency: 'USD', locale: 'en-US' } : country === 'CA' ? { country: 'CA', currency: 'CAD', locale: 'en-CA' } : { country: 'GB', currency: 'GBP', locale: 'en-GB' }; }
 function createHandle(value, subject) { const stem = clean(value, 40).toLowerCase().replace(/#[a-f0-9]{4,8}$/i, '').replace(/[^a-z0-9._-]/g, '').replace(/^[._-]+|[._-]+$/g, '').slice(0, 24) || 'gifter'; return `${stem}#${hash(subject).slice(0, 6)}`; }
-function defaultHandle(user) { return createHandle(user.username || user.email?.split('@')[0] || 'gifter', user.sub); }
+function defaultHandle(user, identity = {}) { return createHandle(identityDisplayName(identity, user), user.sub); }
+export function identityDisplayName(identity = {}, user = {}) {
+  const fullName = clean(identity.name, 80);
+  const parts = [clean(identity.given_name, 40), clean(identity.family_name, 40)].filter(Boolean).join(' ');
+  const emailName = clean(identity.email || user.email, 254).split('@')[0];
+  const username = clean(user.username, 80);
+  const safeUsername = isProviderIdentifier(username) ? '' : username;
+  return fullName || parts || emailName || safeUsername || 'Gift giver';
+}
+export function isProviderIdentifier(value) { return /^(google|facebook|signinwithapple)[_-]\d+/i.test(clean(value, 120)); }
+async function cognitoIdentity(user) {
+  if (!user.accessToken) return {};
+  try {
+    const result = await cognito.send(new GetUserCommand({ AccessToken: user.accessToken }));
+    return Object.fromEntries((result.UserAttributes || []).map(attribute => [attribute.Name, attribute.Value]));
+  } catch (error) {
+    console.warn(JSON.stringify({ type: 'cognito_profile_lookup_failed', error: error?.name || 'UnknownError' }));
+    return {};
+  }
+}
+async function ensureProfile(pk, user, identity) {
+  const existing = await get(pk, 'PROFILE');
+  const resolvedName = identityDisplayName(identity, user);
+  if (existing && existing.displayName && !isProviderIdentifier(existing.displayName)) return existing;
+  const country = supportedCountry(existing?.homeCountry || 'GB');
+  const item = {
+    PK: pk,
+    SK: 'PROFILE',
+    entity: 'profile',
+    displayName: resolvedName,
+    handle: existing?.handle && !isProviderIdentifier(existing.handle) ? existing.handle : defaultHandle(user, identity),
+    locale: existing?.locale || country.locale,
+    homeCountry: country.country,
+    currency: country.currency,
+    timezone: existing?.timezone || '',
+    createdAt: existing?.createdAt || now(),
+    updatedAt: now()
+  };
+  await put(item);
+  await audit(pk, existing ? 'PROFILE_IDENTITY_BACKFILLED' : 'PROFILE_INITIALIZED', { source: 'cognito' });
+  return item;
+}
 function normalizeSavedBrief(value = {}) { return { recipient: clean(value.recipient, 120), occasion: clean(value.occasion, 120), budget: clean(value.budget, 80), timing: clean(value.timing, 120), preferences: Array.isArray(value.preferences) ? value.preferences.slice(0, 12).map(item => clean(item, 160)).filter(Boolean) : [], constraints: Array.isArray(value.constraints) ? value.constraints.slice(0, 12).map(item => clean(item, 160)).filter(Boolean) : [] }; }
 function briefName(brief) { return [brief.occasion, brief.recipient].filter(Boolean).join(' for ') || 'Untitled Gift Brief'; }
 function normalizeProductIds(value) { return Array.isArray(value) ? [...new Set(value.map(item => clean(item, 200)).filter(Boolean))].slice(0, 40) : []; }

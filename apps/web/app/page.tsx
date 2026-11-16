@@ -3,7 +3,7 @@ import Link from 'next/link';
 import LandingGiftComposer from './landing-gift-composer';
 import { giftIdeas } from './gift-ideas/gift-ideas';
 import styles from './page.module.css';
-import SessionLink from './session-link';
+import SiteHeader from './site-header';
 
 const assets = {
   emblem: '/landing/wanderwrap-emblem.png', hero: '/landing/emerald-keepsake.png', corporate: '/landing/corporate-unboxing.png'
@@ -19,21 +19,7 @@ function Emblem({ size = 34 }: { size?: number }) {
 export default function HomePage() {
   return (
     <main className={styles.page}>
-      <nav className={styles.nav} aria-label="Primary navigation">
-        <div className={styles.navInner}>
-          <div className={styles.navLeft}>
-            <Link href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation">Gift Finder <span>🎁</span></Link><Link href="/teams" data-analytics-event="teams_cta_clicked" data-analytics-placement="navigation">For Teams</Link>
-          </div>
-          <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
-          <div className={styles.navRight}>
-            <Link className={styles.conciergeLink} href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation_concierge"><span>✦</span> Find a gift with AI</Link><SessionLink />
-          </div>
-          <details className={styles.mobileMenu}>
-            <summary aria-label="Open navigation"><span /><span /><span /></summary>
-            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/teams">For Teams</Link><SessionLink compact /></div>
-          </details>
-        </div>
-      </nav>
+      <SiteHeader tone="dark" wide/>
 
       <header className={styles.hero}>
         <Image className={styles.heroImage} src={assets.hero} alt="Emerald velvet gift box tied with rose satin ribbon" fill sizes="100vw" loading="eager" priority />

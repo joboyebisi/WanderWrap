@@ -1,0 +1,50 @@
+{
+  "Comment": "Authenticate the WanderWrap SES transactional mail stream in eu-west-2",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "lz7hjnotwgy6itbpsxoit3wlcmwtj2ue._domainkey.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "lz7hjnotwgy6itbpsxoit3wlcmwtj2ue.dkim.amazonses.com." }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "dbmdjhimjbid2kitvkirqxpua4vqdesp._domainkey.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "dbmdjhimjbid2kitvkirqxpua4vqdesp.dkim.amazonses.com." }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "7hs7w47emecvng37yda3dskcraslyzkm._domainkey.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "7hs7w47emecvng37yda3dskcraslyzkm.dkim.amazonses.com." }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "notify.wanderwrap.co.uk.",
+        "Type": "MX",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "10 feedback-smtp.eu-west-2.amazonses.com." }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "notify.wanderwrap.co.uk.",
+        "Type": "TXT",
+        "TTL": 300,
+        "ResourceRecords": [{ "Value": "\"v=spf1 include:amazonses.com ~all\"" }]
+      }
+    }
+  ]
+}

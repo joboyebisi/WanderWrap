@@ -84,6 +84,13 @@ Acceptance gate: create → buyer approve → server capture → signature-verif
 
 For email through Amazon SES, provide domain/DNS authority to verify the sending domain and choose sender/reply-to addresses. For SMS/push, select the provider first; credentials should not be collected until the adapter and consent policy exist.
 
+### Email channel evidence
+
+- Essential identity/security email uses the verified `wanderwrap.co.uk` SES identity in `eu-west-2`, configuration set `wanderwrap-production-transactional`, and isolated MAIL FROM domain `notify.wanderwrap.co.uk`. Cognito must report `EmailSendingAccount=DEVELOPER`, and DKIM plus MAIL FROM must both report `SUCCESS` before relying on it.
+- Loops remains the consented lifecycle/education/seasonal channel. Its API key must be held in Secrets Manager, its Lambda enable flag must remain false until contact properties and draft workflows are reviewed, and every delivery rechecks the current DynamoDB preference.
+- Do not publish the existing payment-confirmation draft or send payment/order language until the payment provider, webhook/signature, idempotency and end-to-end evidence gates pass.
+- Before enabling Loops production sends, prove synthetic opt-in, preference change, all-category revocation, provider unsubscribe, bounce/complaint suppression, transient retry and DLQ recovery without including Gift Brief or recipient content in provider payloads.
+
 Acceptance gate: opt-in, unsubscribe/revocation, bounce handling, rate limits, and a reminder-to-thank-you journey are proven without exposing recipient data.
 
 ## 6. Calendar connections

@@ -14,5 +14,5 @@ export async function GET() {
   }
   if (!response.ok) return Response.json({ authenticated: false });
   const profile = await response.json();
-  return Response.json({ authenticated: true, user: { id: profile.id, displayName: profile.displayName, handle: profile.handle, homeCountry: profile.homeCountry, currency: profile.currency, locale: profile.locale, roles: profile.roles || [] } });
+  return Response.json({ authenticated: true, user: { id: profile.id, email: profile.email, displayName: profile.displayName, handle: profile.handle, homeCountry: profile.homeCountry, currency: profile.currency, locale: profile.locale, roles: profile.roles || [] } });
 }

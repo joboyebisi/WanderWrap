@@ -802,3 +802,9 @@ Provider permissions, pricing, eligibility and product terms change. The capabil
 - Gate administration with the Cognito `wanderwrap-admins` group. The initial console is read-only; sensitive account mutations require a later step-up, reason, audit and recovery design.
 
 Detailed architecture, acceptance gates and the multi-domain auth checklist are in `docs/ACCOUNT_WORKSPACE_REGIONAL_COMMERCE_AND_ADMIN.md`.
+
+## Brand navigation and lifecycle engagement (2026-11-16)
+
+WanderWrap uses one shared wordmark, primary navigation and account menu across public, authenticated and legal surfaces. Desktop navigation exposes For Teams, Gift Finder and Account; compact screens retain Gift Finder plus an accessible account/menu control. Every route must provide keyboard-visible focus, a skip link, an Escape-closeable focus-trapped drawer, usable touch targets and no horizontal overflow.
+
+Signed-in users can explicitly choose product guidance, seasonal gifting ideas and full-service launch email independently. Choices default off, remain editable in the account, and are checked again at delivery time. Lifecycle automation may react to safe named events such as a saved Gift Brief or saved item, but prompt text, recipient details and product titles must not enter the marketing provider. The provider and production gates are specified in `docs/LIFECYCLE_MARKETING_AND_EMAIL_AUTOMATION.md`.

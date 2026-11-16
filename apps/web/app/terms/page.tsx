@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import SiteHeader from '../site-header';
 
 export const metadata: Metadata = { title: 'Terms of use', description: 'Terms for using WanderWrap and its Gift Finder.' };
 
 export default function TermsPage() {
-  return <main className="legalPage"><div className="legalShell"><nav><Link href="/">WanderWrap ✦</Link><Link href="/privacy">Privacy notice</Link></nav><header><p className="eyebrow">TRUST CENTRE</p><h1>Terms of use</h1><p>The practical rules for using WanderWrap responsibly.</p><small>Last updated 15 November 2026</small></header><article>
+  return <main className="legalPage"><SiteHeader/><div className="legalShell"><header><p className="eyebrow">TRUST CENTRE</p><h1>Terms of use</h1><p>The practical rules for using WanderWrap responsibly.</p><small>Last updated 15 November 2026</small></header><article>
     <h2>What WanderWrap provides</h2><p>WanderWrap helps you build a Gift Brief, research options and decide what to do next. Until an end-to-end feature is expressly marked live, product links are external shopping-site handoffs: the retailer—not WanderWrap—sets the final price, availability, delivery, returns and checkout terms.</p>
     <h2>Your account</h2><p>Keep account access secure, provide accurate information and tell us promptly if you suspect misuse. You are responsible for activity performed through your account unless caused by our failure to protect it.</p>
     <h2>Information about other people</h2><p>Only provide recipient information you are entitled to use. Do not upload private messages, sensitive personal information, unlawful material or full social-account exports. You remain responsible for reviewing Gift Brief clues and recommendations.</p>

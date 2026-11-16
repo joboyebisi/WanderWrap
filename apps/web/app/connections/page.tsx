@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SiteHeader from '../site-header';
 
 const channels = [
   { name: 'Web account', state: 'Ready now', tone: 'ready', text: 'Create a verified account and keep people, confirmed clues and saved ideas in one private gift space.', action: '/api/auth/signup', label: 'Create account' },
@@ -11,12 +12,11 @@ const channels = [
 ];
 
 export default function ConnectionsPage() {
-  return <main className="shell dashboard">
-    <nav className="nav" aria-label="Connections navigation"><Link className="brand" href="/">wanderwrap <span aria-hidden="true">✦</span></Link><div className="navLinks"><Link href="/dashboard">Gift space</Link><Link href="/sign-in">Sign in</Link></div></nav>
+  return <main className="dashboard"><SiteHeader/><div className="shell">
     <header className="pageIntro"><p className="eyebrow">CONNECTIONS</p><h1>Your gifting world, connected carefully.</h1><p className="lede">Use WanderWrap with no extra connector. Add a channel only when it earns its place—and see exactly what is live before granting access.</p></header>
     <section className="connectionGrid" aria-label="Connection availability">{channels.map(channel => <article className="connectionCard" key={channel.name}>
       <div className="connectionTop"><h2>{channel.name}</h2><span className={`statusPill ${channel.tone}`}>{channel.state}</span></div><p>{channel.text}</p>{channel.action ? <a className="textButton" href={channel.action}>{channel.label} →</a> : <span className="mutedAction">No credentials needed yet</span>}
     </article>)}</section>
-    <aside className="honestyNote"><strong>Connection promise</strong><p>WanderWrap will never describe a planned connector or fixture result as a live provider action. Every connection gets its own consent, verification and revoke path.</p></aside>
+    <aside className="honestyNote"><strong>Connection promise</strong><p>WanderWrap will never describe a planned connector or fixture result as a live provider action. Every connection gets its own consent, verification and revoke path.</p></aside></div>
   </main>;
 }
