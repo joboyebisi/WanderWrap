@@ -20,7 +20,7 @@ export default function LandingGiftComposer() {
 
   return (
     <form className="landingGiftComposer" onSubmit={beginGiftFinder}>
-      <div className="landingAgentCue"><span>✦</span><p><strong>Ask Wren, your personal gift shopper</strong><small>Start with a person, a moment, or the one detail that matters.</small></p><em>AI AGENT</em></div>
+      <div className="landingAgentCue"><span>WW</span><p><strong>Ask WanderWrap, your personal gift shopper</strong><small>Start with a person, a moment, or the one detail that matters.</small></p><em>AI AGENT</em></div>
       <label htmlFor="landing-gift-prompt">Who are you shopping for?</label>
       <textarea
         id="landing-gift-prompt"
