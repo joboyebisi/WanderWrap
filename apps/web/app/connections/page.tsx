@@ -12,7 +12,7 @@ const channels = [
 
 export default function ConnectionsPage() {
   return <main className="shell dashboard">
-    <nav className="nav" aria-label="Connections navigation"><Link className="brand" href="/">wanderwrap <span aria-hidden="true">✦</span></Link><div className="navLinks"><Link href="/dashboard">Gift space</Link><a href="/api/auth/login">Sign in</a></div></nav>
+    <nav className="nav" aria-label="Connections navigation"><Link className="brand" href="/">wanderwrap <span aria-hidden="true">✦</span></Link><div className="navLinks"><Link href="/dashboard">Gift space</Link><Link href="/sign-in">Sign in</Link></div></nav>
     <header className="pageIntro"><p className="eyebrow">CONNECTIONS</p><h1>Your gifting world, connected carefully.</h1><p className="lede">Use WanderWrap with no extra connector. Add a channel only when it earns its place—and see exactly what is live before granting access.</p></header>
     <section className="connectionGrid" aria-label="Connection availability">{channels.map(channel => <article className="connectionCard" key={channel.name}>
       <div className="connectionTop"><h2>{channel.name}</h2><span className={`statusPill ${channel.tone}`}>{channel.state}</span></div><p>{channel.text}</p>{channel.action ? <a className="textButton" href={channel.action}>{channel.label} →</a> : <span className="mutedAction">No credentials needed yet</span>}

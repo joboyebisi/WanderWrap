@@ -15,7 +15,7 @@ async function request(path, options = {}) {
   return response;
 }
 
-for (const path of ['/', '/connections', '/gift-finder', '/simulator', '/teams', '/privacy', '/cookies', '/terms']) {
+for (const path of ['/', '/connections', '/gift-finder', '/simulator', '/teams', '/sign-in', '/gift-ideas/birthdays', '/gift-ideas/emerald-keepsake', '/privacy', '/cookies', '/terms']) {
   const response = await request(path);
   assert.equal(response.status, 200, `${path} must return 200`);
   assert.match(response.headers.get('server') || '', /vercel/i, `${path} must be served by Vercel`);
@@ -26,6 +26,10 @@ const home = await fetch(base);
 const homeHtml = await home.text();
 assert.match(homeHtml, /Make Every Gift/, 'Landing page headline is missing');
 assert.match(homeHtml, /Your personal AI gifting team/, 'Landing page agent proposition is missing');
+assert.match(homeHtml, /href="\/sign-in"/, 'Landing navigation must use the branded sign-in page');
+assert.match(homeHtml, /Explore WanderWrap for Teams/, 'Landing page must give teams a distinct next step');
+assert.match(homeHtml, /href="\/gift-ideas\/birthdays"/, 'Occasion imagery must lead to a meaningful destination');
+assert.match(homeHtml, /href="\/gift-ideas\/emerald-keepsake"/, 'Gift-direction imagery must lead to a meaningful destination');
 assert.doesNotMatch(homeHtml, /href="\/unwrap"/, 'Landing page must not link to the unavailable unwrap flow');
 
 const publicRoute = await fetch(new URL('/gift-finder', base));

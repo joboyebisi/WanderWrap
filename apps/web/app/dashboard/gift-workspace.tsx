@@ -78,7 +78,7 @@ export default function GiftWorkspace() {
       <p className="eyebrow">ACCOUNT LINK REQUIRED</p>
       <h2>Keep one journey across web and Alexa+.</h2>
       <p>Sign in to save people, confirmed preferences and gifting progress. Connecting a calendar or social source is always separate and optional.</p>
-      <a className="primary" href="/api/auth/login">Sign in securely</a>
+      <a className="primary" href="/sign-in">Sign in securely</a>
       <small>If sign-in is not configured yet, this button will explain which deployment setting is missing.</small>
     </section>
   );

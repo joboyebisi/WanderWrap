@@ -54,7 +54,7 @@ export default function AlexaSimulator() {
   }
 
   if (session === null) return <section className="workspaceState" aria-live="polite">Opening the secure demo…</section>;
-  if (!session.authenticated) return <section className="workspaceState"><p className="eyebrow">ACCOUNT REQUIRED</p><h2>Create a normal customer account to run the demo.</h2><p>Cognito verifies the email, then returns you to WanderWrap with a protected browser session. The simulator never exposes the access token to JavaScript.</p><div className="actions centered"><a className="primary" href="/api/auth/signup">Create account</a><a className="secondary" href="/api/auth/login">I already have one</a></div></section>;
+  if (!session.authenticated) return <section className="workspaceState"><p className="eyebrow">ACCOUNT REQUIRED</p><h2>Create a normal customer account to run the demo.</h2><p>Cognito verifies the email, then returns you to WanderWrap with a protected browser session. The simulator never exposes the access token to JavaScript.</p><div className="actions centered"><a className="primary" href="/api/auth/signup">Create account</a><a className="secondary" href="/sign-in">I already have one</a></div></section>;
 
   return <section className="simulatorShell" aria-busy={busy}>
     <div className="simulatorControls"><p className="stepLabel">YOUR REQUEST</p><form className="stackForm" onSubmit={run}>
