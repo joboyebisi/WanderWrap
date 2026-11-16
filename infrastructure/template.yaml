@@ -38,6 +38,11 @@ Parameters:
     Type: String
     Default: ''
     Description: ACM certificate ARN for the auth custom domain, issued in us-east-1.
+  AuthPrefixDomainName:
+    Type: String
+    Default: ''
+    AllowedPattern: '^$|[a-z0-9-]+'
+    Description: Optional Cognito-owned fallback domain prefix. May coexist with the custom auth domain.
   GoogleClientId:
     Type: String
     Default: ''
@@ -55,10 +60,13 @@ Conditions:
   HasCustomAuthDomain: !And
     - !Not [!Equals [!Ref AuthDomainName, '']]
     - !Not [!Equals [!Ref AuthCertificateArn, '']]
-  HasPrefixAuthDomain: !Not
-    - !And
-      - !Not [!Equals [!Ref AuthDomainName, '']]
-      - !Not [!Equals [!Ref AuthCertificateArn, '']]
+  HasExplicitPrefixAuthDomain: !Not [!Equals [!Ref AuthPrefixDomainName, '']]
+  HasPrefixAuthDomain: !Or
+    - !Not [!Equals [!Ref AuthPrefixDomainName, '']]
+    - !Not
+      - !And
+        - !Not [!Equals [!Ref AuthDomainName, '']]
+        - !Not [!Equals [!Ref AuthCertificateArn, '']]
   HasGoogleIdentityProvider: !And
     - !Not [!Equals [!Ref GoogleClientId, '']]
     - !Not [!Equals [!Ref GoogleClientSecretArn, '']]
@@ -132,8 +140,12 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Condition: HasPrefixAuthDomain
     Properties:
-      Domain: !Sub ${ProjectName}-${Environment}-${AWS::AccountId}
+      Domain: !If
+        - HasExplicitPrefixAuthDomain
+        - !Ref AuthPrefixDomainName
+        - !Sub ${ProjectName}-${Environment}-${AWS::AccountId}
       UserPoolId: !Ref UserPool
+      ManagedLoginVersion: 1
 
   CustomUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -430,6 +442,9 @@ Outputs:
   CognitoCustomDomainDnsTarget:
     Condition: HasCustomAuthDomain
     Value: !GetAtt CustomUserPoolDomain.CloudFrontDistribution
+  CognitoPrefixOAuthBaseUrl:
+    Condition: HasPrefixAuthDomain
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
   CognitoIssuer:
     Value: !Sub https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${UserPool}
   TableName:

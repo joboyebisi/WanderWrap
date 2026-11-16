@@ -19,6 +19,10 @@ Use `auth.wanderwrap.co.uk` as the Cognito custom domain. Do not send customers 
 
 The managed-login editor controls logo, colours, background, form and external-provider buttons, but not arbitrary page copy. Keep legal and contextual explanations on WanderWrap immediately before redirecting.
 
+### Resolver-cache recovery
+
+If a newly-created custom domain is still blocked by a previously cached `NXDOMAIN`, the user pool may temporarily host a Cognito-owned prefix domain alongside the custom domain. Keep the custom domain and DNS record intact. The fallback must use the same app client and hosted-login version, and every federated provider must explicitly allowlist the fallback `/oauth2/idpresponse` URI before its button is enabled. A provider flag must fail closed in both UI and route; email sign-in may remain available independently. Return `WANDERWRAP_OAUTH_BASE_URL` to the branded domain only after representative device and resolver tests succeed, then remove the fallback in a separately reviewed change set.
+
 ## 2. Google sign-in branding
 
 Create a dedicated Google OAuth web client for WanderWrap. In Google Auth Platform:
