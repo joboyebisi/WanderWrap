@@ -8,7 +8,8 @@ import {
   ConfirmSignUpCommand,
   InitiateAuthCommand,
   ForgotPasswordCommand,
-  ConfirmForgotPasswordCommand
+  ConfirmForgotPasswordCommand,
+  ListUsersCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -216,7 +217,8 @@ async function authenticate(event, requiredScope) {
   try {
     const payload = await verifier().verify(accessToken);
     const scopes = validateAccessTokenClaims(payload, { requiredScope, audience: `${canonicalUrl}/mcp` });
-    return { sub: payload.sub, email: payload.email, username: payload.username || payload['cognito:username'], scopes: [...scopes] };
+    const groups = Array.isArray(payload['cognito:groups']) ? payload['cognito:groups'].map(String) : [];
+    return { sub: payload.sub, email: payload.email, username: payload.username || payload['cognito:username'], scopes: [...scopes], groups };
   } catch (error) {
     if (error?.statusCode === 403 || error?.statusCode === 500) throw error;
     throw httpError(401, 'Session is invalid or expired. Please sign in again.');
@@ -241,6 +243,13 @@ function verifier() {
 
 async function apiRoute(method, path, input, user, origin) {
   const pk = `USER#${user.sub}`;
+  if (path === '/v1/admin/users' && method === 'GET') {
+    if (!user.groups.includes('wanderwrap-admins')) throw httpError(403, 'Administrator role required');
+    const result = await cognito.send(new ListUsersCommand({ UserPoolId: process.env.USER_POOL_ID, Limit: 60 }));
+    const users = (result.Users || []).map(item => ({ id: item.Username, email: item.Attributes?.find(attribute => attribute.Name === 'email')?.Value || '', enabled: item.Enabled, status: item.UserStatus, createdAt: item.UserCreateDate?.toISOString(), lastModifiedAt: item.UserLastModifiedDate?.toISOString() }));
+    await audit(pk, 'ADMIN_USERS_VIEWED', { resultCount: users.length });
+    return json(200, { users, truncated: Boolean(result.PaginationToken) });
+  }
   if (path === '/v1/providers' && method === 'GET') {
     const capabilities = Object.values(CAPABILITIES).map(name => ({
       capability: name,
@@ -250,12 +259,59 @@ async function apiRoute(method, path, input, user, origin) {
   }
   if (path === '/v1/me' && method === 'GET') {
     const profile = await get(pk, 'PROFILE');
-    return json(200, { id: user.sub, email: user.email, ...(profile || {}) });
+    return json(200, { id: user.sub, email: user.email, handle: profile?.handle || defaultHandle(user), roles: user.groups.includes('wanderwrap-admins') ? ['admin'] : [], ...(profile || {}) });
   }
   if (path === '/v1/me' && method === 'PUT') {
-    const item = { PK: pk, SK: 'PROFILE', entity: 'profile', displayName: clean(input.displayName, 80), locale: input.locale || 'en-GB', homeCountry: input.homeCountry || 'GB', currency: input.currency || 'GBP', updatedAt: now() };
+    const existing = await get(pk, 'PROFILE');
+    const country = supportedCountry(input.homeCountry || existing?.homeCountry || 'GB');
+    const handle = createHandle(input.handle || input.displayName || existing?.handle || user.username || user.email?.split('@')[0] || 'gifter', user.sub);
+    const item = { PK: pk, SK: 'PROFILE', entity: 'profile', displayName: clean(input.displayName || existing?.displayName || user.email?.split('@')[0] || 'Gift giver', 80), handle, locale: clean(input.locale || existing?.locale || country.locale, 16), homeCountry: country.country, currency: country.currency, timezone: clean(input.timezone || existing?.timezone || '', 80), createdAt: existing?.createdAt || now(), updatedAt: now() };
     await put(item); await audit(pk, 'PROFILE_UPDATED', { fields: Object.keys(input) });
     return json(200, publicItem(item));
+  }
+  if (path === '/v1/briefs' && method === 'GET') return json(200, await list(pk, 'BRIEF#'));
+  if (path === '/v1/briefs' && method === 'POST') {
+    const suppliedId = clean(input.id || input.conversationId || '', 160).replace(/[^a-zA-Z0-9_-]/g, '');
+    const id = suppliedId || randomUUID();
+    const existing = await get(pk, `BRIEF#${id}`);
+    const brief = normalizeSavedBrief(input.brief);
+    const market = supportedCountry(input.country || existing?.country || 'GB');
+    const item = { PK: pk, SK: `BRIEF#${id}`, entity: 'gift-brief', id, name: clean(input.name || existing?.name || briefName(brief), 100), brief, conversationId: clean(input.conversationId || existing?.conversationId || '', 160), country: market.country, currency: market.currency, productIds: normalizeProductIds(input.productIds || existing?.productIds), status: input.status === 'archived' ? 'archived' : 'active', createdAt: existing?.createdAt || now(), updatedAt: now() };
+    await put(item); await audit(pk, existing ? 'GIFT_BRIEF_UPDATED' : 'GIFT_BRIEF_CREATED', { briefId: id });
+    return json(existing ? 200 : 201, publicItem(item));
+  }
+  const briefMatch = path.match(/^\/v1\/briefs\/([^/]+)$/);
+  if (briefMatch && method === 'GET') {
+    const item = await get(pk, `BRIEF#${briefMatch[1]}`);
+    if (!item) throw httpError(404, 'Gift Brief not found');
+    return json(200, publicItem(item));
+  }
+  if (briefMatch && method === 'PATCH') {
+    const existing = await get(pk, `BRIEF#${briefMatch[1]}`);
+    if (!existing) throw httpError(404, 'Gift Brief not found');
+    const item = { ...existing, name: input.name === undefined ? existing.name : clean(input.name, 100), status: input.status === 'archived' ? 'archived' : existing.status, updatedAt: now() };
+    if (!item.name) throw httpError(400, 'A Gift Brief name is required');
+    await put(item); await audit(pk, 'GIFT_BRIEF_UPDATED', { briefId: existing.id, fields: Object.keys(input) });
+    return json(200, publicItem(item));
+  }
+  if (briefMatch && method === 'DELETE') {
+    await remove(pk, `BRIEF#${briefMatch[1]}`); await audit(pk, 'GIFT_BRIEF_DELETED', { briefId: briefMatch[1] });
+    return response(204, '');
+  }
+  if (path === '/v1/saved-items' && method === 'GET') return json(200, await list(pk, 'SAVED#'));
+  if (path === '/v1/saved-items' && method === 'POST') {
+    requireFields(input, ['productId', 'title']);
+    const productId = clean(input.productId, 200);
+    const existing = await get(pk, `SAVED#${productId}`);
+    const item = { PK: pk, SK: `SAVED#${productId}`, entity: 'saved-item', id: productId, productId, briefId: clean(input.briefId || existing?.briefId || '', 160), title: clean(input.title, 240), imageUrl: safeHttpsUrl(input.imageUrl), merchant: clean(input.merchant || 'Retailer', 120), category: clean(input.category || '', 120), createdAt: existing?.createdAt || now(), updatedAt: now() };
+    await put(item); await audit(pk, 'SAVED_ITEM_ADDED', { productId, briefId: item.briefId });
+    return json(existing ? 200 : 201, publicItem(item));
+  }
+  const savedMatch = path.match(/^\/v1\/saved-items\/([^/]+)$/);
+  if (savedMatch && method === 'DELETE') {
+    const productId = decodeURIComponent(savedMatch[1]);
+    await remove(pk, `SAVED#${productId}`); await audit(pk, 'SAVED_ITEM_REMOVED', { productId });
+    return response(204, '');
   }
   if (path === '/v1/recipients' && method === 'GET') return json(200, await list(pk, 'RECIPIENT#'));
   if (path === '/v1/recipients' && method === 'POST') {
@@ -408,6 +464,13 @@ function publicClaim(claim) { const { PK, SK, tokenHash, giftOwnerPk, giftSk, de
 function tokens(result = {}) { return { accessToken: result.AccessToken, idToken: result.IdToken, refreshToken: result.RefreshToken, expiresIn: result.ExpiresIn, tokenType: result.TokenType }; }
 function body(event) { if (!event.body) return {}; try { return JSON.parse(event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body); } catch { throw httpError(400, 'Invalid JSON'); } }
 function clean(value, max) { return String(value ?? '').trim().slice(0, max); }
+function supportedCountry(value) { const country = String(value || '').toUpperCase(); return country === 'US' ? { country: 'US', currency: 'USD', locale: 'en-US' } : country === 'CA' ? { country: 'CA', currency: 'CAD', locale: 'en-CA' } : { country: 'GB', currency: 'GBP', locale: 'en-GB' }; }
+function createHandle(value, subject) { const stem = clean(value, 40).toLowerCase().replace(/#[a-f0-9]{4,8}$/i, '').replace(/[^a-z0-9._-]/g, '').replace(/^[._-]+|[._-]+$/g, '').slice(0, 24) || 'gifter'; return `${stem}#${hash(subject).slice(0, 6)}`; }
+function defaultHandle(user) { return createHandle(user.username || user.email?.split('@')[0] || 'gifter', user.sub); }
+function normalizeSavedBrief(value = {}) { return { recipient: clean(value.recipient, 120), occasion: clean(value.occasion, 120), budget: clean(value.budget, 80), timing: clean(value.timing, 120), preferences: Array.isArray(value.preferences) ? value.preferences.slice(0, 12).map(item => clean(item, 160)).filter(Boolean) : [], constraints: Array.isArray(value.constraints) ? value.constraints.slice(0, 12).map(item => clean(item, 160)).filter(Boolean) : [] }; }
+function briefName(brief) { return [brief.occasion, brief.recipient].filter(Boolean).join(' for ') || 'Untitled Gift Brief'; }
+function normalizeProductIds(value) { return Array.isArray(value) ? [...new Set(value.map(item => clean(item, 200)).filter(Boolean))].slice(0, 40) : []; }
+function safeHttpsUrl(value) { const text = clean(value, 1_000); if (!text) return ''; try { const url = new URL(text); return url.protocol === 'https:' ? url.toString() : ''; } catch { return ''; } }
 function hash(value) { return createHash('sha256').update(value).digest('hex'); }
 function now() { return new Date().toISOString(); }
 function trimSlash(value) { return value.replace(/\/$/, ''); }

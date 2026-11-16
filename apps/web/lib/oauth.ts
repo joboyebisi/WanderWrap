@@ -9,11 +9,14 @@ export const BASE_COOKIE = 'ww_oauth_base';
 
 export type OAuthBase = 'primary' | 'fallback';
 
-export function oauthConfig(base: OAuthBase = 'primary') {
+export function oauthConfig(base: OAuthBase = 'primary', requestedOrigin?: string) {
   const primaryBaseUrl = authBase(required('WANDERWRAP_OAUTH_BASE_URL'));
   const baseUrl = base === 'fallback' ? authBase(required('WANDERWRAP_OAUTH_FALLBACK_BASE_URL')) : primaryBaseUrl;
   const clientId = required('WANDERWRAP_WEB_CLIENT_ID');
-  const webUrl = required('NEXT_PUBLIC_WANDERWRAP_URL').replace(/\/$/, '');
+  const canonicalWebUrl = required('NEXT_PUBLIC_WANDERWRAP_URL').replace(/\/$/, '');
+  const approvedOrigins = new Set((process.env.WANDERWRAP_WEB_ORIGINS || canonicalWebUrl).split(',').map(value => new URL(value.trim()).origin));
+  const webUrl = requestedOrigin ? new URL(requestedOrigin).origin : canonicalWebUrl;
+  if (!approvedOrigins.has(webUrl)) throw new Error('Web origin is not approved for OAuth');
   const resource = process.env.WANDERWRAP_OAUTH_RESOURCE || `${required('WANDERWRAP_CORE_API_URL').replace(/\/$/, '')}/mcp`;
   const defaultScopes = `openid email ${resource}/gifts.read ${resource}/gifts.write`;
   return {

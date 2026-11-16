@@ -17,6 +17,14 @@ Parameters:
   WebUrl:
     Type: String
     Default: https://www.wanderwrap.co.uk
+  WebCallbackUrls:
+    Type: String
+    Default: https://www.wanderwrap.co.uk/api/auth/callback
+    Description: Comma-separated exact Cognito callback URLs for every approved web origin.
+  WebLogoutUrls:
+    Type: String
+    Default: https://www.wanderwrap.co.uk
+    Description: Comma-separated exact post-logout URLs for every approved web origin.
   AllowedOrigins:
     Type: CommaDelimitedList
     Default: https://www.wanderwrap.co.uk,https://wanderwrap.co.uk
@@ -126,6 +134,13 @@ Resources:
         PreSignUp: !GetAtt PreSignUpFunction.Arn
       UserPoolTags:
         Project: WanderWrap
+
+  AdminUserPoolGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: wanderwrap-admins
+      Description: Least-privilege access to the WanderWrap operational console
+      UserPoolId: !Ref UserPool
 
   PreSignUpRole:
     Type: AWS::IAM::Role
@@ -264,10 +279,8 @@ Resources:
         - email
         - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.read
         - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.write
-      CallbackURLs:
-        - !Sub ${WebUrl}/api/auth/callback
-      LogoutURLs:
-        - !Ref WebUrl
+      CallbackURLs: !Split [',', !Ref WebCallbackUrls]
+      LogoutURLs: !Split [',', !Ref WebLogoutUrls]
       SupportedIdentityProviders: !If
         - HasGoogleIdentityProvider
         - [COGNITO, Google]
@@ -323,6 +336,13 @@ Resources:
                   - dynamodb:UpdateItem
                   - dynamodb:Query
                 Resource: !GetAtt DataTable.Arn
+        - PolicyName: wanderwrap-admin-read-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cognito-idp:ListUsers
+                Resource: !GetAtt UserPool.Arn
         - PolicyName: wanderwrap-bedrock-inference
           PolicyDocument:
             Version: '2012-10-17'

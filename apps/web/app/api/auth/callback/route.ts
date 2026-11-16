@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const config = oauthConfig(oauthBase);
+    const config = oauthConfig(oauthBase, request.nextUrl.origin);
     const tokenResponse = await fetch(new URL('/oauth2/token', config.baseUrl), {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },

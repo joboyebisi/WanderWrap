@@ -3,6 +3,7 @@ import Link from 'next/link';
 import LandingGiftComposer from './landing-gift-composer';
 import { giftIdeas } from './gift-ideas/gift-ideas';
 import styles from './page.module.css';
+import SessionLink from './session-link';
 
 const assets = {
   emblem: '/landing/wanderwrap-emblem.png', hero: '/landing/emerald-keepsake.png', corporate: '/landing/corporate-unboxing.png'
@@ -25,11 +26,11 @@ export default function HomePage() {
           </div>
           <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
           <div className={styles.navRight}>
-            <Link className={styles.conciergeLink} href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation_concierge"><span>✦</span> Find a gift with AI</Link><Link href="/sign-in" data-analytics-event="auth_page_opened">Sign in</Link>
+            <Link className={styles.conciergeLink} href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation_concierge"><span>✦</span> Find a gift with AI</Link><SessionLink />
           </div>
           <details className={styles.mobileMenu}>
             <summary aria-label="Open navigation"><span /><span /><span /></summary>
-            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/teams">For Teams</Link><Link href="/sign-in">Sign in</Link></div>
+            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/teams">For Teams</Link><SessionLink compact /></div>
           </details>
         </div>
       </nav>

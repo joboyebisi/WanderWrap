@@ -10,15 +10,18 @@ test('Channel3 capability fails closed without both flag and server credential',
 
 test('Channel3 search uses an agentic UK query and normalizes merchant offers', async () => {
   let request;
-  const client = { products: { search: async input => {
+  let options;
+  const client = { products: { search: async (input, requestOptions) => {
     request = input;
+    options = requestOptions;
     return { data: [{ id: 'c3-1', title: 'Hand-thrown tea set', description: 'A quiet tea ritual.', images: [{ url: 'https://images.example/tea.jpg', is_main_image: true }], category: { title: 'Tea sets' }, offers: [{ url: 'https://merchant.example/tea?affiliate=1', domain: 'merchant.example', availability: 'InStock', price: { price: 48, currency: 'GBP' } }] }] };
   } } };
 
-  const result = await searchChannel3Gifts({ query: 'A calming ceramic ritual for a tea lover', budget: 60, country: 'GB', client });
+  const result = await searchChannel3Gifts({ query: 'A calming ceramic ritual for a tea lover', budget: 60, country: 'GB', userId: 'user_123', client });
   assert.equal(request.config.mode, 'agentic');
   assert.deepEqual(request.config, { mode: 'agentic', country: 'GB', currency: 'GBP', language: 'en' });
   assert.equal(request.filters.price.max_price, 60);
+  assert.deepEqual(options, { headers: { 'x-user-id': 'user_123' } });
   assert.equal(result.products[0].merchant, 'merchant.example');
   assert.equal(result.products[0].price, 48);
   assert.equal(result.products[0].url.includes('affiliate=1'), true);
@@ -30,8 +33,10 @@ test('Channel3 search rejects an empty query before making a provider call', asy
 
 test('Channel3 conversation carries its thread and normalizes product tool parts', async () => {
   let request;
-  const client = { conversations: { createTurn: async input => {
+  let options;
+  const client = { conversations: { createTurn: async (input, requestOptions) => {
     request = input;
+    options = requestOptions;
     return {
       conversation_id: 'conv_123', turn_id: 'turn_2', usage: { credits_charged: 1, searches_run: 1 },
       message: { suggestions: ['Something less expensive'], parts: [
@@ -43,6 +48,8 @@ test('Channel3 conversation carries its thread and normalizes product tool parts
   const result = await runChannel3GiftFinderTurn({ message: 'She has a small flat and loves books', conversationId: 'conv_existing', userId: 'guest_123', client });
   assert.equal(request.conversation_id, 'conv_existing');
   assert.equal(request.context, undefined);
+  assert.equal(Object.hasOwn(request, 'x-user-id'), false);
+  assert.deepEqual(options, { headers: { 'x-user-id': 'guest_123' } });
   assert.equal(result.conversationId, 'conv_123');
   assert.equal(result.products[0].merchant, 'merchant.example');
   assert.deepEqual(result.suggestions, ['Something less expensive']);

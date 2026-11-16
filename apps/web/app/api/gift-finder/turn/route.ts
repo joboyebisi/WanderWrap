@@ -13,7 +13,11 @@ export async function POST(request: NextRequest) {
   if (!input || typeof input !== 'object') return Response.json({ error: 'Invalid Gift Finder turn' }, { status: 400 });
   const startedAt = Date.now();
   try {
-    const output = await createGiftFinderHarness().turn(input);
+    const countryHeader = request.headers.get('x-vercel-ip-country')?.toUpperCase();
+    const country = ['GB', 'US', 'CA'].includes(String(input.country || '').toUpperCase())
+      ? String(input.country).toUpperCase()
+      : ['GB', 'US', 'CA'].includes(countryHeader || '') ? countryHeader : 'GB';
+    const output = await createGiftFinderHarness().turn({ ...input, country });
     console.info(JSON.stringify({
       event: 'wanderwrap.agent_turn_evaluated',
       agent: 'gift-finder-specialist',

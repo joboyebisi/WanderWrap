@@ -775,3 +775,30 @@ The feasibility decisions above were checked against current official documentat
 - [PayPal webhook verification](https://developer.paypal.com/api/rest/webhooks/rest/)
 
 Provider permissions, pricing, eligibility and product terms change. The capability registry and launch review must revalidate them before implementation and release.
+
+## 19. Signed-in gift workspace and regional launch increment
+
+### User outcomes
+
+- A returning user is recognised on the landing page and welcomed into their gift space.
+- A user can start a new conversation while viewing an existing shortlist without losing the saved prior brief.
+- Completed Gift Briefs receive a sensible default name, can be renamed and persist to the authenticated account.
+- Recommendation hearts create real account-scoped saved items, visible across devices in a wishlist.
+- A profile supports a display name, stable username tag and explicit shopping region.
+- Contacts, occasions and payments remain visibly marked as coming soon or not enabled.
+
+### Regional commerce requirements
+
+- Approximate IP country supplies only the first GB/US/CA market default; an authenticated profile preference overrides it.
+- Channel3 receives country/currency/language for every search and conversation turn; US results use USD and current US offers.
+- Store stable product IDs and nonvolatile display snapshots, never expiring retailer offer URLs. Refresh transactional fields before future handoff display.
+- Preserve Channel3's read-only catalogue-discovery and external-retailer-handoff boundary.
+
+### Discovery, analytics and administration
+
+- Publish canonical metadata, robots rules, an XML sitemap and application structured data.
+- Support Search Console DNS Domain-property verification for every root domain.
+- Load GA4/PostHog only after analytics opt-in and exclude messages, recipient data and direct identity values.
+- Gate administration with the Cognito `wanderwrap-admins` group. The initial console is read-only; sensitive account mutations require a later step-up, reason, audit and recovery design.
+
+Detailed architecture, acceptance gates and the multi-domain auth checklist are in `docs/ACCOUNT_WORKSPACE_REGIONAL_COMMERCE_AND_ADMIN.md`.

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { accessToken, refreshAccessToken } from '../../../../lib/session';
 
-const ALLOWED_ROOTS = new Set(['me', 'recipients', 'recommendations', 'routes', 'gifts', 'providers', 'audit']);
+const ALLOWED_ROOTS = new Set(['me', 'briefs', 'saved-items', 'recipients', 'recommendations', 'routes', 'gifts', 'providers', 'audit', 'admin']);
 const METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 
 async function forward(request: NextRequest, context: RouteContext<'/api/core/[...path]'>) {
@@ -9,7 +9,8 @@ async function forward(request: NextRequest, context: RouteContext<'/api/core/[.
   if (!['GET', 'HEAD'].includes(request.method)) {
     const configuredWebOrigin = process.env.NEXT_PUBLIC_WANDERWRAP_URL;
     const requestOrigin = request.headers.get('origin');
-    if (!configuredWebOrigin || requestOrigin !== new URL(configuredWebOrigin).origin) return Response.json({ error: 'Origin not allowed' }, { status: 403 });
+    const approved = new Set((process.env.WANDERWRAP_WEB_ORIGINS || configuredWebOrigin || '').split(',').filter(Boolean).map(value => new URL(value.trim()).origin));
+    if (!requestOrigin || !approved.has(requestOrigin)) return Response.json({ error: 'Origin not allowed' }, { status: 403 });
   }
   const { path } = await context.params;
   if (!path.length || !ALLOWED_ROOTS.has(path[0])) return Response.json({ error: 'Core route not allowed' }, { status: 404 });

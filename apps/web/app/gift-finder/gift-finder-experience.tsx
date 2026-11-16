@@ -29,17 +29,19 @@ export default function GiftFinderExperience() {
   const [busy, setBusy] = useState<'continue' | 'search' | false>(false);
   const [loopRisk, setLoopRisk] = useState(false);
   const [error, setError] = useState('');
+  const [country, setCountry] = useState('');
   const sessionRef = useRef('');
   const consumed = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages, busy]);
+  useEffect(() => { void Promise.all([fetch('/api/auth/session', { cache: 'no-store' }).then(response => response.json()).catch(() => ({})), fetch('/api/market', { cache: 'no-store' }).then(response => response.json()).catch(() => ({ country: 'GB' }))]).then(([session, market]) => setCountry(session.authenticated && session.user?.homeCountry ? session.user.homeCountry : market.country || 'GB')); }, []);
   useEffect(() => {
-    if (consumed.current) return;
+    if (consumed.current || !country) return;
     consumed.current = true;
     const value = sessionStorage.getItem(LANDING_GIFT_PROMPT_KEY);
     if (value) { sessionStorage.removeItem(LANDING_GIFT_PROMPT_KEY); void sendMessage(value); }
-  }, []);
+  }, [country]);
 
   function sessionId() {
     if (!sessionRef.current) sessionRef.current = crypto.randomUUID();
@@ -56,7 +58,7 @@ export default function GiftFinderExperience() {
     setDraft(''); setBusy(intent); setError(''); setSuggestions([]);
     captureProductEvent(intent === 'search' ? 'gift_search_requested' : 'gift_agent_message_sent', { turn_number: next, brief_progress: progress });
     try {
-      const response = await fetch('/api/gift-finder/turn', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: sessionId(), message: clean, conversationId, turnNumber: next, brief, intent }) });
+      const response = await fetch('/api/gift-finder/turn', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: sessionId(), message: clean, conversationId, turnNumber: next, brief, intent, country: country || undefined }) });
       const result = await response.json() as Turn & { error?: string };
       if (!response.ok) throw new Error(result.error || 'WanderWrap could not complete that turn.');
       setConversationId(result.conversationId); setTurnNumber(next); setSuggestions(result.suggestions || []); setBrief(result.brief || brief); setProgress(result.briefProgress || 0); setLoopRisk(Boolean(result.evaluation?.loopRisk));

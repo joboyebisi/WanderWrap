@@ -78,6 +78,8 @@ Facebook login never grants access to friends, feeds, birthdays or messages. Any
 - The web callback may log only content-free event classes (`auth_callback_invalid`, `auth_token_exchange_failed`, `auth_token_response_invalid`, `auth_callback_failed`, `auth_callback_succeeded`), boolean presence checks, token-endpoint HTTP status and an exception class. Never log the authorization code, state value, PKCE verifier, token response, claims or email. Use these events in Vercel runtime logs unless Cognito authentication-event delivery is explicitly enabled and cost-reviewed for the current user-pool tier.
 - Give users an account security page with active sessions, connected sources, export, deletion and revoke controls before expanding social/contact integrations.
 - Run cross-user and cross-tenant authorization tests on every saved Gift Brief, person, conversation and recommendation endpoint.
+- For each new web domain, allowlist the exact origin in `WANDERWRAP_WEB_ORIGINS`, the exact callback in Cognito `WebCallbackUrls`, the exact logout URL and the core API origin list. The BFF must generate and exchange the code with the same request origin. Never use wildcard callbacks.
+- Keep the resource indicator, resource-server identifier and custom scope owner identical to the exact API `/mcp` URL. Website-domain expansion does not change this API binding.
 
 ## 5. Guest-to-account migration
 

@@ -24,7 +24,7 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
           query: giftSearchQuery(briefState.brief),
           budget: numericBudget(briefState.brief.budget),
           userId: attributionId(request.actorId),
-          country: 'GB',
+          country: request.payload.country,
           limit: 10
         });
         const ready = Boolean(search.products?.length);
@@ -50,7 +50,8 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
       const turn = await conversationProvider({
         message: request.payload.message,
         conversationId: request.payload.conversationId || undefined,
-        userId: attributionId(request.actorId)
+        userId: attributionId(request.actorId),
+        country: request.payload.country
       });
       const ready = briefState.readyToReveal && Boolean(turn.products?.length);
       const interaction = buildGiftFinderInteraction(briefState, turn.suggestions, request.payload.turnNumber);
@@ -76,8 +77,8 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
   });
   const orchestrator = new AgentOrchestrator({ registry });
   return Object.freeze({
-    async turn({ sessionId, message, conversationId, turnNumber, brief, intent = 'continue', requestId = randomUUID() } = {}) {
-      const input = validateTurn({ sessionId, message, conversationId, turnNumber, brief, intent });
+    async turn({ sessionId, message, conversationId, turnNumber, brief, intent = 'continue', country = 'GB', requestId = randomUUID() } = {}) {
+      const input = validateTurn({ sessionId, message, conversationId, turnNumber, brief, intent, country });
       const result = await orchestrator.execute({
         requestId,
         correlationId: input.conversationId || requestId,
@@ -107,7 +108,7 @@ export function giftFinderCapability(env = process.env) {
     : { status: 'configuration_required', reason: channel3.reason };
 }
 
-function validateTurn({ sessionId, message, conversationId, turnNumber, brief, intent }) {
+function validateTurn({ sessionId, message, conversationId, turnNumber, brief, intent, country }) {
   const safeSession = String(sessionId || '').trim();
   const safeMessage = String(message || '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
   const safeIntent = intent === 'search' ? 'search' : 'continue';
@@ -116,7 +117,8 @@ function validateTurn({ sessionId, message, conversationId, turnNumber, brief, i
   if (conversationId && !/^[a-zA-Z0-9_-]{3,160}$/.test(String(conversationId))) throw new TypeError('Conversation reference is invalid');
   const safeTurn = Number(turnNumber);
   if (!Number.isInteger(safeTurn) || safeTurn < 1 || safeTurn > 16) throw new TypeError('Gift Finder supports up to 16 turns per session');
-  return { sessionId: safeSession, message: safeMessage, conversationId: conversationId ? String(conversationId) : null, turnNumber: safeTurn, brief: normalizeGiftBrief(brief), intent: safeIntent };
+  const safeCountry = ['GB', 'US', 'CA'].includes(String(country).toUpperCase()) ? String(country).toUpperCase() : 'GB';
+  return { sessionId: safeSession, message: safeMessage, conversationId: conversationId ? String(conversationId) : null, turnNumber: safeTurn, brief: normalizeGiftBrief(brief), intent: safeIntent, country: safeCountry };
 }
 
 function giftSearchQuery(brief) {
