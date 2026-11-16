@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { captureProductEvent } from './product-analytics';
 
 export const LANDING_GIFT_PROMPT_KEY = 'wanderwrap:gift-finder:first-prompt';
 
@@ -15,6 +16,7 @@ export default function LandingGiftComposer() {
     // Keep recipient context out of URLs and analytics. The Gift Finder
     // consumes this once in the same tab and immediately removes it.
     window.sessionStorage.setItem(LANDING_GIFT_PROMPT_KEY, message.slice(0, 1600));
+    captureProductEvent('landing_gift_prompt_started', { prompt_length_band: message.length < 80 ? 'short' : message.length < 240 ? 'medium' : 'long' });
     window.location.assign('/gift-finder');
   }
 

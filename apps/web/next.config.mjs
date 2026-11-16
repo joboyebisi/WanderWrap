@@ -6,6 +6,12 @@ const config = {
   poweredByHeader: false,
   typedRoutes: true,
   allowedDevOrigins: ['127.0.0.1'],
+  async rewrites() {
+    return [
+      { source: '/ingest/static/:path*', destination: 'https://eu-assets.i.posthog.com/static/:path*' },
+      { source: '/ingest/:path*', destination: 'https://eu.i.posthog.com/:path*' }
+    ];
+  },
   async headers() {
     return [{
       source: '/(.*)',

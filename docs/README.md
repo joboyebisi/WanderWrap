@@ -18,6 +18,7 @@ Use this page as the repository map. `PROJECT_STATE.md` is the operational check
 
 - [`PRD.md`](PRD.md) — complete product requirements and journeys.
 - [`WANDERSIGNAL_PRD.md`](WANDERSIGNAL_PRD.md) — consented preference intelligence, Channel3 discovery and evaluation requirements.
+- [`AGENT_EVALUATION.md`](AGENT_EVALUATION.md) — Gift Finder loop detection, privacy-safe telemetry, PostHog funnel definitions and release thresholds.
 - [`PRODUCT.md`](PRODUCT.md) — concise product direction.
 - [`PRD_AMAZON_ALEXA_PLUS.md`](PRD_AMAZON_ALEXA_PLUS.md) — Alexa+ event slice.
 - [`PRD_PAYPAL_AI.md`](PRD_PAYPAL_AI.md) — PayPal event slice.

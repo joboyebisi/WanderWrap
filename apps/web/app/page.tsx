@@ -34,11 +34,11 @@ export default function HomePage() {
       <nav className={styles.nav} aria-label="Primary navigation">
         <div className={styles.navInner}>
           <div className={styles.navLeft}>
-            <Link href="/gift-finder">Gift Finder <span>🎁</span></Link><Link href="/teams">For Teams</Link>
+            <Link href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation">Gift Finder <span>🎁</span></Link><Link href="/teams" data-analytics-event="teams_cta_clicked" data-analytics-placement="navigation">For Teams</Link>
           </div>
           <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
           <div className={styles.navRight}>
-            <Link className={styles.conciergeLink} href="/gift-finder"><span>✦</span> AI Gift Concierge</Link><a href="/api/auth/login">Sign in</a>
+            <Link className={styles.conciergeLink} href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="navigation_concierge"><span>✦</span> AI Gift Concierge</Link><a href="/api/auth/login" data-analytics-event="auth_started" data-analytics-method="existing_account">Sign in</a>
           </div>
           <details className={styles.mobileMenu}>
             <summary aria-label="Open navigation"><span /><span /><span /></summary>
@@ -56,7 +56,7 @@ export default function HomePage() {
           <p className={styles.heroLead}>Tell us about the person and the moment. Our specialist agents shape a Gift Brief, research promising ideas and bring back a shortlist that feels personal—not generic.</p>
           <LandingGiftComposer />
           <div className={styles.heroActions}>
-            <Link className={styles.outlineButton} href="/teams">For Teams</Link>
+          <Link className={styles.outlineButton} href="/teams" data-analytics-event="teams_cta_clicked" data-analytics-placement="hero">For Teams</Link>
           </div>
           <p className={styles.heroNote}>Start without an account · Share only what you choose · Nothing is purchased without your approval</p>
         </div>
@@ -89,14 +89,14 @@ export default function HomePage() {
         <div className={styles.teamsContent}>
           <p>WanderWrap for teams · Early access</p><h2 id="teams-title">Make Every Employee<br /><em>Feel Valued.</em></h2>
           <p className={styles.teamsLead}>Give the agents your programme rules, budgets and recipient context. They prepare personalised gift briefs, research options, organise approvals and report back—so your team can run ten gifts or hundreds without losing the human touch.</p>
-          <Link href="/teams">Speak with our team <span>→</span></Link>
+          <Link href="/teams" data-analytics-event="teams_cta_clicked" data-analytics-placement="teams_banner">Speak with our team <span>→</span></Link>
         </div>
       </section>
 
       <section className={styles.recommendations} aria-labelledby="recommendations-title">
         <div className={styles.recommendationHeading}>
           <div><p>Agent-researched inspiration</p><h2 id="recommendations-title">Thoughtful Gifts, Chosen for Them.</h2><small>Built from the Gift Brief · Explained before you decide</small></div>
-          <Link href="/gift-finder">Find Their Gift</Link>
+          <Link href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="recommendations_heading">Find Their Gift</Link>
         </div>
         <div className={styles.directionGrid}>
           {directions.map((direction) => (
@@ -122,7 +122,7 @@ export default function HomePage() {
         </div>
         <div className={styles.footerBottom}><p>© {new Date().getFullYear()} WanderWrap. Make every gift feel personal.</p><p>Private by design · Every purchase is your decision</p></div>
       </footer>
-      <Link className={styles.floatingCta} href="/gift-finder"><span>🎁</span> Find a Gift</Link>
+      <Link className={styles.floatingCta} href="/gift-finder" data-analytics-event="landing_cta_clicked" data-analytics-placement="floating"> <span>🎁</span> Find a Gift</Link>
     </main>
   );
 }

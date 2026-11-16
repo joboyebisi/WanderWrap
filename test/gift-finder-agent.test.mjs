@@ -26,6 +26,32 @@ test('Gift Finder specialist rejects oversized or excessive turns before provide
   assert.equal(calls, 0);
 });
 
+test('shopper can trigger catalogue search with the partial Gift Brief instead of entering a question loop', async () => {
+  let conversationCalls = 0;
+  const searches = [];
+  const harness = createGiftFinderHarness({
+    conversationProvider: async () => { conversationCalls++; throw new Error('conversation provider should not run'); },
+    searchProvider: async input => {
+      searches.push(input);
+      return { provider: 'channel3', observedAt: '2026-11-16T10:00:00Z', products: [{ id: 'p1', title: 'Garden journal', url: 'https://merchant.example/journal' }] };
+    }
+  });
+  const result = await harness.turn({ sessionId: 'session_1234567890', message: '', turnNumber: 2, intent: 'search', brief: { recipient: 'mum', occasion: 'birthday', preferences: ['gardening'] }, requestId: 'search-1' });
+  assert.equal(conversationCalls, 0);
+  assert.equal(searches.length, 1);
+  assert.match(searches[0].query, /gardening/i);
+  assert.equal(result.revealReady, true);
+  assert.equal(result.evaluation.intent, 'search');
+});
+
+test('agent evaluation identifies a stalled question loop without logging conversation content', async () => {
+  const harness = createGiftFinderHarness({ conversationProvider: async () => ({ provider: 'channel3-conversations', conversationId: 'conv_1', suggestions: [], products: [], observedAt: '2026-11-16T10:00:00Z' }) });
+  const result = await harness.turn({ sessionId: 'session_1234567890', message: 'not sure', turnNumber: 3, brief: { recipient: 'mum' }, requestId: 'loop-1' });
+  assert.equal(result.evaluation.loopRisk, true);
+  assert.equal(Object.hasOwn(result.evaluation, 'message'), false);
+  assert.equal(Object.hasOwn(result.evaluation, 'brief'), false);
+});
+
 test('Gift Finder capability requires the server-side Channel3 configuration', () => {
   assert.equal(giftFinderCapability({}).status, 'configuration_required');
   assert.equal(giftFinderCapability({ CHANNEL3_DISCOVERY_ENABLED: 'true', CHANNEL3_API_KEY: 'secret' }).status, 'available');

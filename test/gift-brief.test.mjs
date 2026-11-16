@@ -24,3 +24,12 @@ test('gift brief understands a natural possessive milestone opener', () => {
   assert.equal(state.brief.occasion, 'birthday');
   assert.equal(state.brief.preferences[0], 'gardening');
 });
+
+test('gift brief accepts short guided answers instead of repeatedly asking the same question', () => {
+  const budget = advanceGiftBrief({ recipient: 'mum', occasion: 'birthday', preferences: ['reading'] }, 'about 60', 3);
+  assert.equal(budget.score, 4);
+  assert.match(budget.brief.budget, /60/);
+  const clue = advanceGiftBrief({ recipient: 'mentor', occasion: 'thank-you', budget: '£50' }, 'A keen cook who hates clutter', 3);
+  assert.equal(clue.score, 4);
+  assert.match(clue.brief.preferences[0], /keen cook/i);
+});
