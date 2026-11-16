@@ -13,7 +13,8 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 |---|---|
 | `WANDERWRAP_CORE_API_URL` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com` |
 | `NEXT_PUBLIC_WANDERWRAP_URL` | `https://www.wanderwrap.co.uk` |
-| `WANDERWRAP_OAUTH_BASE_URL` | `https://wanderwrap-signin.auth.eu-west-2.amazoncognito.com` (temporary DNS-resilient fallback; restore `https://auth.wanderwrap.co.uk` after real-device proof) |
+| `WANDERWRAP_OAUTH_BASE_URL` | `https://auth.wanderwrap.co.uk` (customer-facing managed-login v2 domain) |
+| `WANDERWRAP_OAUTH_FALLBACK_BASE_URL` | `https://wanderwrap-signin.auth.eu-west-2.amazoncognito.com` (explicit emergency link only; never automatic failover) |
 | `WANDERWRAP_WEB_CLIENT_ID` | `5c521h6hf7pmkuiug6s15jnvhk` |
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
 | `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
@@ -22,6 +23,8 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 Before changing the Google flag to `true`, deploy the Cognito pre-sign-up trigger in `infrastructure/template.yaml`. Verify that a Google identity whose verified email already belongs to a user-pool account returns to the email sign-in recovery message without creating or linking another profile. Use a short controlled Production test window for first-time Google sign-in, cancellation, logout, repeat sign-in and existing-email collision. If any check fails, restore the flag to `false` and redeploy immediately.
 
 Controlled-window evidence on 16 November 2026: CloudFormation change set `wanderwrap-google-auth-1aea149` deployed the pre-sign-up guard without resource replacements or deletions; the trigger is attached and active. A synthetic verified-new-user event returned `200` without creating an account. Vercel Production has the Google flag enabled, the public sign-in page displays `Continue with Google`, and the provider route reaches Google's real account chooser through Cognito. Abandoning the chooser returns safely to WanderWrap. The user pool had no users at that checkpoint, so the first account creation, logout, repeat login and real existing-email collision/recovery evidence remain mandatory before declaring the complete identity lifecycle proven.
+
+Primary-domain evidence on 16 November 2026: public DNS resolvers return the Cognito CloudFront target for `auth.wanderwrap.co.uk`, a TLS/SNI-pinned authorization request reaches Google, the custom domain is `ACTIVE` on managed-login version 2, and the WanderWrap branding style is attached to the web client. Production routes normally to the custom domain. The generated prefix is exposed only inside the collapsed troubleshooting section on `/sign-in`; selecting it adds `domain=fallback`, and the callback exchanges the code against the exact origin recorded in the short-lived HttpOnly `ww_oauth_base` cookie. Never automatically fail over between OAuth domains after authorization begins.
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords or PayPal secrets to the Vercel project.
 
