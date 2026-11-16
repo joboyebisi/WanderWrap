@@ -30,6 +30,8 @@ assert.match(homeHtml, /href="\/sign-in"/, 'Landing navigation must use the bran
 assert.match(homeHtml, /Explore WanderWrap for Teams/, 'Landing page must give teams a distinct next step');
 assert.match(homeHtml, /href="\/gift-ideas\/birthdays"/, 'Occasion imagery must lead to a meaningful destination');
 assert.match(homeHtml, /href="\/gift-ideas\/emerald-keepsake"/, 'Gift-direction imagery must lead to a meaningful destination');
+assert.match(homeHtml, /Birthday for someone who has everything/, 'Landing page must include the birthday starter prompt');
+assert.match(homeHtml, /Last-minute, but still personal/, 'Landing page must include the urgent starter prompt');
 assert.doesNotMatch(homeHtml, /href="\/unwrap"/, 'Landing page must not link to the unavailable unwrap flow');
 
 const publicRoute = await fetch(new URL('/gift-finder', base));
@@ -60,7 +62,11 @@ if (![302, 303, 307, 308].includes(signup.status)) {
 const location = signup.headers.get('location');
 assert.ok(location, 'Signup redirect must include Location');
 const authorization = new URL(location);
-assert.equal(authorization.hostname, 'auth.wanderwrap.co.uk', 'Signup must use the branded Cognito hostname');
+const approvedCognitoHosts = new Set([
+  'auth.wanderwrap.co.uk',
+  'wanderwrap-signin.auth.eu-west-2.amazoncognito.com',
+]);
+assert.ok(approvedCognitoHosts.has(authorization.hostname), `Signup must use an approved WanderWrap Cognito hostname; received ${authorization.hostname}`);
 assert.equal(authorization.pathname, '/signup', 'Signup must use the Cognito signup path');
 assert.equal(authorization.searchParams.get('code_challenge_method'), 'S256', 'Signup must require PKCE S256');
 assert.ok(authorization.searchParams.get('code_challenge'), 'Signup must include a PKCE challenge');

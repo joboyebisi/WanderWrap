@@ -13,10 +13,11 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 |---|---|
 | `WANDERWRAP_CORE_API_URL` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com` |
 | `NEXT_PUBLIC_WANDERWRAP_URL` | `https://www.wanderwrap.co.uk` |
-| `WANDERWRAP_OAUTH_BASE_URL` | `https://wanderwrap-development-695912022574.auth.eu-west-2.amazoncognito.com` |
+| `WANDERWRAP_OAUTH_BASE_URL` | `https://wanderwrap-signin.auth.eu-west-2.amazoncognito.com` (temporary DNS-resilient fallback; restore `https://auth.wanderwrap.co.uk` after real-device proof) |
 | `WANDERWRAP_WEB_CLIENT_ID` | `5c521h6hf7pmkuiug6s15jnvhk` |
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
 | `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
+| `NEXT_PUBLIC_WANDERWRAP_GOOGLE_AUTH_ENABLED` | `false` until Google sign-in, cancellation, logout and account-collision recovery pass on a real browser/device |
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords or PayPal secrets to the Vercel project.
 
