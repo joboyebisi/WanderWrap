@@ -21,8 +21,12 @@ for (const viewport of viewports) {
     if (viewport.name === 'desktop') for (const href of await page.locator('a[href]').evaluateAll(anchors => anchors.map(anchor => anchor.getAttribute('href')))) if (href?.startsWith('/') && !href.startsWith('/api/') && !href.startsWith('//')) discoveredLinks.add(href.split('#')[0]);
   }
   await page.goto(`${base}/gift-finder`, { waitUntil: 'networkidle' });
+  await page.route('**/api/auth/session', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ authenticated: true, user: { displayName: 'Navigation Tester', handle: 'navigation-tester#test' } }) }));
+  await page.reload({ waitUntil: 'networkidle' });
+  if ((await page.locator('.accountNameLink').getAttribute('href')) !== '/account') failures.push(`${viewport.name}: signed-in name does not link to the account page`);
   await page.locator('.accountMenuButton').click();
   if (!(await page.locator('#wanderwrap-menu').isVisible())) failures.push(`${viewport.name}: account menu did not open`);
+  if ((await page.locator('.drawerIdentity').getAttribute('href')) !== '/account') failures.push(`${viewport.name}: drawer identity does not link to the account page`);
   await page.keyboard.press('Escape');
   if (await page.locator('#wanderwrap-menu').isVisible().catch(() => false)) failures.push(`${viewport.name}: account menu did not close with Escape`);
   await page.close();
