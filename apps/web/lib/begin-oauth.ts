@@ -1,9 +1,10 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
-import { oauthConfig, pkceChallenge, privateCookie, randomUrlSafe, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from './oauth';
+import { BASE_COOKIE, oauthConfig, type OAuthBase, pkceChallenge, privateCookie, randomUrlSafe, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from './oauth';
 
-export function beginOAuth(mode: 'login' | 'signup', options: { returnTo?: string; provider?: string } = {}) {
-  const config = oauthConfig();
+export function beginOAuth(mode: 'login' | 'signup', options: { returnTo?: string; provider?: string; base?: OAuthBase } = {}) {
+  const base = options.base === 'fallback' ? 'fallback' : 'primary';
+  const config = oauthConfig(base);
   const state = randomUrlSafe();
   const verifier = randomUrlSafe(64);
   const authorization = new URL(mode === 'signup' ? '/signup' : '/oauth2/authorize', config.baseUrl);
@@ -21,6 +22,7 @@ export function beginOAuth(mode: 'login' | 'signup', options: { returnTo?: strin
   response.cookies.set(STATE_COOKIE, state, privateCookie(600));
   response.cookies.set(VERIFIER_COOKIE, verifier, privateCookie(600));
   response.cookies.set(RETURN_COOKIE, safeReturnPath(options.returnTo), privateCookie(600));
+  response.cookies.set(BASE_COOKIE, base, privateCookie(600));
   return response;
 }
 

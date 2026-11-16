@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { ACCESS_COOKIE, oauthConfig, privateCookie, REFRESH_COOKIE, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from '../../../../lib/oauth';
+import { ACCESS_COOKIE, BASE_COOKIE, oauthConfig, privateCookie, REFRESH_COOKIE, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from '../../../../lib/oauth';
 // @ts-ignore Shared callback classifier is intentionally consumed by the web BFF.
 import { classifyOAuthResponse } from '../../../../../../src/auth-callback.mjs';
 
@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   const expectedState = jar.get(STATE_COOKIE)?.value;
   const verifier = jar.get(VERIFIER_COOKIE)?.value;
   const returnTo = safeReturnPath(jar.get(RETURN_COOKIE)?.value);
+  const oauthBase = jar.get(BASE_COOKIE)?.value === 'fallback' ? 'fallback' : 'primary';
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
   const providerError = request.nextUrl.searchParams.get('error');
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const config = oauthConfig();
+    const config = oauthConfig(oauthBase);
     const tokenResponse = await fetch(new URL('/oauth2/token', config.baseUrl), {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -59,6 +60,7 @@ export async function GET(request: NextRequest) {
     response.cookies.delete(STATE_COOKIE);
     response.cookies.delete(VERIFIER_COOKIE);
     response.cookies.delete(RETURN_COOKIE);
+    response.cookies.delete(BASE_COOKIE);
     console.info(JSON.stringify({ event: 'auth_callback_succeeded', hasRefreshToken: Boolean(tokens.refresh_token) }));
     return response;
   } catch (error) {
@@ -72,6 +74,7 @@ function failedCallback(request: NextRequest, reason: 'invalid' | 'cancelled' | 
   response.cookies.delete(STATE_COOKIE);
   response.cookies.delete(VERIFIER_COOKIE);
   response.cookies.delete(RETURN_COOKIE);
+  response.cookies.delete(BASE_COOKIE);
   return response;
 }
 

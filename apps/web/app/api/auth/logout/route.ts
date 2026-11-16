@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { ACCESS_COOKIE, oauthConfig, REFRESH_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from '../../../../lib/oauth';
+import { ACCESS_COOKIE, BASE_COOKIE, oauthConfig, REFRESH_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from '../../../../lib/oauth';
 
 export async function POST(request: NextRequest) {
   const jar = await cookies();
@@ -17,6 +17,6 @@ export async function POST(request: NextRequest) {
     } catch { /* Local cookie deletion remains the safe fallback. */ }
   }
   const response = NextResponse.redirect(new URL('/', request.url), { status: 303 });
-  for (const name of [ACCESS_COOKIE, REFRESH_COOKIE, STATE_COOKIE, VERIFIER_COOKIE]) response.cookies.delete(name);
+  for (const name of [ACCESS_COOKIE, REFRESH_COOKIE, STATE_COOKIE, VERIFIER_COOKIE, BASE_COOKIE]) response.cookies.delete(name);
   return response;
 }

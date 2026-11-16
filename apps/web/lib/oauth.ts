@@ -5,9 +5,13 @@ export const REFRESH_COOKIE = 'ww_refresh';
 export const STATE_COOKIE = 'ww_oauth_state';
 export const VERIFIER_COOKIE = 'ww_pkce_verifier';
 export const RETURN_COOKIE = 'ww_oauth_return';
+export const BASE_COOKIE = 'ww_oauth_base';
 
-export function oauthConfig() {
-  const baseUrl = required('WANDERWRAP_OAUTH_BASE_URL').replace(/\/$/, '');
+export type OAuthBase = 'primary' | 'fallback';
+
+export function oauthConfig(base: OAuthBase = 'primary') {
+  const primaryBaseUrl = authBase(required('WANDERWRAP_OAUTH_BASE_URL'));
+  const baseUrl = base === 'fallback' ? authBase(required('WANDERWRAP_OAUTH_FALLBACK_BASE_URL')) : primaryBaseUrl;
   const clientId = required('WANDERWRAP_WEB_CLIENT_ID');
   const webUrl = required('NEXT_PUBLIC_WANDERWRAP_URL').replace(/\/$/, '');
   const resource = process.env.WANDERWRAP_OAUTH_RESOURCE || `${required('WANDERWRAP_CORE_API_URL').replace(/\/$/, '')}/mcp`;
@@ -19,6 +23,14 @@ export function oauthConfig() {
     redirectUri: `${webUrl}/api/auth/callback`,
     scopes: (process.env.WANDERWRAP_WEB_OAUTH_SCOPES || 'openid email wanderwrap/gifts.read wanderwrap/gifts.write').split(/\s+/).filter(Boolean)
   };
+}
+
+function authBase(value: string) {
+  const url = new URL(value);
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
+    throw new Error('OAuth base URL must be an HTTPS origin');
+  }
+  return url.origin;
 }
 
 export function randomUrlSafe(bytes = 32) {

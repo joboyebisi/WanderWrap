@@ -41,6 +41,11 @@ const publicRouteHtml = await publicRoute.text();
 assert.match(publicRouteHtml, /Talk it through\./, 'Conversational gifting journey is missing');
 assert.match(publicRouteHtml, /No purchase without your action/, 'Public journey approval disclosure is missing');
 
+const signInHtml = await (await fetch(new URL('/sign-in', base))).text();
+assert.match(signInHtml, /Continue with Google/, 'Branded sign-in must expose Google');
+assert.match(signInHtml, /#4285F4/, 'Google sign-in must use the official multicolour mark');
+assert.match(signInHtml, /Secure sign-in page not opening\?/, 'Branded sign-in must expose a DNS-recovery route');
+
 const unavailableUnwrap = await request('/unwrap');
 assert.equal(unavailableUnwrap.status, 404, 'Unavailable unwrap flow must remain removed');
 
@@ -64,11 +69,7 @@ if (![302, 303, 307, 308].includes(signup.status)) {
 const location = signup.headers.get('location');
 assert.ok(location, 'Signup redirect must include Location');
 const authorization = new URL(location);
-const approvedCognitoHosts = new Set([
-  'auth.wanderwrap.co.uk',
-  'wanderwrap-signin.auth.eu-west-2.amazoncognito.com',
-]);
-assert.ok(approvedCognitoHosts.has(authorization.hostname), `Signup must use an approved WanderWrap Cognito hostname; received ${authorization.hostname}`);
+assert.equal(authorization.hostname, 'auth.wanderwrap.co.uk', 'Normal signup must use the branded Cognito hostname');
 assert.equal(authorization.pathname, '/signup', 'Signup must use the Cognito signup path');
 assert.equal(authorization.searchParams.get('code_challenge_method'), 'S256', 'Signup must require PKCE S256');
 assert.ok(authorization.searchParams.get('code_challenge'), 'Signup must include a PKCE challenge');
@@ -76,5 +77,12 @@ assert.ok(authorization.searchParams.get('resource')?.endsWith('/mcp'), 'Signup 
 assert.equal(new URL(authorization.searchParams.get('redirect_uri')).origin, base.origin, 'OAuth callback must return to the tested web origin');
 const cookies = signup.headers.getSetCookie?.() || [signup.headers.get('set-cookie') || ''];
 assert.ok(cookies.some(value => /ww_oauth_state=.*HttpOnly/i.test(value)), 'OAuth state must use an HttpOnly cookie');
+assert.ok(cookies.some(value => /ww_oauth_base=primary.*HttpOnly/i.test(value)), 'Normal OAuth must bind callback exchange to the primary domain');
+
+const fallback = await request('/api/auth/signup?domain=fallback');
+assert.ok([302, 303, 307, 308].includes(fallback.status), 'Fallback signup must redirect');
+assert.equal(new URL(fallback.headers.get('location')).hostname, 'wanderwrap-signin.auth.eu-west-2.amazoncognito.com', 'Fallback signup must use only the approved Cognito-owned hostname');
+const fallbackCookies = fallback.headers.getSetCookie?.() || [fallback.headers.get('set-cookie') || ''];
+assert.ok(fallbackCookies.some(value => /ww_oauth_base=fallback.*HttpOnly/i.test(value)), 'Fallback OAuth must bind callback exchange to the fallback domain');
 
 console.log(JSON.stringify({ status: 'passed', origin: base.origin, checks }, null, 2));

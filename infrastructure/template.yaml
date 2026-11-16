@@ -213,6 +213,7 @@ Resources:
     Properties:
       Domain: !Ref AuthDomainName
       UserPoolId: !Ref UserPool
+      ManagedLoginVersion: 2
       CustomDomainConfig:
         CertificateArn: !Ref AuthCertificateArn
 

@@ -6,17 +6,24 @@
 .page nav>a:first-child span { color:#9c4c64; }
 .page nav>a:last-child { font-size:10px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; }
 .card { display:flex; flex-direction:column; align-items:stretch; width:min(510px,100%); margin:70px auto; padding:clamp(32px,6vw,58px); border:1px solid rgba(23,63,53,.15); border-radius:28px; background:rgba(255,253,248,.92); box-shadow:0 28px 75px rgba(21,52,40,.12); text-align:center; }
-.mark { display:grid; place-items:center; width:58px; height:58px; margin:0 auto 24px; border-radius:18px; color:#fff6e7; background:#20493a; font-weight:800; }
+.mark { width:64px; height:64px; margin:0 auto 22px; }
 .card>p { margin:0; color:#8a4055; font-size:9px; font-weight:800; letter-spacing:.2em; }
 .card h1 { margin:10px 0 0; color:#173f35; font:400 clamp(46px,7vw,64px)/1 'Iowan Old Style','Baskerville',serif; letter-spacing:-.04em; }
 .intro { margin:18px auto 30px; color:#65736c; font-size:13px; line-height:1.65; }
 .authError { display:flex; flex-direction:column; gap:4px; margin:0 0 14px; padding:12px 14px; border:1px solid rgba(157,61,82,.25); border-radius:12px; color:#6f3043; background:#fff3f5; font-size:10px; line-height:1.5; text-align:left; }
 .authError strong { font-size:11px; }
 .google,.email { display:flex; align-items:center; justify-content:center; min-height:50px; margin-top:10px; border-radius:13px; text-decoration:none; font-size:11px; font-weight:750; }
-.google { gap:12px; color:#253b32; border:1px solid #cec9be; background:#fff; }
-.google span { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; color:#fff; background:#315f4d; }
+.google { gap:10px; color:#1f1f1f; border:1px solid #747775; background:#fff; font-family:'Google Sans','Segoe UI',sans-serif; font-size:14px; font-weight:600; }
+.google svg { flex:0 0 20px; }
+.google:hover { background:#f8faff; box-shadow:0 1px 2px rgba(60,64,67,.18); }
 .card .email { color:#fff; background:#20493a; }
+.card .email:hover { background:#173f35; }
 .newAccount { margin:24px 0 0; padding-top:20px; border-top:1px solid #e3ded5; color:#6b7771; font-size:11px; }
 .newAccount a { color:#714054; font-weight:750; }
+.backup { margin-top:18px; color:#707b75; font-size:9px; line-height:1.5; text-align:left; }
+.backup summary { cursor:pointer; color:#4f6057; font-weight:750; text-align:center; }
+.backup p { margin:10px 0 7px; }
+.backup div { display:flex; flex-wrap:wrap; gap:8px 14px; }
+.backup a { color:#714054; font-weight:750; }
 .card>small { margin-top:23px; color:#838a86; font-size:9px; line-height:1.55; }
 @media(max-width:520px) { .page { padding:0 16px; }.page nav>a:last-child { font-size:8px; }.card { margin:38px auto; padding:34px 22px; } }

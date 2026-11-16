@@ -1,0 +1,74 @@
+{
+  "categories": {
+    "form": {
+      "displayGraphics": true,
+      "location": { "horizontal": "CENTER", "vertical": "CENTER" }
+    },
+    "global": {
+      "colorSchemeMode": "LIGHT",
+      "pageFooter": { "enabled": false },
+      "pageHeader": { "enabled": false },
+      "spacingDensity": "REGULAR"
+    }
+  },
+  "components": {
+    "alert": {
+      "borderRadius": 12,
+      "lightMode": { "error": { "backgroundColor": "fff3f5ff", "borderColor": "9d3d52ff" } }
+    },
+    "form": {
+      "backgroundImage": { "enabled": false },
+      "borderRadius": 28,
+      "lightMode": { "backgroundColor": "fffdf8f5", "borderColor": "d9cfc2ff" },
+      "logo": { "enabled": true, "formInclusion": "IN", "location": "CENTER", "position": "TOP" }
+    },
+    "idpButton": {
+      "standard": {
+        "lightMode": {
+          "active": { "backgroundColor": "f2f2f2ff", "borderColor": "5f6368ff", "textColor": "1f1f1fff" },
+          "defaults": { "backgroundColor": "ffffffff", "borderColor": "747775ff", "textColor": "1f1f1fff" },
+          "hover": { "backgroundColor": "f8faffff", "borderColor": "5f6368ff", "textColor": "1f1f1fff" }
+        }
+      }
+    },
+    "pageBackground": { "image": { "enabled": false }, "lightMode": { "color": "f8f3eaff" } },
+    "pageText": {
+      "lightMode": { "bodyColor": "526259ff", "descriptionColor": "65736cff", "headingColor": "173f35ff" }
+    },
+    "primaryButton": {
+      "lightMode": {
+        "active": { "backgroundColor": "102f26ff", "textColor": "fff6e7ff" },
+        "defaults": { "backgroundColor": "20493aff", "textColor": "fff6e7ff" },
+        "hover": { "backgroundColor": "173f35ff", "textColor": "ffffffff" }
+      }
+    },
+    "secondaryButton": {
+      "lightMode": {
+        "active": { "backgroundColor": "f5e8ebff", "borderColor": "714054ff", "textColor": "714054ff" },
+        "defaults": { "backgroundColor": "ffffffff", "borderColor": "714054ff", "textColor": "714054ff" },
+        "hover": { "backgroundColor": "fff3f5ff", "borderColor": "9c4c64ff", "textColor": "714054ff" }
+      }
+    }
+  },
+  "componentClasses": {
+    "buttons": { "borderRadius": 13 },
+    "divider": { "lightMode": { "borderColor": "e3ded5ff" } },
+    "focusState": { "lightMode": { "borderColor": "9c4c64ff" } },
+    "idpButtons": { "icons": { "enabled": true } },
+    "input": {
+      "borderRadius": 12,
+      "lightMode": {
+        "defaults": { "backgroundColor": "ffffffff", "borderColor": "b8b1a7ff" },
+        "placeholderColor": "777f7aff"
+      }
+    },
+    "inputDescription": { "lightMode": { "textColor": "65736cff" } },
+    "inputLabel": { "lightMode": { "textColor": "293a34ff" } },
+    "link": {
+      "lightMode": {
+        "defaults": { "textColor": "714054ff" },
+        "hover": { "textColor": "9c4c64ff" }
+      }
+    }
+  }
+}
