@@ -5,8 +5,8 @@ export const WANDERWRAP_PERSONA = Object.freeze({
   boundaries: Object.freeze(['one question per turn', 'never invent recipient facts', 'never imply a purchase'])
 });
 
-export function buildGiftFinderInteraction(briefState, providerSuggestions = [], turnNumber = 1) {
-  const contextual = templatesFor(briefState.missing[0], briefState.brief);
+export function buildGiftFinderInteraction(briefState, providerSuggestions = [], turnNumber = 1, now = new Date()) {
+  const contextual = templatesFor(briefState.missing[0], briefState.brief, now);
   const provider = Array.isArray(providerSuggestions)
     ? providerSuggestions.filter(message => typeof message === 'string').map((message, index) => quickReply(`provider-${index}`, '↗', message, message)).filter(item => item.message.length <= 160)
     : [];
@@ -18,7 +18,7 @@ export function buildGiftFinderInteraction(briefState, providerSuggestions = [],
   };
 }
 
-function templatesFor(field, brief) {
+function templatesFor(field, brief, now) {
   const recipient = safeSubject(brief.recipient);
   const templates = {
     'who the gift is for': [
@@ -27,12 +27,7 @@ function templatesFor(field, brief) {
       quickReply('recipient-friend', '☺', 'A friend', 'It is for a friend.'),
       quickReply('recipient-colleague', '◇', 'A colleague', 'It is for a colleague.')
     ],
-    'the occasion': [
-      quickReply('occasion-birthday', '🎂', 'Birthday', `It is a birthday gift${recipient}.`),
-      quickReply('occasion-thanks', '✦', 'A thank-you', `It is a thank-you gift${recipient}.`),
-      quickReply('occasion-milestone', '★', 'A milestone', `It is for a milestone${recipient}.`),
-      quickReply('occasion-just-because', '☀', 'Just because', `It is a just-because gift${recipient}.`)
-    ],
+    'the occasion': seasonalOccasions(recipient, now),
     'a comfortable budget': [
       quickReply('budget-30', '£', 'Under £30', 'My budget is under £30.'),
       quickReply('budget-60', '£', 'Around £60', 'My budget is around £60.'),
@@ -59,3 +54,19 @@ function quickReply(id, icon, label, message) { return { id, icon, label, messag
 function uniqueReplies(items) { return [...new Map(items.map(item => [item.message.toLowerCase(), item])).values()]; }
 function subject(value) { const clean = String(value || '').trim(); return clean ? clean.replace(/^my\s+/i, 'My ') : 'They'; }
 function safeSubject(value) { const clean = String(value || '').trim(); return clean ? ` for ${clean}` : ''; }
+
+function seasonalOccasions(recipient, now) {
+  const month = now instanceof Date && !Number.isNaN(now.valueOf()) ? now.getUTCMonth() : -1;
+  if (month === 10 || month === 11) return [
+    quickReply('occasion-christmas', '🎄', 'Christmas', `It is a Christmas gift${recipient}.`),
+    quickReply('occasion-thanksgiving', '🍂', 'Thanksgiving', `It is a Thanksgiving gift${recipient}.`),
+    quickReply('occasion-birthday', '🎂', 'Birthday', `It is a birthday gift${recipient}.`),
+    quickReply('occasion-other', '✦', 'Something else', `It is for another occasion${recipient}.`)
+  ];
+  return [
+    quickReply('occasion-birthday', '🎂', 'Birthday', `It is a birthday gift${recipient}.`),
+    quickReply('occasion-thanks', '✦', 'A thank-you', `It is a thank-you gift${recipient}.`),
+    quickReply('occasion-milestone', '★', 'A milestone', `It is for a milestone${recipient}.`),
+    quickReply('occasion-just-because', '☀', 'Just because', `It is a just-because gift${recipient}.`)
+  ];
+}

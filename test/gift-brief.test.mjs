@@ -26,6 +26,11 @@ test('gift brief understands a natural possessive milestone opener', () => {
   assert.equal(state.brief.preferences[0], 'gardening');
 });
 
+test('gift brief recognises Christmas and Thanksgiving occasions', () => {
+  assert.equal(advanceGiftBrief({}, 'A Christmas gift for my sister', 1).brief.occasion.toLowerCase(), 'christmas');
+  assert.equal(advanceGiftBrief({}, 'A Thanksgiving host gift for my friend', 1).brief.occasion.toLowerCase(), 'thanksgiving');
+});
+
 test('gift brief accepts short guided answers instead of repeatedly asking the same question', () => {
   const budget = advanceGiftBrief({ recipient: 'mum', occasion: 'birthday', preferences: ['reading'] }, 'about 60', 3);
   assert.equal(budget.score, 4);

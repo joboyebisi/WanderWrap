@@ -12,8 +12,9 @@ type Turn = { conversationId: string; reply: string; suggestions: QuickReply[]; 
 
 const EMPTY: GiftBrief = { recipient: '', occasion: '', budget: '', timing: '', preferences: [], constraints: [] };
 const STARTERS: QuickReply[] = [
+  { id: 'starter-christmas', icon: '🎄', label: 'Thoughtful Christmas gift', message: 'Help me find a thoughtful Christmas gift that feels personal, not generic.' },
+  { id: 'starter-thanksgiving', icon: '🍂', label: 'Thanksgiving host gift', message: 'I need a thoughtful Thanksgiving host gift, ready by next week.' },
   { id: 'starter-birthday', icon: '🎂', label: 'Milestone birthday', message: 'Mum’s 60th—she loves gardening but owns the obvious things. I need it by next week.' },
-  { id: 'starter-thanks', icon: '✦', label: 'Thoughtful thank-you', message: 'A thoughtful thank-you for a colleague I don’t know well, needed this month.' },
   { id: 'starter-partner', icon: '♥', label: 'Personal partner gift', message: 'Something personal for my partner, under £80, with no fixed date.' }
 ];
 

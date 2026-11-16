@@ -17,6 +17,8 @@ Status: implemented public-web conversation and Channel3 catalogue boundary; ret
 
 `src/gift-finder-interaction.mjs` owns the extensible WanderWrap persona and quick-reply templates. The persona is warm, observant, practical and lightly playful, but remains clearly a bounded gift-shopping agent. Templates are keyed by the deterministic next missing field, contain a stable ID, visual icon, short visible label and the full natural-language message sent to the harness. Provider suggestions may supplement a set only after validation; deterministic templates take priority and the response is capped at four choices.
 
+Occasion templates are date-aware: November and December prioritize Christmas, Thanksgiving, birthday and another occasion; the remaining months use evergreen choices. Landing and in-chat seasonal starters remain optional examples, never inferred participation. Free typing stays available, and an explicit user answer is the only way a seasonal occasion enters the Gift Brief.
+
 Emoji and symbols are never the only accessible label. The UI hides decorative icons from assistive technology, keeps visible button text, supports keyboard activation and leaves the free-text field available at every step. Analytics and ordinary logs record no selected suggestion text, recipient value or Gift Brief value.
 
 ## Harness

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGiftFinderHarness, giftFinderCapability } from '../src/gift-finder-agent.mjs';
 import { leadRateKey, normalizeLead, normalizeTeamEnquiry, teamEnquiryRateKey } from '../src/lead-capture.mjs';
+import { buildGiftFinderInteraction } from '../src/gift-finder-interaction.mjs';
 
 test('Gift Finder specialist carries conversation context through the bounded harness', async () => {
   const calls = [];
@@ -60,6 +61,14 @@ test('Gift Finder returns contextual structured replies for the next missing det
   assert.equal(result.suggestions.every(item => item.label && item.message && item.icon), true);
   assert.match(result.reply, /When should the gift be ready/i);
   assert.equal(result.interaction.persona.name, 'WanderWrap');
+});
+
+test('occasion quick replies become seasonal in November and December', () => {
+  const state = { brief: { recipient: 'mum' }, missing: ['the occasion'] };
+  const seasonal = buildGiftFinderInteraction(state, [], 1, new Date('2026-11-16T10:00:00Z'));
+  assert.deepEqual(seasonal.quickReplies.map(item => item.id), ['occasion-christmas', 'occasion-thanksgiving', 'occasion-birthday', 'occasion-other']);
+  const evergreen = buildGiftFinderInteraction(state, [], 1, new Date('2027-03-16T10:00:00Z'));
+  assert.equal(evergreen.quickReplies.some(item => item.id === 'occasion-christmas'), false);
 });
 
 test('Gift Finder capability requires the server-side Channel3 configuration', () => {

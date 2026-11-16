@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { ACCESS_COOKIE, oauthConfig, privateCookie, REFRESH_COOKIE, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from '../../../../lib/oauth';
+// @ts-ignore Shared callback classifier is intentionally consumed by the web BFF.
+import { classifyOAuthResponse } from '../../../../../../src/auth-callback.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,16 +13,20 @@ export async function GET(request: NextRequest) {
   const returnTo = safeReturnPath(jar.get(RETURN_COOKIE)?.value);
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
-  if (!code || !state || !expectedState || state !== expectedState || !verifier) {
+  const providerError = request.nextUrl.searchParams.get('error');
+  const providerErrorDescription = request.nextUrl.searchParams.get('error_description');
+  const classification = classifyOAuthResponse({ code, state, expectedState, verifier, error: providerError, errorDescription: providerErrorDescription });
+  if (classification.kind === 'failure') {
     console.warn(JSON.stringify({
-      event: 'auth_callback_invalid',
+      event: classification.reason === 'cancelled' ? 'auth_callback_cancelled' : 'auth_callback_rejected',
+      reason: classification.reason,
       hasCode: Boolean(code),
       hasReturnedState: Boolean(state),
       hasExpectedState: Boolean(expectedState),
       stateMatched: Boolean(state && expectedState && state === expectedState),
       hasVerifier: Boolean(verifier)
     }));
-    return failedCallback(request, 'invalid');
+    return failedCallback(request, classification.reason);
   }
 
   try {
@@ -31,9 +37,9 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: config.clientId,
-        code,
+        code: code!,
         redirect_uri: config.redirectUri,
-        code_verifier: verifier,
+        code_verifier: verifier!,
         resource: config.resource
       }),
       cache: 'no-store'
@@ -61,7 +67,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function failedCallback(request: NextRequest, reason: 'invalid' | 'exchange' | 'unavailable') {
+function failedCallback(request: NextRequest, reason: 'invalid' | 'cancelled' | 'account_exists' | 'provider' | 'exchange' | 'unavailable') {
   const response = NextResponse.redirect(new URL(`/sign-in?error=${reason}`, request.url));
   response.cookies.delete(STATE_COOKIE);
   response.cookies.delete(VERIFIER_COOKIE);

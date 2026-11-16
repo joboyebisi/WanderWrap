@@ -31,6 +31,8 @@ assert.match(homeHtml, /Explore WanderWrap for Teams/, 'Landing page must give t
 assert.match(homeHtml, /href="\/gift-ideas\/birthdays"/, 'Occasion imagery must lead to a meaningful destination');
 assert.match(homeHtml, /href="\/gift-ideas\/emerald-keepsake"/, 'Gift-direction imagery must lead to a meaningful destination');
 assert.match(homeHtml, /Birthday for someone who has everything/, 'Landing page must include the birthday starter prompt');
+assert.match(homeHtml, /A thoughtful Christmas gift/, 'Landing page must include the seasonal Christmas starter prompt');
+assert.match(homeHtml, /A Thanksgiving host gift/, 'Landing page must include the seasonal Thanksgiving starter prompt');
 assert.match(homeHtml, /Last-minute, but still personal/, 'Landing page must include the urgent starter prompt');
 assert.doesNotMatch(homeHtml, /href="\/unwrap"/, 'Landing page must not link to the unavailable unwrap flow');
 

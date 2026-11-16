@@ -38,6 +38,8 @@ Create a dedicated Google OAuth web client for WanderWrap. In Google Auth Platfo
 
 In Cognito, add Google as an identity provider, map `email`, `email_verified`, `name`, `given_name`, `family_name` and `picture` only where the application uses them, and add Google to the web app client's `SupportedIdentityProviders`. Test first-time creation and an existing-email collision. Define and test an explicit account-linking procedure; never automatically merge accounts based only on an unverified email.
 
+The callback validates returned state and the PKCE verifier before accepting either a code or a provider error. Cancellation is a normal `cancelled` outcome: transient cookies are cleared and the sign-in page explains that nothing changed. The Cognito `PreSignUp_ExternalProvider` trigger permits a first-time Google identity only when Google supplies a verified email and no user-pool profile already has that email. A collision fails with `WANDERWRAP_ACCOUNT_EXISTS_USE_EMAIL` and returns the shopper to email sign-in; the trigger never calls `AdminLinkProviderForUser`. A future **Connect Google** flow must start from an authenticated existing session and deliberately link the exact Google subject after reauthentication.
+
 Google sign-in is authentication only. Google Calendar and Contacts are separate, just-in-time connections with separate consent, scopes and revoke controls.
 
 ## 3. Facebook sign-in branding

@@ -12,7 +12,7 @@ export function advanceGiftBrief(previous = EMPTY_BRIEF, message = '', turnNumbe
   const text = clean(message, 1600);
   const previouslyMissing = missingFields(brief);
   if (!brief.recipient) brief.recipient = match(text, /(?:my|for (?:my|a|an|the))\s+(mum|mom|dad|father|mother|partner|wife|husband|boyfriend|girlfriend|sister|brother|friend|colleague|coworker|boss|teacher|client|neighbour|neighbor|daughter|son|grandmother|grandfather|aunt|uncle)/i) || match(text, /\b(mum|mom|dad|partner|wife|husband|sister|brother|friend|colleague|daughter|son)['’]s\b/i) || match(text, /(?:shopping|gift|present)\s+for\s+(?:my\s+)?([^,.!?]{2,45})/i);
-  if (!brief.occasion) brief.occasion = match(text, /(?:for (?:her|his|their|a|the)\s+)?(birthday|anniversary|wedding|christmas|graduation|retirement|housewarming|baby shower|thank[- ]?you|new job|promotion|valentine(?:'s)? day|mother(?:'s)? day|father(?:'s)? day)/i) || (/\b\d{1,3}(?:st|nd|rd|th)\b/i.test(text) ? 'birthday' : '');
+  if (!brief.occasion) brief.occasion = match(text, /(?:for (?:her|his|their|a|the)\s+)?(birthday|anniversary|wedding|christmas|thanksgiving|graduation|retirement|housewarming|baby shower|thank[- ]?you|new job|promotion|valentine(?:'s)? day|mother(?:'s)? day|father(?:'s)? day)/i) || (/\b\d{1,3}(?:st|nd|rd|th)\b/i.test(text) ? 'birthday' : '');
   if (!brief.budget) brief.budget = match(text, /((?:under|up to|around|about|between|budget(?: is| of)?)\s*(?:£|\$|€)?\s*\d+(?:\s*(?:-|to)\s*(?:£|\$|€)?\d+)?)/i) || match(text, /((?:£|\$|€)\s*\d+(?:\s*(?:-|to)\s*(?:£|\$|€)?\d+)?)/i) || match(text, /\b((?:my\s+)?budget\s+is\s+(?:flexible|open)|no fixed budget)\b/i);
   if (!brief.timing) brief.timing = extractTiming(text);
 

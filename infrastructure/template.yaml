@@ -102,6 +102,7 @@ Resources:
 
   UserPool:
     Type: AWS::Cognito::UserPool
+    DependsOn: PreSignUpInvokePermission
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
@@ -121,8 +122,67 @@ Resources:
           RequireSymbols: false
       UserAttributeUpdateSettings:
         AttributesRequireVerificationBeforeUpdate: [email]
+      LambdaConfig:
+        PreSignUp: !GetAtt PreSignUpFunction.Arn
       UserPoolTags:
         Project: WanderWrap
+
+  PreSignUpRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${Environment}-cognito-pre-signup-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: find-existing-cognito-account
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cognito-idp:ListUsers
+                Resource: !Sub arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*
+
+  PreSignUpFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: PreSignUpLogGroup
+    Properties:
+      FunctionName: !Sub ${ProjectName}-${Environment}-cognito-pre-signup
+      Description: Blocks unverified or colliding Google identities without merging accounts
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      Handler: src/cognito-pre-signup.handler
+      MemorySize: 128
+      Timeout: 5
+      Role: !GetAtt PreSignUpRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref ArtifactKey
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  PreSignUpLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ProjectName}-${Environment}-cognito-pre-signup
+      RetentionInDays: 30
+
+  PreSignUpInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref PreSignUpFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
 
   ResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer

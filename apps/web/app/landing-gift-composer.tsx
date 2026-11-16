@@ -7,6 +7,14 @@ export const LANDING_GIFT_PROMPT_KEY = 'wanderwrap:gift-finder:first-prompt';
 
 const STARTER_PROMPTS = [
   {
+    label: 'A thoughtful Christmas gift',
+    prompt: 'Help me find a thoughtful Christmas gift that feels personal, not generic.',
+  },
+  {
+    label: 'A Thanksgiving host gift',
+    prompt: 'Help me find a Thanksgiving host gift that feels considered, ready by next week.',
+  },
+  {
     label: 'Birthday for someone who has everything',
     prompt: 'Help me find a thoughtful birthday gift for someone who seems to have everything.',
   },
