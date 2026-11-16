@@ -6,7 +6,7 @@ Last reviewed: 2026-11-16
 
 Signed-in shoppers can keep a durable profile, a stable human-readable handle with an account-derived tag, named Gift Briefs and saved product references. A Gift Brief is a reusable conversation result, not an order. A saved product is a stable Channel3 product reference plus a non-transactional display snapshot; its price, availability and merchant URL must be refreshed before display or handoff. Contacts, occasions, payment methods and autonomous purchasing remain explicitly unavailable.
 
-The first admin console is read-only and restricted to the Cognito `wanderwrap-admins` group. It lists account status for support/operations and writes an audit event when opened. Disabling users, merging identities, exporting data and deleting accounts remain AWS-runbook actions until step-up authentication, reason capture, dual control and recovery evidence exist.
+The admin console is read-only and restricted to the Cognito `wanderwrap-admins` group. It lists account status, essential/lifecycle email gates, versioned GB/US/CA campaign definitions and the explicit autonomy boundary for campaign agents; every view writes a content-minimised audit event. Disabling users, merging identities, changing audiences, publishing/sending campaigns, replaying failures, exporting data and deleting accounts remain approval-gated provider/AWS runbook actions until step-up authentication, reason capture, dual control and recovery evidence exist.
 
 ## Durable data model
 

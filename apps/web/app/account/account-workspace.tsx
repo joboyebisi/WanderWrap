@@ -50,12 +50,16 @@ export default function AccountWorkspace() {
       <Link className="primary" href="/gift-finder?new=1">＋ New gift conversation</Link>
     </header>
     <section className="accountProfile">
-      <form onSubmit={saveProfile}>
+      <div className="accountProfileIntro">
+        <p className="eyebrow">PROFILE &amp; SHOPPING</p>
         <h2>Your identity</h2>
-        <label>Display name<input name="displayName" defaultValue={profile.displayName || identityName} maxLength={80} required /></label>
-        <label>Username<input name="handle" defaultValue={handleStem} maxLength={24} required /><small>Your private tag suffix keeps usernames stable and collision-resistant.</small></label>
-        <label>Shopping region<select name="homeCountry" defaultValue={profile.homeCountry || 'GB'}><option value="GB">United Kingdom · GBP</option><option value="US">United States · USD</option><option value="CA">Canada · CAD</option></select></label>
-        <button type="submit">Save profile</button><span aria-live="polite">{message}</span>
+        <p>Choose how WanderWrap welcomes you and which market to use for prices and retailers.</p>
+      </div>
+      <form onSubmit={saveProfile}>
+        <label className="profileField"><span>Display name</span><input name="displayName" defaultValue={profile.displayName || identityName} maxLength={80} autoComplete="name" required /><small>This is how we welcome you.</small></label>
+        <label className="profileField"><span>Username</span><input name="handle" defaultValue={handleStem} maxLength={24} autoComplete="username" required /><small>Your private tag suffix keeps it unique.</small></label>
+        <label className="profileField profileRegion"><span>Shopping region</span><select name="homeCountry" defaultValue={profile.homeCountry || 'GB'}><option value="GB">United Kingdom · GBP</option><option value="US">United States · USD</option><option value="CA">Canada · CAD</option></select><small>Controls currency and retailer availability.</small></label>
+        <div className="profileActions"><button type="submit">Save changes</button><span aria-live="polite">{message}</span></div>
       </form>
     </section>
     <section className="accountGrid">

@@ -4,7 +4,7 @@
   { "ParameterKey": "ArtifactBucket", "UsePreviousValue": true },
   {
     "ParameterKey": "ArtifactKey",
-    "ParameterValue": "development/2026-11-16/wanderwrap-email-identity-20261116.zip"
+    "ParameterValue": "development/2026-11-16/wanderwrap-regional-admin-20261116.zip"
   },
   { "ParameterKey": "WebUrl", "UsePreviousValue": true },
   { "ParameterKey": "AllowedOrigins", "UsePreviousValue": true },

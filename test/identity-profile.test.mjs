@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { identityDisplayName, isProviderIdentifier } from '../src/aws-handler.mjs';
+import { identityDisplayName, isGenericProfileValue, isProviderIdentifier } from '../src/aws-handler.mjs';
 
 test('Google profile name is preferred over a provider machine username', () => {
   assert.equal(identityDisplayName({ name: 'Job Oyebisi', email: 'joboyebisi@gmail.com' }, { username: 'Google_105189121046441812819' }), 'Job Oyebisi');
@@ -14,4 +14,10 @@ test('email local part is used before a provider machine username', () => {
   assert.equal(identityDisplayName({ email: 'giver@example.com' }, { username: 'google_123456' }), 'giver');
   assert.equal(isProviderIdentifier('google_123456'), true);
   assert.equal(isProviderIdentifier('thoughtful-giver'), false);
+});
+
+test('generic persisted profile values are eligible for identity backfill', () => {
+  assert.equal(isGenericProfileValue('Gift giver'), true);
+  assert.equal(isGenericProfileValue('giftgiver#fb48dc'), true);
+  assert.equal(isGenericProfileValue('joboyebisi#fb48dc'), false);
 });

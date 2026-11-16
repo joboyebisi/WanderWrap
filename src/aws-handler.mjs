@@ -10,7 +10,8 @@ import {
   ForgotPasswordCommand,
   ConfirmForgotPasswordCommand,
   ListUsersCommand,
-  GetUserCommand
+  GetUserCommand,
+  AdminGetUserCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -28,6 +29,7 @@ import { handleMcpRequest, PROTOCOL_VERSION } from './mcp-server.mjs';
 import { CAPABILITIES } from './provider-platform.mjs';
 import { createDefaultProviderPlatform } from './provider-adapters.mjs';
 import { leadRateKey, normalizeLead, normalizeTeamEnquiry, teamEnquiryRateKey } from './lead-capture.mjs';
+import { campaignOperationsSnapshot } from './campaign-control.mjs';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true }
@@ -252,6 +254,12 @@ async function apiRoute(method, path, input, user, origin) {
     const users = (result.Users || []).map(item => ({ id: item.Username, email: item.Attributes?.find(attribute => attribute.Name === 'email')?.Value || '', enabled: item.Enabled, status: item.UserStatus, createdAt: item.UserCreateDate?.toISOString(), lastModifiedAt: item.UserLastModifiedDate?.toISOString() }));
     await audit(pk, 'ADMIN_USERS_VIEWED', { resultCount: users.length });
     return json(200, { users, truncated: Boolean(result.PaginationToken) });
+  }
+  if (path === '/v1/admin/operations' && method === 'GET') {
+    if (!user.groups.includes('wanderwrap-admins')) throw httpError(403, 'Administrator role required');
+    const snapshot = campaignOperationsSnapshot();
+    await audit(pk, 'ADMIN_OPERATIONS_VIEWED', { mode: snapshot.mode, campaignCount: snapshot.campaigns.length });
+    return json(200, snapshot);
   }
   if (path === '/v1/providers' && method === 'GET') {
     const capabilities = Object.values(CAPABILITIES).map(name => ({
@@ -510,26 +518,36 @@ export function identityDisplayName(identity = {}, user = {}) {
 }
 export function isProviderIdentifier(value) { return /^(google|facebook|signinwithapple)[_-]\d+/i.test(clean(value, 120)); }
 async function cognitoIdentity(user) {
-  if (!user.accessToken) return {};
+  const attributes = result => Object.fromEntries((result?.UserAttributes || []).map(attribute => [attribute.Name, attribute.Value]));
   try {
-    const result = await cognito.send(new GetUserCommand({ AccessToken: user.accessToken }));
-    return Object.fromEntries((result.UserAttributes || []).map(attribute => [attribute.Name, attribute.Value]));
+    if (user.accessToken && user.scopes?.includes('aws.cognito.signin.user.admin')) return attributes(await cognito.send(new GetUserCommand({ AccessToken: user.accessToken })));
   } catch (error) {
-    console.warn(JSON.stringify({ type: 'cognito_profile_lookup_failed', error: error?.name || 'UnknownError' }));
-    return {};
+    console.warn(JSON.stringify({ type: 'cognito_get_user_failed', error: error?.name || 'UnknownError' }));
   }
+  try {
+    if (process.env.USER_POOL_ID && user.username) return attributes(await cognito.send(new AdminGetUserCommand({ UserPoolId: process.env.USER_POOL_ID, Username: user.username })));
+  } catch (error) {
+    console.warn(JSON.stringify({ type: 'cognito_admin_profile_lookup_failed', error: error?.name || 'UnknownError' }));
+  }
+  return {};
+}
+export function isGenericProfileValue(value) {
+  const normalized = clean(value, 120).toLowerCase().replace(/#[a-f0-9]{4,8}$/i, '').replace(/[^a-z0-9]/g, '');
+  return ['giftgiver', 'gifter', 'wanderwrapuser', 'user'].includes(normalized);
 }
 async function ensureProfile(pk, user, identity) {
   const existing = await get(pk, 'PROFILE');
   const resolvedName = identityDisplayName(identity, user);
-  if (existing && existing.displayName && !isProviderIdentifier(existing.displayName)) return existing;
+  const requiresBackfill = !existing?.displayName || isProviderIdentifier(existing.displayName) || isGenericProfileValue(existing.displayName) || isProviderIdentifier(existing.handle) || isGenericProfileValue(existing.handle);
+  if (existing && !requiresBackfill) return existing;
+  if (existing && resolvedName === 'Gift giver') return existing;
   const country = supportedCountry(existing?.homeCountry || 'GB');
   const item = {
     PK: pk,
     SK: 'PROFILE',
     entity: 'profile',
     displayName: resolvedName,
-    handle: existing?.handle && !isProviderIdentifier(existing.handle) ? existing.handle : defaultHandle(user, identity),
+    handle: existing?.handle && !isProviderIdentifier(existing.handle) && !isGenericProfileValue(existing.handle) ? existing.handle : defaultHandle(user, identity),
     locale: existing?.locale || country.locale,
     homeCountry: country.country,
     currency: country.currency,

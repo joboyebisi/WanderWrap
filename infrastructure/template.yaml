@@ -403,7 +403,9 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: cognito-idp:ListUsers
+                Action:
+                  - cognito-idp:ListUsers
+                  - cognito-idp:AdminGetUser
                 Resource: !GetAtt UserPool.Arn
         - PolicyName: wanderwrap-bedrock-inference
           PolicyDocument:
@@ -454,7 +456,9 @@ Resources:
           WANDERWRAP_MCP_WRITE_SCOPE: !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.write
           WANDERWRAP_LEGACY_AUTH_ENABLED: 'false'
           LOOPS_MARKETING_ENABLED: !Ref LoopsMarketingEnabled
+          LOOPS_SECRET_CONFIGURED: !If [HasLoopsSecret, 'true', 'false']
           MARKETING_QUEUE_URL: !Ref MarketingQueue
+          TRANSACTIONAL_EMAIL_CONFIGURED: !If [HasTransactionalEmail, 'true', 'false']
           BEDROCK_ENABLED: 'true'
           BEDROCK_REGION: eu-west-2
           BEDROCK_MODEL_ID: global.amazon.nova-2-lite-v1:0
