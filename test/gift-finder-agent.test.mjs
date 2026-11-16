@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGiftFinderHarness, giftFinderCapability } from '../src/gift-finder-agent.mjs';
-import { leadRateKey, normalizeLead } from '../src/lead-capture.mjs';
+import { leadRateKey, normalizeLead, normalizeTeamEnquiry, teamEnquiryRateKey } from '../src/lead-capture.mjs';
 
 test('Gift Finder specialist carries conversation context through the bounded harness', async () => {
   const calls = [];
@@ -37,8 +37,18 @@ test('Lead capture happens only after value and keeps marketing consent separate
   assert.equal(lead.serviceConsentAt, '2026-11-15T10:00:00.000Z');
   assert.equal(lead.marketingConsentAt, null);
   assert.equal(lead.recommendationCount, 4);
+  assert.equal(lead.interest, 'save_shortlist');
   assert.equal(Object.hasOwn(lead, 'conversation'), false);
   assert.throws(() => normalizeLead({ email: 'person@example.com', serviceConsent: true, valueReceived: false }), /after recommendations/);
+});
+
+test('team enquiries require executive contact details and separate marketing consent', () => {
+  const enquiry = normalizeTeamEnquiry({ name: 'Alex Morgan', email: 'alex@example.com', company: 'Example Ltd', role: 'People Director', teamSize: '201–500', region: 'United Kingdom', useCase: 'Employee milestones', message: 'We are reviewing a recognition programme.', contactConsent: true, marketingConsent: false }, { now: '2026-11-15T12:00:00.000Z' });
+  assert.equal(enquiry.company, 'Example Ltd');
+  assert.equal(enquiry.contactConsentAt, '2026-11-15T12:00:00.000Z');
+  assert.equal(enquiry.marketingConsentAt, null);
+  assert.throws(() => normalizeTeamEnquiry({ email: 'alex@example.com', contactConsent: true }), /Name, company and role/);
+  assert.match(teamEnquiryRateKey('203.0.113.9', new Date('2026-11-15T12:10:00Z')).PK, /^RATE#TEAM_ENQUIRY#/);
 });
 
 test('Lead rate keys are pseudonymous and expire', () => {

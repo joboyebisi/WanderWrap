@@ -11,16 +11,22 @@ Use this page as the repository map. `PROJECT_STATE.md` is the operational check
 | Finish Alexa+ onboarding and testing | [`ALEXA_PLUS_TEST_PLAN.md`](ALEXA_PLUS_TEST_PLAN.md) |
 | Record the three-minute walkthrough | [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) |
 | Understand what is live versus simulated | [`LIVE_INTEGRATION_CHECKLIST.md`](LIVE_INTEGRATION_CHECKLIST.md) |
+| Build the commercial platform safely | [`COMMERCIAL_ARCHITECTURE.md`](COMMERCIAL_ARCHITECTURE.md) |
+| Onboard developers and ship continuously | [`ENGINEERING_PLAYBOOK.md`](ENGINEERING_PLAYBOOK.md) |
 
 ## Product
 
 - [`PRD.md`](PRD.md) — complete product requirements and journeys.
+- [`WANDERSIGNAL_PRD.md`](WANDERSIGNAL_PRD.md) — consented preference intelligence, Channel3 discovery and evaluation requirements.
 - [`PRODUCT.md`](PRODUCT.md) — concise product direction.
 - [`PRD_AMAZON_ALEXA_PLUS.md`](PRD_AMAZON_ALEXA_PLUS.md) — Alexa+ event slice.
 - [`PRD_PAYPAL_AI.md`](PRD_PAYPAL_AI.md) — PayPal event slice.
 - [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md) — requirement-by-requirement delivery status.
 
 ## Architecture and extension points
+
+- [`COMMERCIAL_ARCHITECTURE.md`](COMMERCIAL_ARCHITECTURE.md) - launch scope, domain boundaries, security, reliability and evolution decisions.
+- [`ENGINEERING_PLAYBOOK.md`](ENGINEERING_PLAYBOOK.md) - development workflow, quality gates, CI/CD, releases, incidents and onboarding.
 
 - [`TECHNICAL_SPEC.md`](TECHNICAL_SPEC.md) — implementation contract.
 - [`PLATFORM_ARCHITECTURE.md`](PLATFORM_ARCHITECTURE.md) — application services and trust boundaries.

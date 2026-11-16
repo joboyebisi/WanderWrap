@@ -2,6 +2,8 @@
 
 This file turns the launch PRD and technical specification into a living delivery sequence. A checked item is implemented and covered by an automated contract test; provider credentials, external certification and human UX review remain separate launch gates.
 
+The commercial target and release gates are defined in [`COMMERCIAL_ARCHITECTURE.md`](COMMERCIAL_ARCHITECTURE.md). The checkboxes below describe implementation evidence, not roadmap intent.
+
 ## Foundation
 
 - [x] Explainable, evidence-weighted recommendation domain
@@ -45,6 +47,21 @@ This file turns the launch PRD and technical specification into a living deliver
 - [ ] PayPal sandbox create, approve, capture and signed webhook flow (OAuth/create/capture/webhook-verification client and idempotency contracts implemented; credentialed provider loop pending)
 - [ ] Fulfilment and thank-you status UI
 - [x] Audit events across recommendation, approval and provider routing
+
+## Commercial P0 release gate
+
+- [ ] Freeze versioned gift, claim, payment, fulfilment and webhook contracts including failure states
+- [ ] Durable operation inbox/outbox and reconciliation workflow
+- [ ] Credentialed PayPal sandbox approval, capture and verified-webhook evidence
+- [ ] Payment cancellation, denial, duplicate, delay and `outcome_unknown` recovery evidence
+- [ ] Claim token hashing, expiry, revocation, replay and rate-limit security evidence
+- [ ] Consent receipt, revocation propagation, export and deletion journey
+- [ ] Fulfilment, refund and thank-you UI driven by provider-authoritative state
+- [ ] Cross-user and cross-tenant authorization isolation suite
+- [ ] Structured-log redaction test and prohibited-data audit
+- [ ] Staging dashboards, alerts, operations inbox and incident runbooks exercised
+- [ ] Backup restoration and application rollback drill
+- [ ] Merchant-of-record, tax, refund, privacy and UK launch-market sign-off
 
 ## Provider and channel completion
 

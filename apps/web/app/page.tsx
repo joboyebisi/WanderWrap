@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import LandingGiftComposer from './landing-gift-composer';
 import styles from './page.module.css';
 
 const assets = {
@@ -33,8 +34,7 @@ export default function HomePage() {
       <nav className={styles.nav} aria-label="Primary navigation">
         <div className={styles.navInner}>
           <div className={styles.navLeft}>
-            <Link href="/gift-finder">Gift Finder <span>🎁</span></Link><Link href="/connections">For Teams</Link>
-            <Link className={styles.claimLink} href="/unwrap">Unwrap a Gift <span>💝</span></Link>
+            <Link href="/gift-finder">Gift Finder <span>🎁</span></Link><Link href="/teams">For Teams</Link>
           </div>
           <Link className={styles.wordmark} href="/" aria-label="WanderWrap home"><Emblem /><span>WanderWrap</span></Link>
           <div className={styles.navRight}>
@@ -42,7 +42,7 @@ export default function HomePage() {
           </div>
           <details className={styles.mobileMenu}>
             <summary aria-label="Open navigation"><span /><span /><span /></summary>
-            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/connections">For Teams</Link><Link href="/unwrap">Unwrap a Gift 💝</Link><a href="/api/auth/login">Sign in</a></div>
+            <div><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/teams">For Teams</Link><a href="/api/auth/login">Sign in</a></div>
           </details>
         </div>
       </nav>
@@ -54,10 +54,9 @@ export default function HomePage() {
           <p className={styles.kicker}><span>✦</span> Your personal AI gifting team</p>
           <h1>Make Every Gift<br /><em>Feel Personal.</em></h1>
           <p className={styles.heroLead}>Tell us about the person and the moment. Our specialist agents shape a Gift Brief, research promising ideas and bring back a shortlist that feels personal—not generic.</p>
+          <LandingGiftComposer />
           <div className={styles.heroActions}>
-            <Link className={styles.primaryButton} href="/gift-finder">Find a Gift <span>🎁</span></Link>
-            <Link className={styles.outlineButton} href="/connections">For Teams</Link>
-            <Link className={styles.roseButton} href="/unwrap">Unwrap a Gift <span>💝</span></Link>
+            <Link className={styles.outlineButton} href="/teams">For Teams</Link>
           </div>
           <p className={styles.heroNote}>Start without an account · Share only what you choose · Nothing is purchased without your approval</p>
         </div>
@@ -90,7 +89,7 @@ export default function HomePage() {
         <div className={styles.teamsContent}>
           <p>WanderWrap for teams · Early access</p><h2 id="teams-title">Make Every Employee<br /><em>Feel Valued.</em></h2>
           <p className={styles.teamsLead}>Give the agents your programme rules, budgets and recipient context. They prepare personalised gift briefs, research options, organise approvals and report back—so your team can run ten gifts or hundreds without losing the human touch.</p>
-          <Link href="/connections">Explore WanderWrap for Teams <span>→</span></Link>
+          <Link href="/teams">Speak with our team <span>→</span></Link>
         </div>
       </section>
 
@@ -117,8 +116,8 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className={styles.footerGrid}>
           <div className={styles.footerBrand}><Link href="/"><Emblem size={32} /><span>WanderWrap</span></Link><p>AI agents for personal gifting—researching the right ideas while you keep the final say.</p></div>
-          <div><h2>Platform</h2><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/connections">Connections & teams</Link><Link href="/simulator">Alexa+ simulator</Link></div>
-          <div><h2>WanderWrap</h2><a href="/api/auth/login">Sign in</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></div>
+          <div><h2>Platform</h2><Link href="/gift-finder">Gift Finder 🎁</Link><Link href="/teams">For Teams</Link><Link href="/connections">Connections</Link></div>
+          <div><h2>WanderWrap</h2><a href="/api/auth/login">Sign in</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/terms">Terms</a></div>
           <div className={styles.footerCta}><h2>Your next thoughtful gift</h2><p>Begin with the person, the occasion and the little things that make them special.</p><Link href="/gift-finder">Find a Gift <span>→</span></Link></div>
         </div>
         <div className={styles.footerBottom}><p>© {new Date().getFullYear()} WanderWrap. Make every gift feel personal.</p><p>Private by design · Every purchase is your decision</p></div>

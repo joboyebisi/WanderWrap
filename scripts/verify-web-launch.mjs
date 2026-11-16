@@ -15,7 +15,7 @@ async function request(path, options = {}) {
   return response;
 }
 
-for (const path of ['/', '/connections', '/gift-finder', '/simulator']) {
+for (const path of ['/', '/connections', '/gift-finder', '/simulator', '/teams', '/privacy', '/cookies', '/terms']) {
   const response = await request(path);
   assert.equal(response.status, 200, `${path} must return 200`);
   assert.match(response.headers.get('server') || '', /vercel/i, `${path} must be served by Vercel`);
@@ -23,12 +23,18 @@ for (const path of ['/', '/connections', '/gift-finder', '/simulator']) {
 }
 
 const home = await fetch(base);
-assert.match(await home.text(), /Remember the person\. Find the gift\./, 'Landing page content is missing');
+const homeHtml = await home.text();
+assert.match(homeHtml, /Make Every Gift/, 'Landing page headline is missing');
+assert.match(homeHtml, /Your personal AI gifting team/, 'Landing page agent proposition is missing');
+assert.doesNotMatch(homeHtml, /href="\/unwrap"/, 'Landing page must not link to the unavailable unwrap flow');
 
 const publicRoute = await fetch(new URL('/gift-finder', base));
 const publicRouteHtml = await publicRoute.text();
-assert.match(publicRouteHtml, /One lovely clue/, 'Public gifting journey is missing');
-assert.match(publicRouteHtml, /No feed access\. No silent purchase\./, 'Public demo safety disclosure is missing');
+assert.match(publicRouteHtml, /Talk it through\./, 'Conversational gifting journey is missing');
+assert.match(publicRouteHtml, /No purchase without your action/, 'Public journey approval disclosure is missing');
+
+const unavailableUnwrap = await request('/unwrap');
+assert.equal(unavailableUnwrap.status, 404, 'Unavailable unwrap flow must remain removed');
 
 const legacyRoute = await request('/route');
 assert.ok([307, 308].includes(legacyRoute.status), `/route must redirect; received ${legacyRoute.status}`);
@@ -50,7 +56,7 @@ if (![302, 303, 307, 308].includes(signup.status)) {
 const location = signup.headers.get('location');
 assert.ok(location, 'Signup redirect must include Location');
 const authorization = new URL(location);
-assert.match(authorization.hostname, /\.auth\.[a-z0-9-]+\.amazoncognito\.com$/, 'Signup must redirect to Cognito managed login');
+assert.equal(authorization.hostname, 'auth.wanderwrap.co.uk', 'Signup must use the branded Cognito hostname');
 assert.equal(authorization.pathname, '/signup', 'Signup must use the Cognito signup path');
 assert.equal(authorization.searchParams.get('code_challenge_method'), 'S256', 'Signup must require PKCE S256');
 assert.ok(authorization.searchParams.get('code_challenge'), 'Signup must include a PKCE challenge');

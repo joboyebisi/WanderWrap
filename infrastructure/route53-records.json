@@ -1,0 +1,73 @@
+{
+  "Comment": "Copy verified GoDaddy records before nameserver cutover",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "wanderwrap.co.uk.",
+        "Type": "A",
+        "TTL": 600,
+        "ResourceRecords": [{ "Value": "216.198.79.1" }]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "www.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 3600,
+        "ResourceRecords": [
+          { "Value": "749f50b8c23d789b.vercel-dns-017.com." }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_domainconnect.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 3600,
+        "ResourceRecords": [
+          { "Value": "_domainconnect.gd.domaincontrol.com." }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_dmarc.wanderwrap.co.uk.",
+        "Type": "TXT",
+        "TTL": 3600,
+        "ResourceRecords": [
+          {
+            "Value": "\"v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;\""
+          }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "auth.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "d3kt9q2qqffne0.cloudfront.net." }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_738956a5eba132de2e56fe557fb40c6e.auth.wanderwrap.co.uk.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "_5a8f971b106d6b435dc52df107184f0c.wzccmgtwzk.acm-validations.aws."
+          }
+        ]
+      }
+    }
+  ]
+}

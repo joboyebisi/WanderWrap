@@ -3,6 +3,8 @@
 **Version:** 0.4  
 **Implements:** `PRD.md`, `PRD_AMAZON_ALEXA_PLUS.md`, `PRD_PAYPAL_AI.md`
 
+The commercial target state, launch slice and engineering quality model are defined in [`COMMERCIAL_ARCHITECTURE.md`](COMMERCIAL_ARCHITECTURE.md) and [`ENGINEERING_PLAYBOOK.md`](ENGINEERING_PLAYBOOK.md). This specification remains the contract for the currently implemented core and must not be read as proof that a target-state capability is live.
+
 ## 1. Architecture
 
 ### Client layer

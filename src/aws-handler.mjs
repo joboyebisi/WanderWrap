@@ -24,7 +24,7 @@ import { CATALOG } from './recommendation.mjs';
 import { handleMcpRequest, PROTOCOL_VERSION } from './mcp-server.mjs';
 import { CAPABILITIES } from './provider-platform.mjs';
 import { createDefaultProviderPlatform } from './provider-adapters.mjs';
-import { leadRateKey, normalizeLead } from './lead-capture.mjs';
+import { leadRateKey, normalizeLead, normalizeTeamEnquiry, teamEnquiryRateKey } from './lead-capture.mjs';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true }
@@ -69,6 +69,11 @@ export async function handler(event) {
       if (method !== 'POST') throw httpError(405, 'Use POST');
       if (!isAllowedOrigin(event.headers?.origin)) throw httpError(403, 'Origin not allowed');
       return await publicLeadRoute(body(event), event);
+    }
+    if (path === '/v1/public/team-enquiries') {
+      if (method !== 'POST') throw httpError(405, 'Use POST');
+      if (!isAllowedOrigin(event.headers?.origin)) throw httpError(403, 'Origin not allowed');
+      return await publicTeamEnquiryRoute(body(event), event);
     }
 
     if (path === '/mcp') {
@@ -124,6 +129,7 @@ async function publicLeadRoute(input, event) {
     entity: 'gift-finder-lead',
     email: lead.email,
     source: lead.source,
+    interest: lead.interest,
     serviceConsentAt: lead.serviceConsentAt,
     marketingConsentAt: lead.marketingConsentAt,
     recommendationCount: lead.recommendationCount,
@@ -133,6 +139,35 @@ async function publicLeadRoute(input, event) {
   });
   await audit(key.PK, 'GIFT_FINDER_LEAD_CAPTURED', { serviceConsent: true, marketingConsent: Boolean(lead.marketingConsentAt), source: lead.source });
   return json(202, { captured: true, message: 'Your shortlist email preference has been saved.' });
+}
+
+async function publicTeamEnquiryRoute(input, event) {
+  const enquiry = normalizeTeamEnquiry(input);
+  const sourceIp = event.requestContext?.http?.sourceIp || event.headers?.['x-forwarded-for']?.split(',')[0] || 'unknown';
+  const rate = teamEnquiryRateKey(sourceIp);
+  try {
+    await db.send(new UpdateCommand({
+      TableName: tableName,
+      Key: { PK: rate.PK, SK: rate.SK },
+      UpdateExpression: 'SET expiresAt = :expiresAt ADD requestCount :one',
+      ConditionExpression: 'attribute_not_exists(requestCount) OR requestCount < :limit',
+      ExpressionAttributeValues: { ':one': 1, ':limit': 3, ':expiresAt': rate.expiresAt }
+    }));
+  } catch (error) {
+    if (error?.name === 'ConditionalCheckFailedException') throw httpError(429, 'Please wait before trying again.');
+    throw error;
+  }
+  const key = { PK: `TEAM_ENQUIRY#${enquiry.id}`, SK: 'ENQUIRY' };
+  const existing = await get(key.PK, key.SK);
+  await put({
+    ...key,
+    entity: 'team-enquiry',
+    ...enquiry,
+    status: existing?.status || 'new',
+    createdAt: existing?.createdAt || enquiry.createdAt
+  });
+  await audit(key.PK, 'TEAM_ENQUIRY_CAPTURED', { marketingConsent: Boolean(enquiry.marketingConsentAt), source: enquiry.source });
+  return json(202, { captured: true, message: 'Thank you. The WanderWrap team will review your enquiry and respond directly.' });
 }
 
 async function authRoute(path, input) {

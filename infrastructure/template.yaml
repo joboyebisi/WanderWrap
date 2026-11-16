@@ -30,12 +30,38 @@ Parameters:
   ApiCertificateArn:
     Type: String
     Default: ''
+  AuthDomainName:
+    Type: String
+    Default: ''
+    Description: Optional Cognito custom domain such as auth.wanderwrap.co.uk.
+  AuthCertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM certificate ARN for the auth custom domain, issued in us-east-1.
+  GoogleClientId:
+    Type: String
+    Default: ''
+    Description: Optional Google OAuth web client ID used only for Cognito identity federation.
+  GoogleClientSecretArn:
+    Type: String
+    Default: ''
+    Description: Optional Secrets Manager ARN whose JSON contains the Google OAuth client_secret key.
 
 Conditions:
   HasAlexaRedirect: !Not [!Equals [!Ref AlexaRedirectUris, '']]
   HasCustomApiDomain: !And
     - !Not [!Equals [!Ref ApiDomainName, '']]
     - !Not [!Equals [!Ref ApiCertificateArn, '']]
+  HasCustomAuthDomain: !And
+    - !Not [!Equals [!Ref AuthDomainName, '']]
+    - !Not [!Equals [!Ref AuthCertificateArn, '']]
+  HasPrefixAuthDomain: !Not
+    - !And
+      - !Not [!Equals [!Ref AuthDomainName, '']]
+      - !Not [!Equals [!Ref AuthCertificateArn, '']]
+  HasGoogleIdentityProvider: !And
+    - !Not [!Equals [!Ref GoogleClientId, '']]
+    - !Not [!Equals [!Ref GoogleClientSecretArn, '']]
 
 Resources:
   DataTable:
@@ -104,13 +130,44 @@ Resources:
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
+    Condition: HasPrefixAuthDomain
     Properties:
       Domain: !Sub ${ProjectName}-${Environment}-${AWS::AccountId}
       UserPoolId: !Ref UserPool
 
+  CustomUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Condition: HasCustomAuthDomain
+    Properties:
+      Domain: !Ref AuthDomainName
+      UserPoolId: !Ref UserPool
+      CustomDomainConfig:
+        CertificateArn: !Ref AuthCertificateArn
+
+  GoogleIdentityProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Condition: HasGoogleIdentityProvider
+    Properties:
+      UserPoolId: !Ref UserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        authorize_scopes: openid profile email
+        client_id: !Ref GoogleClientId
+        client_secret: !Sub '{{resolve:secretsmanager:${GoogleClientSecretArn}:SecretString:client_secret}}'
+      AttributeMapping:
+        email: email
+        email_verified: email_verified
+        name: name
+        given_name: given_name
+        family_name: family_name
+        picture: picture
+
   UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
-    DependsOn: ResourceServer
+    DependsOn:
+      - ResourceServer
+      - GoogleIdentityProvider
     Properties:
       ClientName: !Sub ${ProjectName}-${Environment}-web
       UserPoolId: !Ref UserPool
@@ -138,7 +195,10 @@ Resources:
         - !Sub ${WebUrl}/api/auth/callback
       LogoutURLs:
         - !Ref WebUrl
-      SupportedIdentityProviders: [COGNITO]
+      SupportedIdentityProviders: !If
+        - HasGoogleIdentityProvider
+        - [COGNITO, Google]
+        - [COGNITO]
 
   AlexaUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -363,7 +423,13 @@ Outputs:
     Condition: HasAlexaRedirect
     Value: !Ref AlexaUserPoolClient
   CognitoOAuthBaseUrl:
-    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+    Value: !If
+      - HasCustomAuthDomain
+      - !Sub https://${AuthDomainName}
+      - !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+  CognitoCustomDomainDnsTarget:
+    Condition: HasCustomAuthDomain
+    Value: !GetAtt CustomUserPoolDomain.CloudFrontDistribution
   CognitoIssuer:
     Value: !Sub https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${UserPool}
   TableName:

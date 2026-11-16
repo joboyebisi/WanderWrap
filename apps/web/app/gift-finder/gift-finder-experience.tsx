@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
+import { LANDING_GIFT_PROMPT_KEY } from '../landing-gift-composer';
 
 type Offer = {
   id?: string; title: string; url?: string; imageUrl?: string; imageAlt?: string;
@@ -34,12 +35,23 @@ export default function GiftFinderExperience() {
   const [email, setEmail] = useState('');
   const [serviceConsent, setServiceConsent] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [leadInterest, setLeadInterest] = useState<'full_service_launch' | 'concierge_completion'>('full_service_launch');
   const [leadBusy, setLeadBusy] = useState(false);
   const [leadResult, setLeadResult] = useState<{ message: string; onboardingAvailable: boolean; onboardingUrl?: string } | null>(null);
   const sessionRef = useRef('');
+  const landingPromptConsumedRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const leadRef = useRef<HTMLElement>(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages, busy]);
+  useEffect(() => {
+    if (landingPromptConsumedRef.current) return;
+    landingPromptConsumedRef.current = true;
+    const firstPrompt = window.sessionStorage.getItem(LANDING_GIFT_PROMPT_KEY);
+    if (!firstPrompt) return;
+    window.sessionStorage.removeItem(LANDING_GIFT_PROMPT_KEY);
+    void sendMessage(firstPrompt);
+  }, []);
   useEffect(() => {
     if (!departure) return;
     const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setDeparture(null); };
@@ -77,7 +89,7 @@ export default function GiftFinderExperience() {
     try {
       const response = await fetch('/api/gift-finder/lead', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, serviceConsent, marketingConsent, valueReceived: products.length > 0, recommendationCount: products.length })
+        body: JSON.stringify({ email, serviceConsent, marketingConsent, interest: leadInterest, valueReceived: products.length > 0, recommendationCount: products.length })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'We could not save your email preference.');
@@ -88,7 +100,7 @@ export default function GiftFinderExperience() {
 
   function reset() {
     sessionRef.current = ''; setMessages([{ id: 'welcome', role: 'assistant', text: 'Tell me who you’re shopping for and what is happening. Share it naturally—I’ll ask only what I need to build the Gift Brief.' }]);
-    setDraft(''); setConversationId(undefined); setTurnNumber(0); setSuggestions([]); setProducts([]); setObservedAt(''); setDisclosure(''); setError(''); setLeadResult(null); setEmail(''); setServiceConsent(false); setMarketingConsent(false);
+    setDraft(''); setConversationId(undefined); setTurnNumber(0); setSuggestions([]); setProducts([]); setObservedAt(''); setDisclosure(''); setError(''); setLeadResult(null); setEmail(''); setServiceConsent(false); setMarketingConsent(false); setLeadInterest('full_service_launch');
   }
 
   return <section className="agenticFinder">
@@ -123,19 +135,21 @@ export default function GiftFinderExperience() {
         <p className="handoffDisclosure">{disclosure} Nothing has been ordered.</p>
         <div className="resultFeedback"><span>Want me to refine these?</span>{['More personal', 'Less expensive', 'More unusual', 'Avoid physical clutter'].map(value => <button type="button" onClick={() => sendMessage(value)} key={value}>{value}</button>)}</div>
 
-        <section className="leadCapture">
-          {!leadResult ? <><div><p className="routeKicker">KEEP YOUR SHORTLIST</p><h3>We’ve done the useful part first.</h3><p>Leave your email and we’ll keep you connected to this Gift Finder journey and invite you to complete your WanderWrap account.</p></div>
-            <form onSubmit={submitLead}><label>Email address<input type="email" value={email} onChange={event => setEmail(event.target.value)} required autoComplete="email" placeholder="you@example.com" /></label>
-              <label className="leadConsent"><input type="checkbox" checked={serviceConsent} onChange={event => setServiceConsent(event.target.checked)} required /><span>Email me about this shortlist and account onboarding.</span></label>
+        <section className="leadCapture" ref={leadRef}>
+          {!leadResult ? <><div><p className="routeKicker">CHOOSE WHAT HAPPENS NEXT</p><h3>Shop now—or let us carry more of the work.</h3><p>Today, product links take you to the shopping site to check out directly. You can also join the full WanderWrap launch, or ask about a limited concierge pilot where our team helps complete the journey with you.</p></div>
+            <form onSubmit={submitLead}>
+              <fieldset className="leadChoices"><legend>Your preferred next step</legend><label className={leadInterest === 'full_service_launch' ? 'selected' : ''}><input type="radio" name="lead-interest" checked={leadInterest === 'full_service_launch'} onChange={() => setLeadInterest('full_service_launch')} /><span><strong>Join the full-service launch</strong><small>Be first to try one WanderWrap journey for curation, approved purchasing and delivery coordination. Where partner pricing allows, we’ll surface better-value options.</small></span></label><label className={leadInterest === 'concierge_completion' ? 'selected' : ''}><input type="radio" name="lead-interest" checked={leadInterest === 'concierge_completion'} onChange={() => setLeadInterest('concierge_completion')} /><span><strong>Ask us to help complete this gift</strong><small>Register interest in our limited concierge pilot. We’ll contact you to confirm whether we can support this gift before anything moves forward.</small></span></label></fieldset>
+              <label>Email address<input type="email" value={email} onChange={event => setEmail(event.target.value)} required autoComplete="email" placeholder="you@example.com" /></label>
+              <label className="leadConsent"><input type="checkbox" checked={serviceConsent} onChange={event => setServiceConsent(event.target.checked)} required /><span>Email me about the option I selected and my WanderWrap account.</span></label>
               <label className="leadConsent optional"><input type="checkbox" checked={marketingConsent} onChange={event => setMarketingConsent(event.target.checked)} /><span>Also send occasional WanderWrap product news. Optional.</span></label>
-              <button type="submit" disabled={leadBusy}>{leadBusy ? 'Saving…' : 'Save my place →'}</button>
-            </form></> : <div className="leadSuccess"><span>✓</span><div><h3>You’re on the list.</h3><p>{leadResult.message}</p>{leadResult.onboardingAvailable && leadResult.onboardingUrl && <a href={leadResult.onboardingUrl}>Create my WanderWrap account →</a>}</div></div>}
+              <button type="submit" disabled={leadBusy}>{leadBusy ? 'Saving…' : leadInterest === 'concierge_completion' ? 'Request concierge follow-up →' : 'Join launch early access →'}</button>
+            </form></> : <div className="leadSuccess"><span>✓</span><div><h3>We’ve saved your preference.</h3><p>{leadResult.message}</p>{leadResult.onboardingAvailable && leadResult.onboardingUrl && <a href={leadResult.onboardingUrl}>Create my WanderWrap account →</a>}</div></div>}
         </section>
       </section>}
       {error && <div className="chatError" role="alert">{error}</div>}
     </div>
 
-    {departure && <div className="retailerModal" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setDeparture(null); }}><section role="dialog" aria-modal="true" aria-labelledby="retailer-title"><button className="retailerClose" type="button" aria-label="Close retailer handoff" onClick={() => setDeparture(null)} autoFocus>×</button><p className="routeKicker">YOUR RETAILER HANDOFF</p><h2 id="retailer-title">Continue with {departure.merchant}?</h2><p>WanderWrap has helped you understand the brief and research current options. For now, you complete the purchase with the retailer.</p><div className="retailerNotice"><strong>No order has been placed.</strong><span>{departure.merchant} confirms the final price, availability, delivery, returns and payment for “{departure.title}”.</span></div><div className="retailerActions"><button type="button" onClick={() => setDeparture(null)}>Stay and compare</button><a href={departure.url} target="_blank" rel="noopener noreferrer">Continue to retailer ↗</a></div></section></div>}
+    {departure && <div className="retailerModal" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setDeparture(null); }}><section role="dialog" aria-modal="true" aria-labelledby="retailer-title"><button className="retailerClose" type="button" aria-label="Close retailer handoff" onClick={() => setDeparture(null)} autoFocus>×</button><p className="routeKicker">YOUR SHOPPING-SITE HANDOFF</p><h2 id="retailer-title">Continue with {departure.merchant}?</h2><p>For now, we take you to the shopping site to complete checkout. At the full WanderWrap launch, you’ll be able to keep approved purchasing and delivery coordination in one place, with better-value partner options where available.</p><div className="retailerNotice"><strong>No order has been placed.</strong><span>{departure.merchant} confirms the final price, availability, delivery, returns and payment for “{departure.title}”.</span></div><div className="retailerActions"><button type="button" onClick={() => { setLeadInterest('concierge_completion'); setDeparture(null); window.setTimeout(() => leadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0); }}>Ask WanderWrap to help</button><button type="button" onClick={() => setDeparture(null)}>Stay and compare</button><a href={departure.url} target="_blank" rel="noopener noreferrer">Continue to shopping site ↗</a></div></section></div>}
   </section>;
 }
 

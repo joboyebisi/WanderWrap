@@ -1,0 +1,27 @@
+[
+  { "ParameterKey": "ProjectName", "UsePreviousValue": true },
+  { "ParameterKey": "Environment", "UsePreviousValue": true },
+  { "ParameterKey": "ArtifactBucket", "UsePreviousValue": true },
+  { "ParameterKey": "ArtifactKey", "UsePreviousValue": true },
+  { "ParameterKey": "WebUrl", "UsePreviousValue": true },
+  { "ParameterKey": "AllowedOrigins", "UsePreviousValue": true },
+  { "ParameterKey": "AlexaRedirectUris", "UsePreviousValue": true },
+  { "ParameterKey": "ApiDomainName", "UsePreviousValue": true },
+  { "ParameterKey": "ApiCertificateArn", "UsePreviousValue": true },
+  {
+    "ParameterKey": "AuthDomainName",
+    "ParameterValue": "auth.wanderwrap.co.uk"
+  },
+  {
+    "ParameterKey": "AuthCertificateArn",
+    "ParameterValue": "arn:aws:acm:us-east-1:695912022574:certificate/38e29157-1c79-490b-87dc-c33bbeb6f347"
+  },
+  {
+    "ParameterKey": "GoogleClientId",
+    "ParameterValue": "145765774211-anbnttc324pcl7rg4suo865ekckt3f7f.apps.googleusercontent.com"
+  },
+  {
+    "ParameterKey": "GoogleClientSecretArn",
+    "ParameterValue": "arn:aws:secretsmanager:eu-west-2:695912022574:secret:wanderwrap/production/google-oauth-SOaVWF"
+  }
+]

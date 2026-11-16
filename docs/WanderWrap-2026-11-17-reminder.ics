@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//WanderWrap//Launch Operations Reminder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:wanderwrap-launch-operations-20261117@wanderwrap.co.uk
+DTSTAMP:20261115T120000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:WanderWrap launch operations and accelerator deadline
+DESCRIPTION:Set up and test privacy@\, support@\, hello@\, teams@\, security@\, legal@\, billing@\, notifications@ and founders@wanderwrap.co.uk. Submit Goody and Snappy API enquiries. Submit the late YC Winter 2027 application. Complete Techstars ahead of the 18 November final deadline. Start non-root AWS access and auth.wanderwrap.co.uk certificate validation. See docs/LAUNCH_CONTROL.md.
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:WanderWrap launch deadline is tomorrow
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT2H
+DESCRIPTION:WanderWrap launch operations deadline today
+END:VALARM
+END:VEVENT
+END:VCALENDAR
