@@ -17,9 +17,11 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 | `WANDERWRAP_WEB_CLIENT_ID` | `5c521h6hf7pmkuiug6s15jnvhk` |
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
 | `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
-| `NEXT_PUBLIC_WANDERWRAP_GOOGLE_AUTH_ENABLED` | `false` until Google sign-in, cancellation, logout and account-collision recovery pass on a real browser/device |
+| `NEXT_PUBLIC_WANDERWRAP_GOOGLE_AUTH_ENABLED` | `true` during the controlled Production identity test window; restore `false` immediately if any identity gate fails |
 
 Before changing the Google flag to `true`, deploy the Cognito pre-sign-up trigger in `infrastructure/template.yaml`. Verify that a Google identity whose verified email already belongs to a user-pool account returns to the email sign-in recovery message without creating or linking another profile. Use a short controlled Production test window for first-time Google sign-in, cancellation, logout, repeat sign-in and existing-email collision. If any check fails, restore the flag to `false` and redeploy immediately.
+
+Controlled-window evidence on 16 November 2026: CloudFormation change set `wanderwrap-google-auth-1aea149` deployed the pre-sign-up guard without resource replacements or deletions; the trigger is attached and active. A synthetic verified-new-user event returned `200` without creating an account. Vercel Production has the Google flag enabled, the public sign-in page displays `Continue with Google`, and the provider route reaches Google's real account chooser through Cognito. Abandoning the chooser returns safely to WanderWrap. The user pool had no users at that checkpoint, so the first account creation, logout, repeat login and real existing-email collision/recovery evidence remain mandatory before declaring the complete identity lifecycle proven.
 
 These values identify public endpoints/clients; they are not credentials. Do not add AWS keys, Cognito passwords or PayPal secrets to the Vercel project.
 

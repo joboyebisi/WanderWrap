@@ -40,6 +40,8 @@ In Cognito, add Google as an identity provider, map `email`, `email_verified`, `
 
 The callback validates returned state and the PKCE verifier before accepting either a code or a provider error. Cancellation is a normal `cancelled` outcome: transient cookies are cleared and the sign-in page explains that nothing changed. The Cognito `PreSignUp_ExternalProvider` trigger permits a first-time Google identity only when Google supplies a verified email and no user-pool profile already has that email. A collision fails with `WANDERWRAP_ACCOUNT_EXISTS_USE_EMAIL` and returns the shopper to email sign-in; the trigger never calls `AdminLinkProviderForUser`. A future **Connect Google** flow must start from an authenticated existing session and deliberately link the exact Google subject after reauthentication.
 
+Deployment evidence on 16 November 2026: the trigger, its least-privilege `ListUsers` role, invocation permission and 30-day log group were deployed through reviewed change set `wanderwrap-google-auth-1aea149`. Cognito reports the trigger ARN on the production user pool, Lambda reports `Active`/`Successful`, and a content-free synthetic verified-new-user probe returned `200`. The live web route reaches Google's account chooser. The pool contained no users, so a real collision could not yet be produced; first creation, logout, repeat sign-in and existing-email recovery remain release evidence, not assumptions.
+
 Google sign-in is authentication only. Google Calendar and Contacts are separate, just-in-time connections with separate consent, scopes and revoke controls.
 
 ## 3. Facebook sign-in branding
