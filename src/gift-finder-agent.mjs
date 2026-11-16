@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { AgentOrchestrator, AgentRegistry, createAgentProposal } from './agent-orchestrator.mjs';
 import { channel3Capability, runChannel3GiftFinderTurn } from './channel3.mjs';
+import { advanceGiftBrief, normalizeGiftBrief } from './gift-brief.mjs';
 
 export const GIFT_FINDER_TENANT = 'public-gift-finder';
 export const GIFT_FINDER_AGENT = 'gift-finder-specialist';
@@ -20,12 +21,19 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
         conversationId: request.payload.conversationId || undefined,
         userId: attributionId(request.actorId)
       });
+      const briefState = advanceGiftBrief(request.payload.brief, request.payload.message, request.payload.turnNumber);
+      const ready = briefState.readyToReveal && Boolean(turn.products?.length);
       return createAgentProposal(request, {
-        proposedAction: turn.products?.length ? 'present-current-gifts' : 'ask-gift-question',
+        proposedAction: ready ? 'prepare-recommendation-reveal' : 'ask-gift-question',
         arguments: {
           ...turn,
-          stage: turn.products?.length ? 'recommendations_ready' : 'building_gift_brief',
-          canCaptureLead: Boolean(turn.products?.length)
+          reply: ready ? 'Lovely — I have enough to make this feel considered. I’ve prepared a shortlist and kept the reasoning tied to your Gift Brief. ✨' : briefState.nextQuestion,
+          suggestions: ready ? ['Show me the shortlist'] : turn.suggestions,
+          brief: briefState.brief,
+          briefProgress: briefState.score,
+          missingBriefFields: briefState.missing,
+          stage: ready ? 'recommendations_ready' : 'building_gift_brief',
+          revealReady: ready
         },
         evidence: ['giver-supplied-conversation'],
         provider: { id: turn.provider || 'channel3-conversations', kind: 'catalogue-conversation' },
@@ -35,8 +43,8 @@ export function createGiftFinderHarness({ conversationProvider = runChannel3Gift
   });
   const orchestrator = new AgentOrchestrator({ registry });
   return Object.freeze({
-    async turn({ sessionId, message, conversationId, turnNumber, requestId = randomUUID() } = {}) {
-      const input = validateTurn({ sessionId, message, conversationId, turnNumber });
+    async turn({ sessionId, message, conversationId, turnNumber, brief, requestId = randomUUID() } = {}) {
+      const input = validateTurn({ sessionId, message, conversationId, turnNumber, brief });
       const result = await orchestrator.execute({
         requestId,
         correlationId: input.conversationId || requestId,
@@ -66,7 +74,7 @@ export function giftFinderCapability(env = process.env) {
     : { status: 'configuration_required', reason: channel3.reason };
 }
 
-function validateTurn({ sessionId, message, conversationId, turnNumber }) {
+function validateTurn({ sessionId, message, conversationId, turnNumber, brief }) {
   const safeSession = String(sessionId || '').trim();
   const safeMessage = String(message || '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!/^[a-zA-Z0-9_-]{16,80}$/.test(safeSession)) throw new TypeError('A valid Gift Finder session is required');
@@ -74,7 +82,7 @@ function validateTurn({ sessionId, message, conversationId, turnNumber }) {
   if (conversationId && !/^[a-zA-Z0-9_-]{3,160}$/.test(String(conversationId))) throw new TypeError('Conversation reference is invalid');
   const safeTurn = Number(turnNumber);
   if (!Number.isInteger(safeTurn) || safeTurn < 1 || safeTurn > 16) throw new TypeError('Gift Finder supports up to 16 turns per session');
-  return { sessionId: safeSession, message: safeMessage, conversationId: conversationId ? String(conversationId) : null, turnNumber: safeTurn };
+  return { sessionId: safeSession, message: safeMessage, conversationId: conversationId ? String(conversationId) : null, turnNumber: safeTurn, brief: normalizeGiftBrief(brief) };
 }
 
 function attributionId(sessionId) {

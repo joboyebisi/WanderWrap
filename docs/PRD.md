@@ -268,6 +268,46 @@ This is the non-invasive acquisition loop: **learn about yourself → receive us
 - Bulk campaigns, exception queues, receipts and audit export.
 - Branded claim experiences without weakening recipient consent.
 
+## 6A. Consumer agentic shopping journey
+
+### Product promise
+
+The Gift Finder is a guided shopping workspace, not a catalogue embedded in a chatbot. A specialist shopper called **Wren** turns natural conversation into an editable, explainable Gift Brief, researches current products through the configured catalogue capability, and reveals a separate comparison surface only when the brief is useful and the shopper has an account. Wren is warm and concise, uses light iconography where it improves scanning, asks one useful question at a time and never pretends to know a recipient beyond evidence the giver supplied.
+
+### Release journey and route contract
+
+1. The landing-page composer accepts the shopper's first natural-language message, keeps recipient context out of URLs and opens `/gift-finder` as a guest.
+2. `/gift-finder` carries the provider conversation ID and a bounded structured brief containing recipient/relationship, occasion, budget, timing, confirmed preference clues and constraints. The rail is editable by conversation and shows what is known or missing.
+3. The deterministic harness requires recipient, occasion, budget and at least one preference or constraint, across at least two turns, before a reveal can become ready. Provider product tool output may be held as research data but is never rendered below the transcript.
+4. When a useful shortlist is ready, returning authenticated shoppers continue to `/gift-finder/recommendations`. A signed-out first-time shopper continues to `/gift-finder/onboarding`, where WanderWrap explains the immediate value—keep the brief, return without restarting and build a shortlist—before offering branded Google identity or email authentication.
+5. OAuth uses Authorization Code with PKCE, state validation, HttpOnly cookies and an allowlisted same-origin return path. The callback returns the shopper to the pending shortlist. Social identity provides identity claims only; it never grants contacts, calendars, friends, birthdays, messages or feeds. No accounts are silently merged by matching email.
+6. `/gift-finder/recommendations` is an ecommerce-style comparison workspace. Cards include current merchant, image, price/availability observation, an evidence-bounded “why it fits” explanation, save control and an explicit shopping-site handoff. Price, stock, delivery, returns and checkout remain retailer-authoritative.
+7. Before an outbound click, a modal says that no order has been placed and makes the retailer boundary explicit. Full-service launch copy may promise coordinated approved purchasing and delivery only as a future capability; savings are described as available only where partner terms permit, never guaranteed.
+8. The right-side account menu establishes the information architecture for Gift Briefs, saved items, people/contacts, occasions, connections, payments, settings and privacy. A surface that lacks durable storage, verified provider scopes or passed release gates is visibly labelled `Preview`, `Coming next` or `Not enabled`.
+
+### First-release storage and account boundary
+
+The pending reveal is bounded to same-tab session storage so recipient context is not placed in a URL, analytics parameter or OAuth state. The initial browser-saved Gift Brief preview is not described as cloud-synced. Production account persistence requires an authenticated, user-scoped data API, encryption at rest, export/deletion, retention policy, cross-user authorization tests and audit evidence before the UI may claim cross-device saving. Product offer URLs and observations are treated as short-lived; returning shoppers refresh stale results rather than assuming availability.
+
+Google/Facebook sign-in and Google/Facebook data connections remain distinct. Facebook connection cards must not imply access to friend birthdays or feeds; any future contact, calendar or social import requires an independently reviewed scope, a purpose-specific consent receipt, provenance, correction/deletion and provider-revocation handling.
+
+### Conversation and recommendation harness
+
+- Input is capped at 1,600 characters and 16 turns; control characters are removed and guest attribution is pseudonymous.
+- The provider conversation ID is carried across turns. The local brief normalizer is deterministic and versionable; it extracts only gift-relevant explicit statements and exposes missing fields rather than inferring sensitive traits.
+- Wren asks the fewest missing questions needed for a useful brief, one at a time. The interface offers two to four relevant answer suggestions while accepting free text and interruptions.
+- Product tool parts are normalized and validated server-side. The conversation response and catalogue result are separate UI objects; raw tool payloads are never printed into chat.
+- Explanation text may reference only confirmed brief fields, current normalized product attributes and recorded evidence. It must abstain when a fit cannot be supported.
+- No conversation turn may purchase, reserve, contact a recipient, store a payment method or claim delivery.
+
+### Evaluation and release gates
+
+Automated and pre-release evaluations cover: brief-field extraction and carry-forward; vague-input non-reveal; minimum-turn and completeness gate; one-question response discipline; interruption/correction handling; sensitive-trait abstention; prompt-injection resistance; product/result separation; unauthenticated reveal redirect; OAuth return-path validation; cross-user data isolation; stale-offer handling; explanation grounding; retailer-modal keyboard focus and Escape behaviour; responsive layout; no-order language; and provider failure recovery. Funnel measures are guest conversation started → useful brief → account gate → successful authentication → shortlist viewed → product saved → retailer handoff. These measures must exclude recipient free text and raw conversation content.
+
+### Research basis
+
+The journey deliberately delays account creation until WanderWrap has produced value, following Baymard's delayed-account-creation findings, and explains concrete account benefits rather than forcing registration at entry: <https://baymard.com/research-articles/delayed-account-creation>. Recommendation cards expose comparison-critical attributes in line with Baymard product-list research: <https://baymard.com/research-articles/product-listing-information>. Wren's guided but interruptible flow follows Microsoft's conversational guidance to ask the fewest questions, one concise question per turn and preserve context: <https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-ui-widgets-guidelines> and <https://learn.microsoft.com/en-us/azure/bot-service/bot-builder-conversations>. The first-use capability explanation, suggested prompts and scannable answers follow Nielsen Norman Group guidance: <https://www.nngroup.com/articles/ai-chatbots-design-guidelines/> and <https://www.nngroup.com/articles/less-chat-more-answer/>. Modal focus, inert-background and Escape requirements follow the WAI-ARIA Authoring Practices dialog pattern: <https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/>. Identity/data-connection separation and revocation follow Google identity account-linking guidance: <https://developers.google.com/identity/account-linking>.
+
 ## 7. Explainable recommendation system
 
 The consented preference-intelligence pipeline is productized as **WanderSignal**. Its interactive review, hosted inference boundary, Channel3 discovery role, evaluation programme and release sequence are specified in [`WANDERSIGNAL_PRD.md`](WANDERSIGNAL_PRD.md). WanderSignal extracts reviewable gift-relevant clues; it is not a personality verdict and it cannot authorize evidence, spend or provider actions.

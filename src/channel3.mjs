@@ -63,7 +63,7 @@ export async function runChannel3GiftFinderTurn({
     config: { country: 'GB', currency: 'GBP', language: 'en' },
     ...(!conversationId ? { context: {
       application_context: 'WanderWrap Gift Finder: a calm, consent-first gifting assistant for UK shoppers. Ask one concise, high-value question at a time. Understand the recipient, relationship, occasion, budget, timing, interests, dislikes and practical constraints before searching. Use only information the giver supplies. When there is enough context, search for meaningfully different current gifts. Never imply that WanderWrap has ordered, paid for or guaranteed delivery of anything.',
-      user_context: 'This is a no-account gifting conversation. The giver makes the final choice and completes any purchase with the retailer.'
+      user_context: 'The shopper may begin as a guest. Build an editable Gift Brief before recommendation reveal. The giver makes the final choice and currently completes any purchase with the retailer.'
     } } : {})
   });
   const parts = Array.isArray(result.message?.parts) ? result.message.parts : [];

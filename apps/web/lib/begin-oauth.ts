@@ -1,8 +1,8 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
-import { oauthConfig, pkceChallenge, privateCookie, randomUrlSafe, STATE_COOKIE, VERIFIER_COOKIE } from './oauth';
+import { oauthConfig, pkceChallenge, privateCookie, randomUrlSafe, RETURN_COOKIE, STATE_COOKIE, VERIFIER_COOKIE } from './oauth';
 
-export function beginOAuth(mode: 'login' | 'signup') {
+export function beginOAuth(mode: 'login' | 'signup', options: { returnTo?: string; provider?: string } = {}) {
   const config = oauthConfig();
   const state = randomUrlSafe();
   const verifier = randomUrlSafe(64);
@@ -15,9 +15,16 @@ export function beginOAuth(mode: 'login' | 'signup') {
   authorization.searchParams.set('code_challenge_method', 'S256');
   authorization.searchParams.set('code_challenge', pkceChallenge(verifier));
   authorization.searchParams.set('resource', config.resource);
+  if (options.provider === 'Google') authorization.searchParams.set('identity_provider', 'Google');
 
   const response = NextResponse.redirect(authorization);
   response.cookies.set(STATE_COOKIE, state, privateCookie(600));
   response.cookies.set(VERIFIER_COOKIE, verifier, privateCookie(600));
+  response.cookies.set(RETURN_COOKIE, safeReturnPath(options.returnTo), privateCookie(600));
   return response;
+}
+
+function safeReturnPath(value?: string) {
+  const path = String(value || '/dashboard');
+  return path.startsWith('/') && !path.startsWith('//') && !path.includes('\\') ? path.slice(0, 300) : '/dashboard';
 }

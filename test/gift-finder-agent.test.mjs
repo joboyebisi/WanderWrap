@@ -9,12 +9,12 @@ test('Gift Finder specialist carries conversation context through the bounded ha
     calls.push(input);
     return { provider: 'channel3-conversations', conversationId: 'conv_1', turnId: `turn_${calls.length}`, reply: calls.length === 1 ? 'What does she enjoy?' : 'I found three options.', suggestions: [], products: calls.length === 1 ? [] : [{ id: 'p1', title: 'Tea set', url: 'https://merchant.example/tea' }], observedAt: '2026-11-15T10:00:00Z' };
   } });
-  const first = await harness.turn({ sessionId: 'session_1234567890', message: 'A gift for my mum', turnNumber: 1, requestId: 'request-1' });
-  const second = await harness.turn({ sessionId: 'session_1234567890', message: 'She loves tea', conversationId: first.conversationId, turnNumber: 2, requestId: 'request-2' });
+  const first = await harness.turn({ sessionId: 'session_1234567890', message: 'A birthday gift for my mum', turnNumber: 1, requestId: 'request-1' });
+  const second = await harness.turn({ sessionId: 'session_1234567890', message: 'She loves tea and my budget is £60', conversationId: first.conversationId, turnNumber: 2, brief: first.brief, requestId: 'request-2' });
   assert.equal(calls[1].conversationId, 'conv_1');
   assert.equal(first.stage, 'building_gift_brief');
   assert.equal(second.stage, 'recommendations_ready');
-  assert.equal(second.canCaptureLead, true);
+  assert.equal(second.revealReady, true);
   assert.ok(harness.getAuditLog().some(entry => entry.event === 'execution.succeeded'));
 });
 

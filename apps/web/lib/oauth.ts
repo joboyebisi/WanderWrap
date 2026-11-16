@@ -4,6 +4,7 @@ export const ACCESS_COOKIE = 'ww_access';
 export const REFRESH_COOKIE = 'ww_refresh';
 export const STATE_COOKIE = 'ww_oauth_state';
 export const VERIFIER_COOKIE = 'ww_pkce_verifier';
+export const RETURN_COOKIE = 'ww_oauth_return';
 
 export function oauthConfig() {
   const baseUrl = required('WANDERWRAP_OAUTH_BASE_URL').replace(/\/$/, '');
