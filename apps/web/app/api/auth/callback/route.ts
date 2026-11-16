@@ -12,7 +12,15 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
   if (!code || !state || !expectedState || state !== expectedState || !verifier) {
-    return NextResponse.redirect(new URL('/?auth=invalid', request.url));
+    console.warn(JSON.stringify({
+      event: 'auth_callback_invalid',
+      hasCode: Boolean(code),
+      hasReturnedState: Boolean(state),
+      hasExpectedState: Boolean(expectedState),
+      stateMatched: Boolean(state && expectedState && state === expectedState),
+      hasVerifier: Boolean(verifier)
+    }));
+    return failedCallback(request, 'invalid');
   }
 
   try {
@@ -30,18 +38,35 @@ export async function GET(request: NextRequest) {
       }),
       cache: 'no-store'
     });
-    if (!tokenResponse.ok) throw new Error('Token exchange failed');
+    if (!tokenResponse.ok) {
+      console.error(JSON.stringify({ event: 'auth_token_exchange_failed', status: tokenResponse.status }));
+      return failedCallback(request, 'exchange');
+    }
     const tokens = await tokenResponse.json() as { access_token: string; refresh_token?: string; expires_in?: number };
+    if (!tokens.access_token) {
+      console.error(JSON.stringify({ event: 'auth_token_response_invalid' }));
+      return failedCallback(request, 'exchange');
+    }
     const response = NextResponse.redirect(new URL(returnTo, config.webUrl));
     response.cookies.set(ACCESS_COOKIE, tokens.access_token, privateCookie(tokens.expires_in || 3600));
     if (tokens.refresh_token) response.cookies.set(REFRESH_COOKIE, tokens.refresh_token, privateCookie(30 * 86400));
     response.cookies.delete(STATE_COOKIE);
     response.cookies.delete(VERIFIER_COOKIE);
     response.cookies.delete(RETURN_COOKIE);
+    console.info(JSON.stringify({ event: 'auth_callback_succeeded', hasRefreshToken: Boolean(tokens.refresh_token) }));
     return response;
-  } catch {
-    return NextResponse.redirect(new URL('/?auth=failed', request.url));
+  } catch (error) {
+    console.error(JSON.stringify({ event: 'auth_callback_failed', errorType: error instanceof Error ? error.name : 'UnknownError' }));
+    return failedCallback(request, 'unavailable');
   }
+}
+
+function failedCallback(request: NextRequest, reason: 'invalid' | 'exchange' | 'unavailable') {
+  const response = NextResponse.redirect(new URL(`/sign-in?error=${reason}`, request.url));
+  response.cookies.delete(STATE_COOKIE);
+  response.cookies.delete(VERIFIER_COOKIE);
+  response.cookies.delete(RETURN_COOKIE);
+  return response;
 }
 
 function safeReturnPath(value?: string) {

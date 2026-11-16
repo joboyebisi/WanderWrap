@@ -2,7 +2,7 @@
 
 **Status:** required before inviting public account sign-ups
 **Owner:** identity, privacy and platform operations
-**Last reviewed:** 15 November 2026
+**Last reviewed:** 16 November 2026
 
 This is the launch checklist for making sign-in look and behave like WanderWrap while keeping Amazon Cognito as the standards-based identity service behind it. It does not put provider secrets in the repository.
 
@@ -60,6 +60,7 @@ Facebook login never grants access to friends, feeds, birthdays or messages. Any
 - Rate-limit sign-up, recovery, login, lead and enquiry endpoints. Alert on credential stuffing, token replay, unusual country changes and repeated callback failures.
 - Store the minimum user profile. Encrypt DynamoDB, enable point-in-time recovery and keep IAM access tenant-scoped and least-privilege.
 - Never log tokens, passwords, raw recipient prose, pasted evidence, provider payloads or full IP addresses. Hash or truncate identifiers used for abuse controls.
+- The web callback may log only content-free event classes (`auth_callback_invalid`, `auth_token_exchange_failed`, `auth_token_response_invalid`, `auth_callback_failed`, `auth_callback_succeeded`), boolean presence checks, token-endpoint HTTP status and an exception class. Never log the authorization code, state value, PKCE verifier, token response, claims or email. Use these events in Vercel runtime logs unless Cognito authentication-event delivery is explicitly enabled and cost-reviewed for the current user-pool tier.
 - Give users an account security page with active sessions, connected sources, export, deletion and revoke controls before expanding social/contact integrations.
 - Run cross-user and cross-tenant authorization tests on every saved Gift Brief, person, conversation and recommendation endpoint.
 

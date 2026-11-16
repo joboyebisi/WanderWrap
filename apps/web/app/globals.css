@@ -187,3 +187,17 @@ input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible { 
 .accountShell>header{padding:75px 0 45px}.accountShell>header h1,.emptyWishlist h1{margin:10px 0;font:400 clamp(48px,6vw,76px)/.98 var(--serif)}.accountShell>header>p:last-child,.emptyWishlist>p:not(.eyebrow){max-width:700px;color:#627067;line-height:1.65}.accountGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding-bottom:100px}.accountGrid article{padding:28px;border:1px solid var(--line);border-radius:22px;background:#fffdf8}.accountGrid article>span{font-size:28px}.accountGrid h2{margin:20px 0 8px;font:400 28px var(--serif)}.accountGrid p{min-height:66px;color:#657169;font-size:12px;line-height:1.6}.accountGrid a,.accountGrid button{display:inline-flex;padding:10px 13px;border:1px solid var(--line);border-radius:10px;color:#285540;background:#fff;font-size:10px;font-weight:800;text-decoration:none}.emptyWishlist{padding:100px 0;text-align:center}.emptyWishlist>span{font-size:55px}.emptyWishlist>p:not(.eyebrow){margin:15px auto 25px}.emptyWishlist .primary{display:inline-flex}
 @media(max-width:900px){.onboardingGate{grid-template-columns:1fr}.resultsBrief{grid-template-columns:repeat(2,1fr)}.productGallery{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.onboardingGate{width:min(100% - 28px,1080px);padding:40px 0}.onboardingCopy h1{font-size:47px}.resultsHeader{padding-top:45px}.resultsHeader h1{font-size:48px}.resultsBrief,.productGallery,.accountGrid{grid-template-columns:1fr}.resultsBrief>div{border-right:0;border-bottom:1px solid var(--line)}.resultsToolbar{align-items:flex-start;flex-direction:column;gap:10px}.conciergeBanner{grid-template-columns:1fr}.conciergeBanner>a{text-align:center}.accountDrawer{padding:18px}.revealGateLayer{padding:12px;align-items:end}.revealGate{max-height:90vh;padding:26px 21px;border-radius:24px 24px 12px 12px}.revealGate h2{font-size:37px}}
+
+/* Keep the researched shortlist visible while its controls remain natively inert. */
+.resultsAreLocked{filter:saturate(.92)}
+.revealGateLayer{place-items:center end;padding:clamp(18px,4vw,54px);background:rgba(244,239,229,.2);backdrop-filter:blur(1px)}
+.revealGate{width:min(430px,100%);padding:26px;border-radius:22px;background:rgba(255,253,248,.9);box-shadow:0 24px 70px rgba(12,48,40,.22),0 0 0 4px rgba(202,55,113,.07)}
+.revealGateHeading{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.revealGateHeading .agentAvatar{width:42px;height:42px;margin:0;border-radius:13px;font-size:11px}
+.revealGate h2{margin:5px 0 13px;font-size:clamp(29px,3.5vw,38px);line-height:1.02}
+.revealGate>p{margin:0;font-size:12px;line-height:1.55}
+.gateBenefits{margin:17px 0}
+.gateBenefits span{padding:7px 9px;background:rgba(237,242,237,.9)}
+.revealGate>.googleAuthButton,.revealGate>.emailAuthButton{margin-top:9px}
+.revealGate>small{margin-top:10px;font-size:8px;line-height:1.5}
+@media(max-width:650px){.revealGateLayer{padding:10px;place-items:end center;background:rgba(244,239,229,.16)}.revealGate{width:min(390px,100%);max-height:78vh;padding:21px 18px;border-radius:20px 20px 12px 12px;background:rgba(255,253,248,.93)}.revealGate h2{font-size:30px}}

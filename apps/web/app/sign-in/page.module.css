@@ -10,6 +10,8 @@
 .card>p { margin:0; color:#8a4055; font-size:9px; font-weight:800; letter-spacing:.2em; }
 .card h1 { margin:10px 0 0; color:#173f35; font:400 clamp(46px,7vw,64px)/1 'Iowan Old Style','Baskerville',serif; letter-spacing:-.04em; }
 .intro { margin:18px auto 30px; color:#65736c; font-size:13px; line-height:1.65; }
+.authError { display:flex; flex-direction:column; gap:4px; margin:0 0 14px; padding:12px 14px; border:1px solid rgba(157,61,82,.25); border-radius:12px; color:#6f3043; background:#fff3f5; font-size:10px; line-height:1.5; text-align:left; }
+.authError strong { font-size:11px; }
 .google,.email { display:flex; align-items:center; justify-content:center; min-height:50px; margin-top:10px; border-radius:13px; text-decoration:none; font-size:11px; font-weight:750; }
 .google { gap:12px; color:#253b32; border:1px solid #cec9be; background:#fff; }
 .google span { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; color:#fff; background:#315f4d; }
