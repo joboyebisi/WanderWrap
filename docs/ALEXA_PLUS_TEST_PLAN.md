@@ -62,7 +62,7 @@ Configure Alexa account linking with:
 - grant: authorization code;
 - PKCE: `S256`;
 - resource: `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp`;
-- scopes: `wanderwrap/gifts.read wanderwrap/gifts.write` plus the identity scopes Alexa accepts for this integration.
+- scopes: `<MCP resource>/gifts.read <MCP resource>/gifts.write` plus the identity scopes Alexa accepts for this integration.
 
 Acceptance:
 

@@ -41,7 +41,7 @@ test('serves health, simulator, and OAuth protected-resource metadata', async ()
   assert.deepEqual(await metadata.json(), {
     resource: 'https://api.wanderwrap.test/mcp',
     authorization_servers: ['https://auth.wanderwrap.test'],
-    scopes_supported: ['wanderwrap/gifts.read', 'wanderwrap/gifts.write'],
+    scopes_supported: ['https://api.wanderwrap.test/mcp/gifts.read', 'https://api.wanderwrap.test/mcp/gifts.write'],
     bearer_methods_supported: ['header']
   });
 });

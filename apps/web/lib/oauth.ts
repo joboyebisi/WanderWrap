@@ -15,13 +15,14 @@ export function oauthConfig(base: OAuthBase = 'primary') {
   const clientId = required('WANDERWRAP_WEB_CLIENT_ID');
   const webUrl = required('NEXT_PUBLIC_WANDERWRAP_URL').replace(/\/$/, '');
   const resource = process.env.WANDERWRAP_OAUTH_RESOURCE || `${required('WANDERWRAP_CORE_API_URL').replace(/\/$/, '')}/mcp`;
+  const defaultScopes = `openid email ${resource}/gifts.read ${resource}/gifts.write`;
   return {
     baseUrl,
     clientId,
     webUrl,
     resource,
     redirectUri: `${webUrl}/api/auth/callback`,
-    scopes: (process.env.WANDERWRAP_WEB_OAUTH_SCOPES || 'openid email wanderwrap/gifts.read wanderwrap/gifts.write').split(/\s+/).filter(Boolean)
+    scopes: (process.env.WANDERWRAP_WEB_OAUTH_SCOPES || defaultScopes).split(/\s+/).filter(Boolean)
   };
 }
 

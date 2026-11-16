@@ -188,7 +188,7 @@ Resources:
     Type: AWS::Cognito::UserPoolResourceServer
     Properties:
       UserPoolId: !Ref UserPool
-      Identifier: wanderwrap
+      Identifier: !Sub ${HttpApi.ApiEndpoint}/mcp
       Name: WanderWrap API
       Scopes:
         - ScopeName: gifts.read
@@ -262,8 +262,8 @@ Resources:
       AllowedOAuthScopes:
         - openid
         - email
-        - wanderwrap/gifts.read
-        - wanderwrap/gifts.write
+        - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.read
+        - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.write
       CallbackURLs:
         - !Sub ${WebUrl}/api/auth/callback
       LogoutURLs:
@@ -292,8 +292,8 @@ Resources:
       AllowedOAuthFlows: [code]
       AllowedOAuthScopes:
         - openid
-        - wanderwrap/gifts.read
-        - wanderwrap/gifts.write
+        - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.read
+        - !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.write
       CallbackURLs: !Split [',', !Ref AlexaRedirectUris]
       SupportedIdentityProviders: [COGNITO]
 
@@ -361,8 +361,8 @@ Resources:
           WANDERWRAP_CANONICAL_URL: !If [HasCustomApiDomain, !Sub 'https://${ApiDomainName}', !GetAtt HttpApi.ApiEndpoint]
           WANDERWRAP_AUTH_ISSUER: !Sub https://cognito-idp.${AWS::Region}.${AWS::URLSuffix}/${UserPool}
           WANDERWRAP_ALLOWED_ORIGINS: !Join [',', !Ref AllowedOrigins]
-          WANDERWRAP_MCP_READ_SCOPE: wanderwrap/gifts.read
-          WANDERWRAP_MCP_WRITE_SCOPE: wanderwrap/gifts.write
+          WANDERWRAP_MCP_READ_SCOPE: !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.read
+          WANDERWRAP_MCP_WRITE_SCOPE: !Sub ${HttpApi.ApiEndpoint}/mcp/gifts.write
           WANDERWRAP_LEGACY_AUTH_ENABLED: 'false'
           BEDROCK_ENABLED: 'true'
           BEDROCK_REGION: eu-west-2

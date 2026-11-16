@@ -17,7 +17,7 @@ The current canonical public web app is `https://www.wanderwrap.co.uk`. Configur
 | `WANDERWRAP_OAUTH_FALLBACK_BASE_URL` | `https://wanderwrap-signin.auth.eu-west-2.amazoncognito.com` (explicit emergency link only; never automatic failover) |
 | `WANDERWRAP_WEB_CLIENT_ID` | `5c521h6hf7pmkuiug6s15jnvhk` |
 | `WANDERWRAP_OAUTH_RESOURCE` | `https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp` |
-| `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email wanderwrap/gifts.read wanderwrap/gifts.write` |
+| `WANDERWRAP_WEB_OAUTH_SCOPES` | `openid email https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp/gifts.read https://3eaf282enj.execute-api.eu-west-2.amazonaws.com/mcp/gifts.write` |
 | `NEXT_PUBLIC_WANDERWRAP_GOOGLE_AUTH_ENABLED` | `true` during the controlled Production identity test window; restore `false` immediately if any identity gate fails |
 
 Before changing the Google flag to `true`, deploy the Cognito pre-sign-up trigger in `infrastructure/template.yaml`. Verify that a Google identity whose verified email already belongs to a user-pool account returns to the email sign-in recovery message without creating or linking another profile. Use a short controlled Production test window for first-time Google sign-in, cancellation, logout, repeat sign-in and existing-email collision. If any check fails, restore the flag to `false` and redeploy immediately.
